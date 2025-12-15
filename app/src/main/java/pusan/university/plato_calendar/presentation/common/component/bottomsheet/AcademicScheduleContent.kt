@@ -32,9 +32,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.android.gms.ads.AdView
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
-import pusan.university.plato_calendar.presentation.common.component.BannerAd
 import pusan.university.plato_calendar.presentation.common.extension.noRippleClickable
 import pusan.university.plato_calendar.presentation.common.theme.Black
 import pusan.university.plato_calendar.presentation.common.theme.Gray
@@ -46,7 +44,6 @@ import java.util.Locale
 @Composable
 fun AcademicScheduleContent(
     schedule: AcademicScheduleUiModel,
-    adView: AdView,
     onDismissRequest: () -> Unit,
 ) {
     val dateFormatter = DateTimeFormatter.ofPattern("M월 d일 (E)", Locale.KOREAN)
@@ -227,12 +224,5 @@ fun AcademicScheduleContent(
         }
     }
 
-    Spacer(modifier = Modifier.height(24.dp))
-
-    BannerAd(
-        adView = adView,
-        modifier = Modifier.fillMaxWidth(),
-    )
-
-    Spacer(modifier = Modifier.height(24.dp))
+    Spacer(modifier = Modifier.height(12.dp))
 }

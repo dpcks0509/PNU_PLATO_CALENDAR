@@ -44,11 +44,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.android.gms.ads.AdView
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
 import pusan.university.plato_calendar.presentation.calendar.model.PickerTarget
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
-import pusan.university.plato_calendar.presentation.common.component.BannerAd
 import pusan.university.plato_calendar.presentation.common.component.TimePickerDialog
 import pusan.university.plato_calendar.presentation.common.extension.formatTimeWithMidnightSpecialCase
 import pusan.university.plato_calendar.presentation.common.extension.noRippleClickable
@@ -73,7 +71,6 @@ private const val HAS_NO_DESCRIPTION = "설명 없음"
 @Composable
 fun CustomScheduleContent(
     schedule: CustomScheduleUiModel,
-    adView: AdView,
     editSchedule: (CustomSchedule) -> Unit,
     toggleScheduleCompletion: (Long, Boolean) -> Unit,
     onDeleteRequest: () -> Unit,
@@ -403,14 +400,7 @@ fun CustomScheduleContent(
         Spacer(modifier = Modifier.height(12.dp))
     }
 
-    Spacer(modifier = Modifier.height(24.dp))
-
-    BannerAd(
-        adView = adView,
-        modifier = Modifier.fillMaxWidth(),
-    )
-
-    Spacer(modifier = Modifier.height(24.dp))
+    Spacer(modifier = Modifier.height(12.dp))
 
     Box(
         modifier =
@@ -456,7 +446,7 @@ fun CustomScheduleContent(
         )
     }
 
-    Spacer(modifier = Modifier.height(18.dp))
+    Spacer(modifier = Modifier.height(12.dp))
 
     if (showStartDatePicker) {
         val datePickerState =

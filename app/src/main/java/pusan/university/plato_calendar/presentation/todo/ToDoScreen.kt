@@ -16,7 +16,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -27,13 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.android.gms.ads.AdListener
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdSize
-import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.LoadAdError
 import kotlinx.coroutines.launch
-import pusan.university.plato_calendar.BuildConfig
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
@@ -68,31 +61,6 @@ fun ToDoScreen(
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
 
-    val adView =
-        remember {
-            AdView(context).apply {
-                adUnitId = BuildConfig.BANNER_AD_UNIT_ID
-
-                val screenWidthDp = configuration.screenWidthDp
-                val adWidth = screenWidthDp - 24
-
-                val adSize = AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(context, adWidth)
-                setAdSize(adSize)
-
-                adListener =
-                    object : AdListener() {
-                        override fun onAdLoaded() {}
-
-                        override fun onAdFailedToLoad(error: LoadAdError) {}
-
-                        override fun onAdImpression() {}
-
-                        override fun onAdClicked() {}
-                    }
-            }
-        }
-    val adRequest = remember { AdRequest.Builder().build() }
-
     LaunchedEffect(viewModel.sideEffect) {
         viewModel.sideEffect.collect { sideEffect ->
             when (sideEffect) {
@@ -104,7 +72,6 @@ fun ToDoScreen(
     LaunchedEffect(sheetState.currentValue) {
         if (sheetState.currentValue == SheetValue.Hidden) {
             viewModel.setEvent(HideScheduleBottomSheet)
-            adView.loadAd(adRequest)
         }
     }
 
@@ -118,7 +85,6 @@ fun ToDoScreen(
         ScheduleBottomSheet(
             content = state.scheduleBottomSheetContent,
             selectedDate = state.today.toLocalDate(),
-            adView = adView,
             sheetState = sheetState,
             makeSchedule = { Unit },
             editSchedule = { schedule -> viewModel.setEvent(EditCustomSchedule(schedule)) },

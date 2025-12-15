@@ -21,7 +21,6 @@ serialization = "1.6.3"
 retrofit = "2.11.0"
 okhttp = "4.12.0"
 retrofitKotlinxSerialization = "1.0.0"
-admob = "24.6.0"
 firebase-bom = "34.4.0"
 firebase-crashlytics = "3.0.6"
 google-services = "4.4.4"
@@ -57,7 +56,6 @@ retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = 
 retrofit-converter-kotlinx-serialization = { group = "com.jakewharton.retrofit", name = "retrofit2-kotlinx-serialization-converter", version.ref = "retrofitKotlinxSerialization" }
 okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
 okhttp-urlconnection = { group = "com.squareup.okhttp3", name = "okhttp-urlconnection", version.ref = "okhttp" }
-google-admob = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "admob" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom" }
 firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics-ndk" }
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }

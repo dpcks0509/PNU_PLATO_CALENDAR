@@ -20,7 +20,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.google.android.gms.ads.AdView
 import pusan.university.plato_calendar.domain.entity.Schedule.NewSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
 import pusan.university.plato_calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent.AcademicScheduleContent
@@ -36,7 +35,6 @@ import java.time.LocalDate
 fun ScheduleBottomSheet(
     content: ScheduleBottomSheetContent?,
     selectedDate: LocalDate,
-    adView: AdView,
     sheetState: SheetState,
     makeSchedule: (NewSchedule) -> Unit,
     editSchedule: (CustomSchedule) -> Unit,
@@ -84,40 +82,42 @@ fun ScheduleBottomSheet(
                     .verticalScroll(scrollState),
         ) {
             when (content) {
-                is AcademicScheduleContent ->
+                is AcademicScheduleContent -> {
                     AcademicScheduleContent(
                         schedule = content.schedule,
-                        adView = adView,
                         onDismissRequest = onDismissRequest,
                     )
+                }
 
-                is CourseScheduleContent ->
+                is CourseScheduleContent -> {
                     CourseScheduleContent(
                         schedule = content.schedule,
-                        adView = adView,
                         toggleScheduleCompletion = toggleScheduleCompletion,
                         onDismissRequest = onDismissRequest,
                     )
+                }
 
-                is CustomScheduleContent ->
+                is CustomScheduleContent -> {
                     CustomScheduleContent(
                         schedule = content.schedule,
-                        adView = adView,
                         editSchedule = editSchedule,
                         toggleScheduleCompletion = toggleScheduleCompletion,
                         onDeleteRequest = { showDeleteDialog = true },
                         onDismissRequest = onDismissRequest,
                     )
+                }
 
-                is NewScheduleContent ->
+                is NewScheduleContent -> {
                     NewScheduleContent(
-                        adView = adView,
                         selectedDate = selectedDate,
                         makeSchedule = makeSchedule,
                         onDismissRequest = onDismissRequest,
                     )
+                }
 
-                null -> Unit
+                null -> {
+                    Unit
+                }
             }
         }
     }

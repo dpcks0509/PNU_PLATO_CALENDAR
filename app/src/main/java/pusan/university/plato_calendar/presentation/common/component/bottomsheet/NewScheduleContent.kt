@@ -43,10 +43,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.android.gms.ads.AdView
 import pusan.university.plato_calendar.domain.entity.Schedule.NewSchedule
 import pusan.university.plato_calendar.presentation.calendar.model.PickerTarget
-import pusan.university.plato_calendar.presentation.common.component.BannerAd
 import pusan.university.plato_calendar.presentation.common.component.TimePickerDialog
 import pusan.university.plato_calendar.presentation.common.extension.formatTimeWithMidnightSpecialCase
 import pusan.university.plato_calendar.presentation.common.extension.noRippleClickable
@@ -71,7 +69,6 @@ private const val DESCRIPTION = "설명"
 @Composable
 fun NewScheduleContent(
     selectedDate: LocalDate,
-    adView: AdView,
     makeSchedule: (NewSchedule) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
@@ -398,14 +395,7 @@ fun NewScheduleContent(
         }
     }
 
-    Spacer(modifier = Modifier.height(24.dp))
-
-    BannerAd(
-        adView = adView,
-        modifier = Modifier.fillMaxWidth(),
-    )
-
-    Spacer(modifier = Modifier.height(24.dp))
+    Spacer(modifier = Modifier.height(12.dp))
 
     if (showStartDatePicker) {
         val datePickerState =

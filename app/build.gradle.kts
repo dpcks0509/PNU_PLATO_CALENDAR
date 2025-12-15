@@ -43,13 +43,6 @@ android {
 
         buildConfigField("String", "PLATO_BASE_URL", localProperties.getProperty("plato.base.url"))
         buildConfigField("String", "PNU_BASE_URL", localProperties.getProperty("pnu.base.url"))
-        buildConfigField(
-            "String",
-            "ADMOB_APP_ID",
-            "\"${localProperties.getProperty("admob.app.id")}\"",
-        )
-
-        manifestPlaceholders["ADMOB_APP_ID"] = localProperties.getProperty("admob.app.id")
     }
 
     buildTypes {
@@ -123,7 +116,6 @@ dependencies {
     implementation(libs.bundles.network)
     implementation(libs.bundles.coil)
     implementation(libs.androidx.datastore.preferences)
-    implementation(libs.google.admob)
     implementation(libs.bundles.glance)
 
     implementation(platform(libs.firebase.bom))

@@ -15,10 +15,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
@@ -28,13 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.android.gms.ads.AdListener
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdSize
-import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.LoadAdError
 import kotlinx.coroutines.launch
-import pusan.university.plato_calendar.BuildConfig.BANNER_AD_UNIT_ID
 import pusan.university.plato_calendar.presentation.calendar.component.Calendar
 import pusan.university.plato_calendar.presentation.calendar.component.CalendarTopBar
 import pusan.university.plato_calendar.presentation.calendar.component.MAX_MONTH_SIZE
@@ -86,41 +78,20 @@ fun CalendarScreen(
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
 
-    val adView =
-        remember {
-            AdView(context).apply {
-                adUnitId = BANNER_AD_UNIT_ID
-
-                val screenWidthDp = configuration.screenWidthDp
-                val adWidth = screenWidthDp - 24
-
-                val adSize = AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(context, adWidth)
-                setAdSize(adSize)
-
-                adListener =
-                    object : AdListener() {
-                        override fun onAdLoaded() {}
-
-                        override fun onAdFailedToLoad(error: LoadAdError) {}
-
-                        override fun onAdImpression() {}
-
-                        override fun onAdClicked() {}
-                    }
-            }
-        }
-    val adRequest = AdRequest.Builder().build()
-
     LaunchedEffect(viewModel.sideEffect) {
         viewModel.sideEffect.collect { sideEffect ->
             when (sideEffect) {
-                CalendarSideEffect.HideScheduleBottomSheet -> coroutineScope.launch { sheetState.hide() }
-                is CalendarSideEffect.ScrollToPage ->
+                CalendarSideEffect.HideScheduleBottomSheet -> {
+                    coroutineScope.launch { sheetState.hide() }
+                }
+
+                is CalendarSideEffect.ScrollToPage -> {
                     coroutineScope.launch {
                         pagerState.scrollToPage(
                             sideEffect.page,
                         )
                     }
+                }
             }
         }
     }
@@ -131,6 +102,7 @@ fun CalendarScreen(
                 is NotificationEvent.OpenSchedule -> {
                     viewModel.setEvent(ShowScheduleBottomSheetById(event.scheduleId))
                 }
+
                 is NotificationEvent.OpenNewSchedule -> {
                     viewModel.setEvent(ShowScheduleBottomSheet())
                 }
@@ -141,12 +113,7 @@ fun CalendarScreen(
     LaunchedEffect(sheetState.currentValue) {
         if (sheetState.currentValue == SheetValue.Hidden) {
             viewModel.setEvent(HideScheduleBottomSheet)
-            adView.loadAd(adRequest)
         }
-    }
-
-    DisposableEffect(Unit) {
-        onDispose { adView.destroy() }
     }
 
     CalendarContent(
@@ -161,7 +128,6 @@ fun CalendarScreen(
         ScheduleBottomSheet(
             content = state.scheduleBottomSheetContent,
             selectedDate = state.selectedDate,
-            adView = adView,
             sheetState = sheetState,
             makeSchedule = { schedule -> viewModel.setEvent(MakeCustomSchedule(schedule)) },
             editSchedule = { schedule -> viewModel.setEvent(EditCustomSchedule(schedule)) },

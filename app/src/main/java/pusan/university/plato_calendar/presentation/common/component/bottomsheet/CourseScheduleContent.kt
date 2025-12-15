@@ -35,9 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.android.gms.ads.AdView
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
-import pusan.university.plato_calendar.presentation.common.component.BannerAd
 import pusan.university.plato_calendar.presentation.common.extension.formatTimeWithMidnightSpecialCase
 import pusan.university.plato_calendar.presentation.common.extension.noRippleClickable
 import pusan.university.plato_calendar.presentation.common.theme.Black
@@ -53,7 +51,6 @@ private const val HAS_NO_DESCRIPTION = "설명 없음"
 @Composable
 fun CourseScheduleContent(
     schedule: CourseScheduleUiModel,
-    adView: AdView,
     toggleScheduleCompletion: (Long, Boolean) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
@@ -326,14 +323,7 @@ fun CourseScheduleContent(
         Spacer(modifier = Modifier.height(12.dp))
     }
 
-    Spacer(modifier = Modifier.height(24.dp))
-
-    BannerAd(
-        adView = adView,
-        modifier = Modifier.fillMaxWidth(),
-    )
-
-    Spacer(modifier = Modifier.height(24.dp))
+    Spacer(modifier = Modifier.height(12.dp))
 
     Box(
         modifier =
@@ -357,5 +347,5 @@ fun CourseScheduleContent(
         )
     }
 
-    Spacer(modifier = Modifier.height(24.dp))
+    Spacer(modifier = Modifier.height(12.dp))
 }
