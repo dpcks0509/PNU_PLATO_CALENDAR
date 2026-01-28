@@ -28,6 +28,6 @@ object ServiceModule {
     @Provides
     @Singleton
     fun provideAcademicScheduleService(
-        @Pnu retrofit: Retrofit,
+        @PNU retrofit: Retrofit,
     ): AcademicScheduleService = retrofit.create(AcademicScheduleService::class.java)
 }
