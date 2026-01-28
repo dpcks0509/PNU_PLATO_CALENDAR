@@ -56,7 +56,16 @@ object NetworkModule {
             .Builder()
             .cookieJar(cookieJar)
             .addInterceptor(networkConnectionInterceptor)
-            .addInterceptor(logging)
+            .addInterceptor { chain ->
+                chain.proceed(
+                    chain
+                        .request()
+                        .newBuilder()
+                        .header("Referer", "https://plato.pusan.ac.kr/")
+                        .header("User-Agent", "Mozilla/5.0")
+                        .build(),
+                )
+            }.addInterceptor(logging)
             .build()
     }
 
@@ -77,7 +86,16 @@ object NetworkModule {
             .Builder()
             .cookieJar(cookieJar)
             .addInterceptor(networkConnectionInterceptor)
-            .addInterceptor(logging)
+            .addInterceptor { chain ->
+                chain.proceed(
+                    chain
+                        .request()
+                        .newBuilder()
+                        .header("Referer", "https://plato.pusan.ac.kr/")
+                        .header("User-Agent", "Mozilla/5.0")
+                        .build(),
+                )
+            }.addInterceptor(logging)
             .followRedirects(false)
             .build()
     }
