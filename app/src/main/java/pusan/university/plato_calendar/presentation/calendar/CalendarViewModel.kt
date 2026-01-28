@@ -68,7 +68,7 @@ class CalendarViewModel
         init {
             viewModelScope.launch {
                 launch {
-                    loginManager.loginStatus.collect { loginStatus ->
+                    loginManager.loginStatus.collect {
                         getSchedules()
                     }
                 }
@@ -113,24 +113,33 @@ class CalendarViewModel
                     setSideEffect { CalendarSideEffect.ScrollToPage(monthsDiff) }
                 }
 
-                Refresh -> refresh()
+                Refresh -> {
+                    refresh()
+                }
 
-                is MakeCustomSchedule -> makeCustomSchedule(event.schedule)
+                is MakeCustomSchedule -> {
+                    makeCustomSchedule(event.schedule)
+                }
 
                 is TryLogin -> {
                     val isLoginSuccess = loginManager.login(event.loginCredentials)
                     if (isLoginSuccess) setState { copy(isLoginDialogVisible = false) }
                 }
 
-                is EditCustomSchedule -> editCustomSchedule(event.schedule)
+                is EditCustomSchedule -> {
+                    editCustomSchedule(event.schedule)
+                }
 
-                is DeleteCustomSchedule -> deleteCustomSchedule(event.id)
+                is DeleteCustomSchedule -> {
+                    deleteCustomSchedule(event.id)
+                }
 
-                is TogglePersonalScheduleCompletion ->
+                is TogglePersonalScheduleCompletion -> {
                     togglePersonalScheduleCompletion(
                         event.id,
                         event.isCompleted,
                     )
+                }
 
                 is UpdateSelectedDate -> {
                     scheduleManager.updateSelectedDate(event.date)
@@ -141,7 +150,9 @@ class CalendarViewModel
                     setState { copy(currentYearMonth = event.yearMonth) }
                 }
 
-                is ShowScheduleBottomSheet -> showScheduleBottomSheet(event.schedule)
+                is ShowScheduleBottomSheet -> {
+                    showScheduleBottomSheet(event.schedule)
+                }
 
                 is ShowScheduleBottomSheetById -> {
                     if (state.value.isScheduleBottomSheetVisible) {
@@ -158,15 +169,18 @@ class CalendarViewModel
                     showScheduleBottomSheetById(event.scheduleId)
                 }
 
-                HideScheduleBottomSheet ->
+                HideScheduleBottomSheet -> {
                     setState {
                         copy(
                             scheduleBottomSheetContent = null,
                             isScheduleBottomSheetVisible = false,
                         )
                     }
+                }
 
-                HideLoginDialog -> setState { copy(isLoginDialogVisible = false) }
+                HideLoginDialog -> {
+                    setState { copy(isLoginDialogVisible = false) }
+                }
             }
         }
 
@@ -214,7 +228,9 @@ class CalendarViewModel
                                     )
                                 }
 
-                                is CustomSchedule -> CustomScheduleUiModel(domain)
+                                is CustomSchedule -> {
+                                    CustomScheduleUiModel(domain)
+                                }
                             }
                         }
 
@@ -269,14 +285,18 @@ class CalendarViewModel
                         scheduleManager.updateLoading(false)
                     }
 
-                    LoginStatus.Uninitialized -> scheduleManager.updateLoading(false)
+                    LoginStatus.Uninitialized -> {
+                        scheduleManager.updateLoading(false)
+                    }
 
                     LoginStatus.NetworkDisconnected -> {
                         ToastEventBus.sendError(NETWORK_ERROR_MESSAGE)
                         scheduleManager.updateLoading(false)
                     }
 
-                    LoginStatus.LoginInProgress -> Unit
+                    LoginStatus.LoginInProgress -> {
+                        Unit
+                    }
                 }
             }
         }
