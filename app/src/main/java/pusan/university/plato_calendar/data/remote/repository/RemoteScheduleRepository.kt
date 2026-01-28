@@ -73,21 +73,23 @@ class RemoteScheduleRepository
                             .distinctBy { schedule -> schedule.id }
                             .map { schedule ->
                                 when (schedule) {
-                                    is CourseSchedule ->
+                                    is CourseSchedule -> {
                                         schedule.copy(
                                             isCompleted =
                                                 completedIds.contains(
                                                     schedule.id,
                                                 ),
                                         )
+                                    }
 
-                                    is CustomSchedule ->
+                                    is CustomSchedule -> {
                                         schedule.copy(
                                             isCompleted =
                                                 completedIds.contains(
                                                     schedule.id,
                                                 ),
                                         )
+                                    }
                                 }
                             }
 
@@ -252,10 +254,10 @@ class RemoteScheduleRepository
         }
 
         companion object {
-            private const val GET_SCHEDULES_FAILED_ERROR = "일정을 가져오는데 실패했습니다."
-            private const val CREATE_SCHEDULE_FAILED_ERROR = "일정을 등록하는데 실패했습니다."
-            private const val UPDATE_SCHEDULE_FAILED_ERROR = "일정을 수정하는데 실패했습니다."
-            private const val DELETE_SCHEDULE_FAILED_ERROR = "일정을 삭제하는데 실패했습니다."
+            private const val GET_SCHEDULES_FAILED_ERROR = "일정을 불러오는데 실패했습니다."
+            private const val CREATE_SCHEDULE_FAILED_ERROR = "일정 등록에 실패했습니다."
+            private const val UPDATE_SCHEDULE_FAILED_ERROR = "일정 수정에 실패했습니다."
+            private const val DELETE_SCHEDULE_FAILED_ERROR = "일정 삭제에 실패했습니다."
 
             private fun String.parseIcsToPersonalSchedules(): List<PersonalSchedule> {
                 val unfoldedLines = mutableListOf<String>()
