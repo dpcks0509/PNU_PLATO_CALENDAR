@@ -139,7 +139,7 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    @Pnu
+    @PNU
     fun providePnuRetrofit(
         @Redirect okHttpClient: OkHttpClient,
         json: Json,
@@ -159,7 +159,7 @@ annotation class Plato
 annotation class PlatoNonDirect
 
 @Qualifier
-annotation class Pnu
+annotation class PNU
 
 @Qualifier
 annotation class NonDirect
