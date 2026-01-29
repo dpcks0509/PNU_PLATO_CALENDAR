@@ -10,10 +10,13 @@ sealed interface PlatoCalendarScreen {
     data object ToDoScreen : PlatoCalendarScreen
 
     @Serializable
+    data object CafeteriaScreen : PlatoCalendarScreen
+
+    @Serializable
     data object SettingScreen : PlatoCalendarScreen
 
     @Serializable
-    data class WebView(
+    data class WebViewScreen(
         val url: String,
     ) : PlatoCalendarScreen
 }

@@ -14,12 +14,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import pusan.university.plato_calendar.presentation.cafeteria.CafeteriaScreen
 import pusan.university.plato_calendar.presentation.calendar.CalendarScreen
 import pusan.university.plato_calendar.presentation.common.component.WebView
+import pusan.university.plato_calendar.presentation.common.navigation.PlatoCalendarScreen.CafeteriaScreen
 import pusan.university.plato_calendar.presentation.common.navigation.PlatoCalendarScreen.CalendarScreen
 import pusan.university.plato_calendar.presentation.common.navigation.PlatoCalendarScreen.SettingScreen
 import pusan.university.plato_calendar.presentation.common.navigation.PlatoCalendarScreen.ToDoScreen
-import pusan.university.plato_calendar.presentation.common.navigation.PlatoCalendarScreen.WebView
+import pusan.university.plato_calendar.presentation.common.navigation.PlatoCalendarScreen.WebViewScreen
 import pusan.university.plato_calendar.presentation.setting.SettingScreen
 import pusan.university.plato_calendar.presentation.todo.ToDoScreen
 
@@ -55,6 +57,17 @@ fun PlatoCalendarNavHost(
             )
         }
 
+        composable<CafeteriaScreen>(
+            enterTransition = { ordinalSlideEnter() },
+            exitTransition = { ordinalSlideExit() },
+            popEnterTransition = { ordinalSlideEnter() },
+            popExitTransition = { ordinalSlideExit() },
+        ) {
+            CafeteriaScreen(
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
+
         composable<SettingScreen>(
             enterTransition = { ordinalSlideEnter() },
             exitTransition = { ordinalSlideExit() },
@@ -62,13 +75,13 @@ fun PlatoCalendarNavHost(
             popExitTransition = { ordinalSlideExit() },
         ) {
             SettingScreen(
-                navigateToWebView = { url -> navController.navigate(WebView(url)) },
+                navigateToWebView = { url -> navController.navigate(WebViewScreen(url)) },
                 modifier = Modifier.fillMaxSize(),
             )
         }
 
-        composable<WebView> {
-            val url = it.toRoute<WebView>().url
+        composable<WebViewScreen> {
+            val url = it.toRoute<WebViewScreen>().url
 
             WebView(
                 url = url,
