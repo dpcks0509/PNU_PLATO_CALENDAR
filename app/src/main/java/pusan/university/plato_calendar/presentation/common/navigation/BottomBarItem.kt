@@ -2,33 +2,38 @@ package pusan.university.plato_calendar.presentation.common.navigation
 
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.ui.graphics.vector.ImageVector
 import pusan.university.plato_calendar.R
+import pusan.university.plato_calendar.presentation.common.icon.IconType
+import pusan.university.plato_calendar.presentation.common.navigation.PlatoCalendarScreen.CafeteriaScreen
 import pusan.university.plato_calendar.presentation.common.navigation.PlatoCalendarScreen.CalendarScreen
 import pusan.university.plato_calendar.presentation.common.navigation.PlatoCalendarScreen.SettingScreen
 import pusan.university.plato_calendar.presentation.common.navigation.PlatoCalendarScreen.ToDoScreen
 
 enum class BottomBarItem(
     val route: PlatoCalendarScreen,
-    val icon: ImageVector,
+    val icon: IconType,
     @StringRes val titleRes: Int,
 ) {
     CALENDAR(
         route = CalendarScreen,
-        icon = Icons.Default.DateRange,
+        icon = IconType.Vector(Icons.Default.DateRange),
         titleRes = R.string.calendar,
     ),
     TODO(
         route = ToDoScreen,
-        icon = Icons.AutoMirrored.Filled.List,
+        icon = IconType.Resource(R.drawable.ic_todo),
         titleRes = R.string.to_do,
+    ),
+    CAFETERIA(
+        route = CafeteriaScreen,
+        icon = IconType.Resource(R.drawable.ic_cafeteria),
+        titleRes = R.string.cafeteria,
     ),
     SETTING(
         route = SettingScreen,
-        icon = Icons.Default.Settings,
+        icon = IconType.Vector(Icons.Default.Settings),
         titleRes = R.string.setting,
     ),
 }

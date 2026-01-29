@@ -96,7 +96,7 @@ fun ToDoScheduleItem(
                     val type =
                         when (schedule) {
                             is AcademicScheduleUiModel -> "학사 일정"
-                            is CourseScheduleUiModel -> "강의 일정"
+                            is CourseScheduleUiModel -> "수업 일정"
                             is CustomScheduleUiModel -> "개인 일정"
                         }
 

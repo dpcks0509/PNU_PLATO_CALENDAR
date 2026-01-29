@@ -84,7 +84,7 @@ fun CourseScheduleContent(
         Spacer(modifier = Modifier.width(8.dp))
 
         Text(
-            text = "강의 일정",
+            text = "수업 일정",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             color = White,

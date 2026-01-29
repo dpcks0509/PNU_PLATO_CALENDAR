@@ -188,7 +188,7 @@ object CalendarWidget : GlanceAppWidget() {
                     ) {
                         Image(
                             provider = ImageProvider(R.drawable.ic_refresh),
-                            contentDescription = null,
+                            contentDescription = "Refresh",
                             modifier = GlanceModifier.width(20.dp).height(20.dp),
                         )
                     }
@@ -219,7 +219,7 @@ object CalendarWidget : GlanceAppWidget() {
                     ) {
                         Image(
                             provider = ImageProvider(R.drawable.ic_add),
-                            contentDescription = null,
+                            contentDescription = "Add",
                             modifier = GlanceModifier.width(20.dp).height(20.dp),
                         )
                     }
@@ -248,11 +248,17 @@ object CalendarWidget : GlanceAppWidget() {
                                         color =
                                             ColorProvider(
                                                 when {
-                                                    isToday -> Color(0xFF3B6EC7)
-                                                    date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY ->
-                                                        Color.Red
+                                                    isToday -> {
+                                                        Color(0xFF3B6EC7)
+                                                    }
 
-                                                    else -> Color.Black
+                                                    date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY -> {
+                                                        Color.Red
+                                                    }
+
+                                                    else -> {
+                                                        Color.Black
+                                                    }
                                                 },
                                             ),
                                     ),
@@ -283,12 +289,15 @@ object CalendarWidget : GlanceAppWidget() {
                                         .height(32.dp)
                                         .then(
                                             when {
-                                                isSelected ->
+                                                isSelected -> {
                                                     GlanceModifier.background(
                                                         ImageProvider(R.drawable.widget_selected_date_background),
                                                     )
+                                                }
 
-                                                else -> GlanceModifier
+                                                else -> {
+                                                    GlanceModifier
+                                                }
                                             },
                                         ).clickable(
                                             actionRunCallback<NavigateDateCallback>(
@@ -309,11 +318,17 @@ object CalendarWidget : GlanceAppWidget() {
                                             color =
                                                 ColorProvider(
                                                     when {
-                                                        isToday -> Color(0xFF3B6EC7)
-                                                        date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY ->
-                                                            Color.Red
+                                                        isToday -> {
+                                                            Color(0xFF3B6EC7)
+                                                        }
 
-                                                        else -> Color.Black
+                                                        date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY -> {
+                                                            Color.Red
+                                                        }
+
+                                                        else -> {
+                                                            Color.Black
+                                                        }
                                                     },
                                                 ),
                                         ),
