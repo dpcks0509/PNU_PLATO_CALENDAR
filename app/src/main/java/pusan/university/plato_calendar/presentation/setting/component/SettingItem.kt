@@ -45,7 +45,7 @@ fun SettingItem(
         )
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-            contentDescription = null,
+            contentDescription = "Arrow",
             tint = MediumGray,
         )
     }

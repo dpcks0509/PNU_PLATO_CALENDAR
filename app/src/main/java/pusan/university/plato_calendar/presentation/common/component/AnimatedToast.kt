@@ -122,7 +122,7 @@ fun AnimatedToast() {
 
                             Icon(
                                 painter = icon,
-                                contentDescription = null,
+                                contentDescription = "Toast",
                                 tint = iconTint,
                                 modifier = Modifier.size(20.dp),
                             )

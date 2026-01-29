@@ -25,11 +25,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel
 import pusan.university.plato_calendar.presentation.common.extension.noRippleClickable
+import pusan.university.plato_calendar.presentation.common.icon.IconType
 import pusan.university.plato_calendar.presentation.common.theme.Gray
 import pusan.university.plato_calendar.presentation.common.theme.PrimaryColor
 import pusan.university.plato_calendar.presentation.common.theme.VeryLightGray
@@ -64,7 +66,23 @@ fun ExpandableSection(
                     .padding(horizontal = 16.dp, vertical = 18.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(imageVector = toDoSection.icon, contentDescription = null, tint = PrimaryColor)
+            when (val icon = toDoSection.icon) {
+                is IconType.Vector -> {
+                    Icon(
+                        imageVector = icon.imageVector,
+                        contentDescription = "Vector",
+                        tint = PrimaryColor,
+                    )
+                }
+
+                is IconType.Resource -> {
+                    Icon(
+                        painter = painterResource(id = icon.resId),
+                        contentDescription = "Resource",
+                        tint = PrimaryColor,
+                    )
+                }
+            }
             Spacer(modifier = Modifier.width(12.dp))
             Text(
                 text = toDoSection.title,
@@ -75,7 +93,7 @@ fun ExpandableSection(
             )
             Icon(
                 imageVector = Icons.Default.KeyboardArrowDown,
-                contentDescription = null,
+                contentDescription = "Arrow",
                 tint = PrimaryColor,
                 modifier = Modifier.rotate(rotation),
             )

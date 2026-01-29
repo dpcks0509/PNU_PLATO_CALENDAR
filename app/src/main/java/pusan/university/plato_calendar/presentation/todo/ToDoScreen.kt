@@ -206,7 +206,7 @@ fun ToDoScreenPreview() {
                             ),
                             CourseScheduleUiModel(
                                 id = 7593,
-                                title = "완료된 강의 과제",
+                                title = "완료된 과제",
                                 description = "",
                                 startAt = LocalDateTime.now().minusDays(5),
                                 endAt = LocalDateTime.now().minusDays(2),
