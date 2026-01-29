@@ -3,6 +3,7 @@ package pusan.university.plato_calendar.data.remote.repository
 import pusan.university.plato_calendar.data.remote.service.CafeteriaService
 import pusan.university.plato_calendar.domain.entity.CafeteriaMenu
 import pusan.university.plato_calendar.domain.entity.Campus
+import pusan.university.plato_calendar.domain.entity.DailyCafeteriaMenu
 import pusan.university.plato_calendar.domain.repository.CafeteriaRepository
 import javax.inject.Inject
 
@@ -11,14 +12,14 @@ class RemoteCafeteriaRepository
     constructor(
         private val cafeteriaService: CafeteriaService,
     ) : CafeteriaRepository {
-        override suspend fun getCafeteriaMenus(
+        override suspend fun getDailyCafeteriaMenus(
             campus: Campus,
             buildingCode: String,
             restaurantCode: String,
-        ): Result<List<CafeteriaMenu>> {
+        ): Result<List<DailyCafeteriaMenu>> {
             return try {
                 val response =
-                    cafeteriaService.getCafeteriaMenus(
+                    cafeteriaService.getDailyCafeteriaMenus(
                         campus = campus.name,
                         buildingCode = buildingCode,
                         restaurantCode = restaurantCode,
@@ -30,8 +31,8 @@ class RemoteCafeteriaRepository
                         return Result.success(emptyList())
                     }
 
-                    val cafeteriaMenus = responseBody.parseHtmlToCafeteriaMenus()
-                    Result.success(cafeteriaMenus)
+                    val dailyCafeteriaMenus = responseBody.parseHtmlToDailyCafeteriaMenus()
+                    Result.success(dailyCafeteriaMenus)
                 } else {
                     Result.failure(Exception(GET_CAFETERIA_MENUS_FAILED_ERROR))
                 }
@@ -45,8 +46,14 @@ class RemoteCafeteriaRepository
         }
     }
 
-private fun String.parseHtmlToCafeteriaMenus(): List<CafeteriaMenu> {
-    val cafeteriaMenus = mutableListOf<CafeteriaMenu>()
+private fun String.parseHtmlToDailyCafeteriaMenus(): List<DailyCafeteriaMenu> {
+    data class MenuWithDate(
+        val date: String,
+        val day: String,
+        val menu: CafeteriaMenu,
+    )
+
+    val menusWithDate = mutableListOf<MenuWithDate>()
 
     val dateInfoList = mutableListOf<Pair<String, String>>()
     val theadRows = Regex("<thead>(.*?)</thead>", RegexOption.DOT_MATCHES_ALL).find(this)?.groupValues?.get(1)
@@ -85,17 +92,20 @@ private fun String.parseHtmlToCafeteriaMenus(): List<CafeteriaMenu> {
 
         if (timeRange.isBlank() || timeRange.contains("미운영") || timeRange.contains("x")) {
             dateInfoList.forEach { (day, date) ->
-                cafeteriaMenus.add(
-                    CafeteriaMenu(
+                menusWithDate.add(
+                    MenuWithDate(
                         date = date,
                         day = day,
-                        mealType = mealType,
-                        isOperating = false,
-                        notOperatingReason = null,
-                        operatingTime = null,
-                        courseName = null,
-                        price = null,
-                        dishes = null,
+                        menu =
+                            CafeteriaMenu(
+                                mealType = mealType,
+                                isOperating = false,
+                                notOperatingReason = null,
+                                operatingTime = null,
+                                courseName = null,
+                                price = null,
+                                dishes = null,
+                            ),
                     ),
                 )
             }
@@ -129,31 +139,37 @@ private fun String.parseHtmlToCafeteriaMenus(): List<CafeteriaMenu> {
                         if (dishes.isNotEmpty()) {
                             val courseName = h3Content.substringBefore("-").trim()
                             val price = h3Content.substringAfter("-").trim()
-                            cafeteriaMenus.add(
-                                CafeteriaMenu(
+                            menusWithDate.add(
+                                MenuWithDate(
                                     date = date,
                                     day = day,
-                                    mealType = mealType,
-                                    isOperating = true,
-                                    notOperatingReason = null,
-                                    operatingTime = timeRange,
-                                    courseName = courseName,
-                                    price = price,
-                                    dishes = dishes,
+                                    menu =
+                                        CafeteriaMenu(
+                                            mealType = mealType,
+                                            isOperating = true,
+                                            notOperatingReason = null,
+                                            operatingTime = timeRange,
+                                            courseName = courseName,
+                                            price = price,
+                                            dishes = dishes,
+                                        ),
                                 ),
                             )
                         } else {
-                            cafeteriaMenus.add(
-                                CafeteriaMenu(
+                            menusWithDate.add(
+                                MenuWithDate(
                                     date = date,
                                     day = day,
-                                    mealType = mealType,
-                                    isOperating = false,
-                                    notOperatingReason = h3Content,
-                                    operatingTime = null,
-                                    courseName = null,
-                                    price = null,
-                                    dishes = null,
+                                    menu =
+                                        CafeteriaMenu(
+                                            mealType = mealType,
+                                            isOperating = false,
+                                            notOperatingReason = h3Content,
+                                            operatingTime = null,
+                                            courseName = null,
+                                            price = null,
+                                            dishes = null,
+                                        ),
                                 ),
                             )
                         }
@@ -161,17 +177,20 @@ private fun String.parseHtmlToCafeteriaMenus(): List<CafeteriaMenu> {
                 }
 
                 if (!hasMenu) {
-                    cafeteriaMenus.add(
-                        CafeteriaMenu(
+                    menusWithDate.add(
+                        MenuWithDate(
                             date = date,
                             day = day,
-                            mealType = mealType,
-                            isOperating = false,
-                            notOperatingReason = null,
-                            operatingTime = null,
-                            courseName = null,
-                            price = null,
-                            dishes = null,
+                            menu =
+                                CafeteriaMenu(
+                                    mealType = mealType,
+                                    isOperating = false,
+                                    notOperatingReason = null,
+                                    operatingTime = null,
+                                    courseName = null,
+                                    price = null,
+                                    dishes = null,
+                                ),
                         ),
                     )
                 }
@@ -179,22 +198,45 @@ private fun String.parseHtmlToCafeteriaMenus(): List<CafeteriaMenu> {
         }
     }
 
-    val syncedMenus =
-        cafeteriaMenus
+    val syncedMenusWithDate =
+        menusWithDate
             .groupBy { it.date }
             .flatMap { (_, dailyMenus) ->
-                val reasonOfDay = dailyMenus.firstNotNullOfOrNull { it.notOperatingReason }
+                val reasonOfDay = dailyMenus.firstNotNullOfOrNull { it.menu.notOperatingReason }
 
                 val finalReason = reasonOfDay ?: "미운영"
 
-                dailyMenus.map { menu ->
-                    if (!menu.isOperating && menu.notOperatingReason == null) {
-                        menu.copy(notOperatingReason = finalReason)
+                dailyMenus.map { menuWithDate ->
+                    if (!menuWithDate.menu.isOperating && menuWithDate.menu.notOperatingReason == null) {
+                        menuWithDate.copy(menu = menuWithDate.menu.copy(notOperatingReason = finalReason))
                     } else {
-                        menu
+                        menuWithDate
                     }
                 }
             }
 
-    return syncedMenus.sortedWith(compareBy({ it.date }, { it.mealType.ordinal }))
+    return syncedMenusWithDate
+        .sortedWith(compareBy({ it.date }, { it.menu.mealType.ordinal }))
+        .groupBy { it.date }
+        .map { (date, menusWithDate) ->
+            val day = menusWithDate.firstOrNull()?.day ?: ""
+            DailyCafeteriaMenu(
+                date = date,
+                day = day,
+                breakfast =
+                    menusWithDate
+                        .filter { it.menu.mealType == pusan.university.plato_calendar.domain.entity.MealType.BREAKFAST }
+                        .map { it.menu },
+                lunch =
+                    menusWithDate
+                        .filter {
+                            it.menu.mealType == pusan.university.plato_calendar.domain.entity.MealType.LUNCH
+                        }.map { it.menu },
+                dinner =
+                    menusWithDate
+                        .filter {
+                            it.menu.mealType == pusan.university.plato_calendar.domain.entity.MealType.DINNER
+                        }.map { it.menu },
+            )
+        }.sortedBy { it.date }
 }

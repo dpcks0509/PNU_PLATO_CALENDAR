@@ -9,7 +9,7 @@ import retrofit2.http.POST
 interface CafeteriaService {
     @FormUrlEncoded
     @POST("/kor/CMS/MenuMgr/menuListOnBuilding.do")
-    suspend fun getCafeteriaMenus(
+    suspend fun getDailyCafeteriaMenus(
         @Field("mCode") mCode: String = "MN202",
         @Field("campus_gb") campus: String,
         @Field("building_gb") buildingCode: String,
