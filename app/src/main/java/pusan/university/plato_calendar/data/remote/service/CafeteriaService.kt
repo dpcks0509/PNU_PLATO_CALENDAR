@@ -9,25 +9,11 @@ import retrofit2.http.POST
 interface CafeteriaService {
     @FormUrlEncoded
     @POST("/kor/CMS/MenuMgr/menuListOnBuilding.do")
-    suspend fun readCafeteriaMenusOnBuilding(
+    suspend fun getCafeteriaMenus(
         @Field("mCode") mCode: String = "MN202",
-        @Field("campus_gb") campusGb: String,
-        @Field("building_gb") buildingGb: String,
+        @Field("campus_gb") campus: String,
+        @Field("building_gb") buildingCode: String,
         @Field("restaurant_code") restaurantCode: String,
         @Field("menu_date") menuDate: String = "",
     ): Response<ResponseBody>
-
-    @FormUrlEncoded
-    @POST("/kor/CMS/MenuMgr/menuListOnWeekly.do")
-    suspend fun readCafeteriaMenusOnWeekly(
-        @Field("mCode") mCode: String = "MN202",
-        @Field("campus_gb") campusGb: String,
-        @Field("menu_date") menuDate: String = "",
-    ): Response<ResponseBody>
 }
-
-// 'https://www.pusan.ac.kr/kor/CMS/MenuMgr/menuListOnBuilding.do
-// ?mCode=MN202&campus_gb=PUSAN&building_gb=R001&restaurant_code=PG002';
-
-// https://www.pusan.ac.kr/kor/CMS/MenuMgr/menuListOnWeekly.do?mCode=MN203
-// ?mCode=MN203&campus_gb=PUSAN&menu_date=2026-01-28';
