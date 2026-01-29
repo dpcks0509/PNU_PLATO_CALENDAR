@@ -20,8 +20,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -58,9 +56,6 @@ fun ToDoScreen(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
 
-    val context = LocalContext.current
-    val configuration = LocalConfiguration.current
-
     LaunchedEffect(viewModel.sideEffect) {
         viewModel.sideEffect.collect { sideEffect ->
             when (sideEffect) {
@@ -86,7 +81,7 @@ fun ToDoScreen(
             content = state.scheduleBottomSheetContent,
             selectedDate = state.today.toLocalDate(),
             sheetState = sheetState,
-            makeSchedule = { Unit },
+            makeSchedule = { },
             editSchedule = { schedule -> viewModel.setEvent(EditCustomSchedule(schedule)) },
             deleteSchedule = { id -> viewModel.setEvent(DeleteCustomSchedule(id)) },
             toggleScheduleCompletion = { id, completed ->
