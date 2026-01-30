@@ -12,44 +12,46 @@ import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 class RemoteCafeteriaRepository
-    @Inject
-    constructor(
-        private val cafeteriaService: CafeteriaService,
-    ) : CafeteriaRepository {
-        override suspend fun getCafeteriaWeeklyPlan(cafeteria: Cafeteria): Result<CafeteriaWeeklyPlan> {
-            return try {
-                val response =
-                    cafeteriaService.getCafeteriaWeeklyPlan(
-                        campus = cafeteria.campus.name,
-                        buildingCode = cafeteria.buildingCode,
-                        restaurantCode = cafeteria.restaurantCode,
-                    )
+@Inject
+constructor(
+    private val cafeteriaService: CafeteriaService,
+) : CafeteriaRepository {
+    override suspend fun getCafeteriaWeeklyPlan(cafeteria: Cafeteria): Result<CafeteriaWeeklyPlan> {
+        return try {
+            val response =
+                cafeteriaService.getCafeteriaWeeklyPlan(
+                    campus = cafeteria.campus.name,
+                    buildingCode = cafeteria.buildingCode,
+                    restaurantCode = cafeteria.restaurantCode,
+                )
 
-                if (response.isSuccessful) {
-                    val responseBody = response.body()?.string()
-                    if (responseBody.isNullOrBlank()) {
-                        return Result.failure(Exception(GET_CAFETERIA_MENUS_FAILED_ERROR))
-                    }
-
-                    val parseHtmlToWeeklyPlans = responseBody.parseHtmlToWeeklyPlans()
-                    Result.success(
-                        CafeteriaWeeklyPlan(
-                            cafeteria = cafeteria,
-                            weeklyPlans = parseHtmlToWeeklyPlans,
-                        ),
-                    )
-                } else {
-                    Result.failure(Exception(GET_CAFETERIA_MENUS_FAILED_ERROR))
+            if (response.isSuccessful) {
+                val responseBody = response.body()?.string()
+                if (responseBody.isNullOrBlank()) {
+                    return Result.failure(Exception(GET_CAFETERIA_MENUS_FAILED_ERROR))
                 }
-            } catch (e: Exception) {
-                Result.failure(e)
-            }
-        }
 
-        companion object {
-            private const val GET_CAFETERIA_MENUS_FAILED_ERROR = "식단 정보를 불러오는데 실패했습니다."
+                val parseHtmlToWeeklyPlans = responseBody.parseHtmlToWeeklyPlans()
+                val notice = responseBody.parseNotice()
+                Result.success(
+                    CafeteriaWeeklyPlan(
+                        cafeteria = cafeteria,
+                        notice = notice,
+                        weeklyPlans = parseHtmlToWeeklyPlans,
+                    ),
+                )
+            } else {
+                Result.failure(Exception(GET_CAFETERIA_MENUS_FAILED_ERROR))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
+
+    companion object {
+        private const val GET_CAFETERIA_MENUS_FAILED_ERROR = "식단 정보를 불러오는데 실패했습니다."
+    }
+}
 
 private fun String.parseHtmlToWeeklyPlans(): List<DailyCafeteriaPlan> {
     data class MenuWithDate(
@@ -61,7 +63,8 @@ private fun String.parseHtmlToWeeklyPlans(): List<DailyCafeteriaPlan> {
     val menusWithDate = mutableListOf<MenuWithDate>()
 
     val dateInfoList = mutableListOf<Pair<String, String>>()
-    val theadRows = Regex("<thead>(.*?)</thead>", RegexOption.DOT_MATCHES_ALL).find(this)?.groupValues?.get(1)
+    val theadRows =
+        Regex("<thead>(.*?)</thead>", RegexOption.DOT_MATCHES_ALL).find(this)?.groupValues?.get(1)
 
     theadRows?.let { thead ->
         val dayMatches = Regex("<div class=\"day\">([^<]+)</div>").findAll(thead)
@@ -75,11 +78,16 @@ private fun String.parseHtmlToWeeklyPlans(): List<DailyCafeteriaPlan> {
         }
     }
 
-    val tbodyContent = Regex("<tbody>(.*?)</tbody>", RegexOption.DOT_MATCHES_ALL).find(this)?.groupValues?.get(1) ?: return emptyList()
+    val tbodyContent =
+        Regex("<tbody>(.*?)</tbody>", RegexOption.DOT_MATCHES_ALL).find(this)?.groupValues?.get(1)
+            ?: return emptyList()
     val rows = tbodyContent.split("<tr>").filter { it.contains("<th scope=\"row\">") }
 
     rows.forEach { row ->
-        val thContent = Regex("<th scope=\"row\">(.*?)</th>", RegexOption.DOT_MATCHES_ALL).find(row)?.groupValues?.get(1) ?: return@forEach
+        val thContent = Regex(
+            "<th scope=\"row\">(.*?)</th>",
+            RegexOption.DOT_MATCHES_ALL
+        ).find(row)?.groupValues?.get(1) ?: return@forEach
         val thParts = thContent.split(Regex("<br\\s*/?>", RegexOption.IGNORE_CASE))
 
         val mealTypeText = thParts.firstOrNull()?.replace(Regex("<[^>]+>"), "")?.trim()
@@ -118,7 +126,8 @@ private fun String.parseHtmlToWeeklyPlans(): List<DailyCafeteriaPlan> {
                 if (index >= dateInfoList.size) return@forEachIndexed
                 val tdContent = tdMatch.groupValues[1]
                 val (day, date) = dateInfoList[index]
-                val liElements = Regex("<li>(.*?)</li>", RegexOption.DOT_MATCHES_ALL).findAll(tdContent)
+                val liElements =
+                    Regex("<li>(.*?)</li>", RegexOption.DOT_MATCHES_ALL).findAll(tdContent)
                 var hasMenu = false
 
                 liElements.forEach { liMatch ->
@@ -132,7 +141,10 @@ private fun String.parseHtmlToWeeklyPlans(): List<DailyCafeteriaPlan> {
 
                     if (h3Content != null) {
                         hasMenu = true
-                        val pContent = Regex("<p>(.*?)</p>", RegexOption.DOT_MATCHES_ALL).find(liContent)?.groupValues?.get(1)
+                        val pContent = Regex(
+                            "<p>(.*?)</p>",
+                            RegexOption.DOT_MATCHES_ALL
+                        ).find(liContent)?.groupValues?.get(1)
                         val dishes =
                             pContent
                                 ?.split(Regex("<br\\s*/?>", RegexOption.IGNORE_CASE))
@@ -268,4 +280,48 @@ private fun String.parseHtmlToWeeklyPlans(): List<DailyCafeteriaPlan> {
         )
 
     return listOf(sundayMenu) + dailyCafeteriaPlans
+}
+
+private fun String.parseNotice(): String {
+    val noticeRegex =
+        Regex("<div class=\"dish-notice\">(.*?)</div>\\s*</div>", RegexOption.DOT_MATCHES_ALL)
+    val noticeMatch = noticeRegex.find(this) ?: return "공지 없음"
+
+    val noticeContent = noticeMatch.groupValues[1]
+
+    val h4Content = Regex(
+        "<h4>(.*?)</h4>",
+        RegexOption.DOT_MATCHES_ALL
+    ).find(noticeContent)?.groupValues?.get(1) ?: ""
+    val pContent =
+        Regex("<p>(.*?)</p>", RegexOption.DOT_MATCHES_ALL).find(noticeContent)?.groupValues?.get(1)
+            ?: ""
+
+    val noticeLines = mutableListOf<String>()
+
+    if (h4Content.isNotBlank()) {
+        val h4Text = h4Content
+            .replace(Regex("<br\\s*/?>", RegexOption.IGNORE_CASE), "\n")
+            .replace(Regex("<[^>]+>"), "")
+            .trim()
+        if (h4Text.isNotBlank()) {
+            noticeLines.add(h4Text)
+        }
+    }
+
+    if (pContent.isNotBlank()) {
+        val pText = pContent
+            .replace(Regex("<br\\s*/?>", RegexOption.IGNORE_CASE), "\n")
+            .replace(Regex("<[^>]+>"), "")
+            .trim()
+        if (pText.isNotBlank()) {
+            noticeLines.add(pText)
+        }
+    }
+
+    return noticeLines
+        .joinToString("\n")
+        .lines()
+        .filter { it.isNotBlank() }
+        .joinToString("\n")
 }

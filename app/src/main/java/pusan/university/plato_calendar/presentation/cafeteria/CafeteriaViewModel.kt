@@ -25,7 +25,9 @@ class CafeteriaViewModel
             initialState = CafeteriaState(),
         ) {
         override suspend fun handleEvent(event: CafeteriaEvent) {
-            // TODO: Handle events
+//            when(event) {
+//
+//            }
         }
 
         init {
