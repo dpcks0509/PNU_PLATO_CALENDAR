@@ -45,6 +45,7 @@ import pusan.university.plato_calendar.presentation.common.component.bottomsheet
 import pusan.university.plato_calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent.CustomScheduleContent
 import pusan.university.plato_calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent.NewScheduleContent
 import pusan.university.plato_calendar.presentation.common.eventbus.ToastEventBus
+import pusan.university.plato_calendar.presentation.common.manager.LoadingManager
 import pusan.university.plato_calendar.presentation.common.manager.LoginManager
 import pusan.university.plato_calendar.presentation.common.manager.ScheduleManager
 import pusan.university.plato_calendar.presentation.common.notification.AlarmScheduler
@@ -58,6 +59,7 @@ class CalendarViewModel
         private val scheduleRepository: ScheduleRepository,
         private val courseRepository: CourseRepository,
         private val scheduleManager: ScheduleManager,
+        private val loadingManager: LoadingManager,
         private val alarmScheduler: AlarmScheduler,
     ) : BaseViewModel<CalendarState, CalendarEvent, CalendarSideEffect>(
             initialState =
@@ -236,7 +238,7 @@ class CalendarViewModel
 
                     return personalSchedules
                 }.onFailure { throwable ->
-                    scheduleManager.updateLoading(false)
+                    loadingManager.updateLoading(false)
 
                     if (throwable !is CancellationException) {
                         ToastEventBus.sendError(throwable.message)
@@ -250,7 +252,7 @@ class CalendarViewModel
             viewModelScope.launch {
                 when (val loginStatus = loginManager.loginStatus.value) {
                     is LoginStatus.Login -> {
-                        scheduleManager.updateLoading(true)
+                        loadingManager.updateLoading(true)
 
                         val (academicSchedules, personalSchedules) =
                             awaitAll(
@@ -261,7 +263,7 @@ class CalendarViewModel
                         val schedules = academicSchedules + personalSchedules
 
                         if (schedules.isNotEmpty()) scheduleManager.updateSchedules(schedules)
-                        scheduleManager.updateLoading(false)
+                        loadingManager.updateLoading(false)
 
                         pendingOpenScheduleId?.let { id ->
                             val targetSchedule =
@@ -277,21 +279,21 @@ class CalendarViewModel
                     }
 
                     LoginStatus.Logout -> {
-                        scheduleManager.updateLoading(true)
+                        loadingManager.updateLoading(true)
 
                         val academicSchedules = getAcademicSchedules()
 
                         scheduleManager.updateSchedules(academicSchedules)
-                        scheduleManager.updateLoading(false)
+                        loadingManager.updateLoading(false)
                     }
 
                     LoginStatus.Uninitialized -> {
-                        scheduleManager.updateLoading(false)
+                        loadingManager.updateLoading(false)
                     }
 
                     LoginStatus.NetworkDisconnected -> {
                         ToastEventBus.sendError(NETWORK_ERROR_MESSAGE)
-                        scheduleManager.updateLoading(false)
+                        loadingManager.updateLoading(false)
                     }
 
                     LoginStatus.LoginInProgress -> {

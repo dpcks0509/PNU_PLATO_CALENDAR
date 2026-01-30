@@ -23,6 +23,7 @@ import pusan.university.plato_calendar.presentation.common.component.bottomsheet
 import pusan.university.plato_calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent.CourseScheduleContent
 import pusan.university.plato_calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent.CustomScheduleContent
 import pusan.university.plato_calendar.presentation.common.eventbus.ToastEventBus
+import pusan.university.plato_calendar.presentation.common.manager.LoadingManager
 import pusan.university.plato_calendar.presentation.common.manager.LoginManager
 import pusan.university.plato_calendar.presentation.common.manager.ScheduleManager
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent
@@ -42,6 +43,7 @@ class ToDoViewModel
     @Inject
     constructor(
         private val scheduleManager: ScheduleManager,
+        private val loadingManager: LoadingManager,
         private val scheduleRepository: ScheduleRepository,
         private val courseRepository: CourseRepository,
         private val loginManager: LoginManager,
@@ -67,17 +69,32 @@ class ToDoViewModel
 
         override suspend fun handleEvent(event: ToDoEvent) {
             when (event) {
-                is Refresh -> refresh()
-                is TogglePersonalScheduleCompletion ->
+                is Refresh -> {
+                    refresh()
+                }
+
+                is TogglePersonalScheduleCompletion -> {
                     togglePersonalScheduleCompletion(
                         event.id,
                         event.isCompleted,
                     )
+                }
 
-                is ShowScheduleBottomSheet -> showScheduleBottomSheet(event)
-                is HideScheduleBottomSheet -> hideScheduleBottomSheet()
-                is EditCustomSchedule -> editCustomSchedule(event.schedule)
-                is DeleteCustomSchedule -> deleteCustomSchedule(event.id)
+                is ShowScheduleBottomSheet -> {
+                    showScheduleBottomSheet(event)
+                }
+
+                is HideScheduleBottomSheet -> {
+                    hideScheduleBottomSheet()
+                }
+
+                is EditCustomSchedule -> {
+                    editCustomSchedule(event.schedule)
+                }
+
+                is DeleteCustomSchedule -> {
+                    deleteCustomSchedule(event.id)
+                }
             }
         }
 
@@ -119,13 +136,15 @@ class ToDoViewModel
                                     )
                                 }
 
-                                is CustomSchedule -> CustomScheduleUiModel(domain)
+                                is CustomSchedule -> {
+                                    CustomScheduleUiModel(domain)
+                                }
                             }
                         }
 
                     return personalSchedules
                 }.onFailure { throwable ->
-                    scheduleManager.updateLoading(false)
+                    loadingManager.updateLoading(false)
 
                     ToastEventBus.sendError(throwable.message)
                 }
@@ -137,7 +156,7 @@ class ToDoViewModel
             viewModelScope.launch {
                 when (val loginStatus = loginManager.loginStatus.value) {
                     is LoginStatus.Login -> {
-                        scheduleManager.updateLoading(true)
+                        loadingManager.updateLoading(true)
 
                         val (academicSchedules, personalSchedules) =
                             awaitAll(
@@ -148,26 +167,30 @@ class ToDoViewModel
                         val schedules = academicSchedules + personalSchedules
 
                         if (schedules.isNotEmpty()) scheduleManager.updateSchedules(schedules)
-                        scheduleManager.updateLoading(false)
+                        loadingManager.updateLoading(false)
                     }
 
                     LoginStatus.Logout -> {
-                        scheduleManager.updateLoading(true)
+                        loadingManager.updateLoading(true)
 
                         val academicSchedules = getAcademicSchedules()
 
                         scheduleManager.updateSchedules(academicSchedules)
-                        scheduleManager.updateLoading(false)
+                        loadingManager.updateLoading(false)
                     }
 
-                    LoginStatus.Uninitialized -> scheduleManager.updateLoading(false)
+                    LoginStatus.Uninitialized -> {
+                        loadingManager.updateLoading(false)
+                    }
 
                     LoginStatus.NetworkDisconnected -> {
                         ToastEventBus.sendError(NETWORK_ERROR_MESSAGE)
-                        scheduleManager.updateLoading(false)
+                        loadingManager.updateLoading(false)
                     }
 
-                    LoginStatus.LoginInProgress -> Unit
+                    LoginStatus.LoginInProgress -> {
+                        Unit
+                    }
                 }
             }
         }

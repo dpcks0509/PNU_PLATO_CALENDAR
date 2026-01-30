@@ -1,10 +1,14 @@
 package pusan.university.plato_calendar.data.remote.repository
 
 import pusan.university.plato_calendar.data.remote.service.CafeteriaService
-import pusan.university.plato_calendar.domain.entity.CafeteriaMenu
-import pusan.university.plato_calendar.domain.entity.Campus
-import pusan.university.plato_calendar.domain.entity.DailyCafeteriaMenu
+import pusan.university.plato_calendar.domain.entity.Cafeteria
+import pusan.university.plato_calendar.domain.entity.CafeteriaPlan
+import pusan.university.plato_calendar.domain.entity.CafeteriaWeeklyPlan
+import pusan.university.plato_calendar.domain.entity.DailyCafeteriaPlan
+import pusan.university.plato_calendar.domain.entity.MealType
 import pusan.university.plato_calendar.domain.repository.CafeteriaRepository
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 class RemoteCafeteriaRepository
@@ -12,27 +16,28 @@ class RemoteCafeteriaRepository
     constructor(
         private val cafeteriaService: CafeteriaService,
     ) : CafeteriaRepository {
-        override suspend fun getDailyCafeteriaMenus(
-            campus: Campus,
-            buildingCode: String,
-            restaurantCode: String,
-        ): Result<List<DailyCafeteriaMenu>> {
+        override suspend fun getCafeteriaWeeklyPlan(cafeteria: Cafeteria): Result<CafeteriaWeeklyPlan> {
             return try {
                 val response =
-                    cafeteriaService.getDailyCafeteriaMenus(
-                        campus = campus.name,
-                        buildingCode = buildingCode,
-                        restaurantCode = restaurantCode,
+                    cafeteriaService.getCafeteriaWeeklyPlan(
+                        campus = cafeteria.campus.name,
+                        buildingCode = cafeteria.buildingCode,
+                        restaurantCode = cafeteria.restaurantCode,
                     )
 
                 if (response.isSuccessful) {
                     val responseBody = response.body()?.string()
                     if (responseBody.isNullOrBlank()) {
-                        return Result.success(emptyList())
+                        return Result.failure(Exception(GET_CAFETERIA_MENUS_FAILED_ERROR))
                     }
 
-                    val dailyCafeteriaMenus = responseBody.parseHtmlToDailyCafeteriaMenus()
-                    Result.success(dailyCafeteriaMenus)
+                    val parseHtmlToWeeklyPlans = responseBody.parseHtmlToWeeklyPlans()
+                    Result.success(
+                        CafeteriaWeeklyPlan(
+                            cafeteria = cafeteria,
+                            weeklyPlans = parseHtmlToWeeklyPlans,
+                        ),
+                    )
                 } else {
                     Result.failure(Exception(GET_CAFETERIA_MENUS_FAILED_ERROR))
                 }
@@ -42,15 +47,15 @@ class RemoteCafeteriaRepository
         }
 
         companion object {
-            private const val GET_CAFETERIA_MENUS_FAILED_ERROR = "교내 식당 식단을 불러오는데 실패했습니다."
+            private const val GET_CAFETERIA_MENUS_FAILED_ERROR = "식단 정보를 불러오는데 실패했습니다."
         }
     }
 
-private fun String.parseHtmlToDailyCafeteriaMenus(): List<DailyCafeteriaMenu> {
+private fun String.parseHtmlToWeeklyPlans(): List<DailyCafeteriaPlan> {
     data class MenuWithDate(
         val date: String,
         val day: String,
-        val menu: CafeteriaMenu,
+        val menu: CafeteriaPlan,
     )
 
     val menusWithDate = mutableListOf<MenuWithDate>()
@@ -82,9 +87,9 @@ private fun String.parseHtmlToDailyCafeteriaMenus(): List<DailyCafeteriaMenu> {
 
         val mealType =
             when (mealTypeText) {
-                "조식" -> pusan.university.plato_calendar.domain.entity.MealType.BREAKFAST
-                "중식" -> pusan.university.plato_calendar.domain.entity.MealType.LUNCH
-                "석식" -> pusan.university.plato_calendar.domain.entity.MealType.DINNER
+                "조식" -> MealType.BREAKFAST
+                "중식" -> MealType.LUNCH
+                "석식" -> MealType.DINNER
                 else -> return@forEach
             }
 
@@ -97,14 +102,13 @@ private fun String.parseHtmlToDailyCafeteriaMenus(): List<DailyCafeteriaMenu> {
                         date = date,
                         day = day,
                         menu =
-                            CafeteriaMenu(
+                            CafeteriaPlan(
                                 mealType = mealType,
                                 isOperating = false,
                                 notOperatingReason = null,
                                 operatingTime = null,
-                                courseName = null,
-                                price = null,
-                                dishes = null,
+                                courseTitle = null,
+                                menus = null,
                             ),
                     ),
                 )
@@ -137,21 +141,18 @@ private fun String.parseHtmlToDailyCafeteriaMenus(): List<DailyCafeteriaMenu> {
                                 ?.joinToString(", ") ?: ""
 
                         if (dishes.isNotEmpty()) {
-                            val courseName = h3Content.substringBefore("-").trim()
-                            val price = h3Content.substringAfter("-").trim()
                             menusWithDate.add(
                                 MenuWithDate(
                                     date = date,
                                     day = day,
                                     menu =
-                                        CafeteriaMenu(
+                                        CafeteriaPlan(
                                             mealType = mealType,
                                             isOperating = true,
                                             notOperatingReason = null,
                                             operatingTime = timeRange,
-                                            courseName = courseName,
-                                            price = price,
-                                            dishes = dishes,
+                                            courseTitle = h3Content,
+                                            menus = dishes,
                                         ),
                                 ),
                             )
@@ -161,14 +162,13 @@ private fun String.parseHtmlToDailyCafeteriaMenus(): List<DailyCafeteriaMenu> {
                                     date = date,
                                     day = day,
                                     menu =
-                                        CafeteriaMenu(
+                                        CafeteriaPlan(
                                             mealType = mealType,
                                             isOperating = false,
                                             notOperatingReason = h3Content,
                                             operatingTime = null,
-                                            courseName = null,
-                                            price = null,
-                                            dishes = null,
+                                            courseTitle = null,
+                                            menus = null,
                                         ),
                                 ),
                             )
@@ -182,14 +182,13 @@ private fun String.parseHtmlToDailyCafeteriaMenus(): List<DailyCafeteriaMenu> {
                             date = date,
                             day = day,
                             menu =
-                                CafeteriaMenu(
+                                CafeteriaPlan(
                                     mealType = mealType,
                                     isOperating = false,
                                     notOperatingReason = null,
                                     operatingTime = null,
-                                    courseName = null,
-                                    price = null,
-                                    dishes = null,
+                                    courseTitle = null,
+                                    menus = null,
                                 ),
                         ),
                     )
@@ -215,28 +214,58 @@ private fun String.parseHtmlToDailyCafeteriaMenus(): List<DailyCafeteriaMenu> {
                 }
             }
 
-    return syncedMenusWithDate
-        .sortedWith(compareBy({ it.date }, { it.menu.mealType.ordinal }))
-        .groupBy { it.date }
-        .map { (date, menusWithDate) ->
-            val day = menusWithDate.firstOrNull()?.day ?: ""
-            DailyCafeteriaMenu(
-                date = date,
-                day = day,
-                breakfast =
-                    menusWithDate
-                        .filter { it.menu.mealType == pusan.university.plato_calendar.domain.entity.MealType.BREAKFAST }
-                        .map { it.menu },
-                lunch =
-                    menusWithDate
-                        .filter {
-                            it.menu.mealType == pusan.university.plato_calendar.domain.entity.MealType.LUNCH
-                        }.map { it.menu },
-                dinner =
-                    menusWithDate
-                        .filter {
-                            it.menu.mealType == pusan.university.plato_calendar.domain.entity.MealType.DINNER
-                        }.map { it.menu },
-            )
-        }.sortedBy { it.date }
+    val dailyCafeteriaPlans =
+        syncedMenusWithDate
+            .sortedWith(compareBy({ it.date }, { it.menu.mealType.ordinal }))
+            .groupBy { it.date }
+            .map { (date, menusWithDate) ->
+                val day = menusWithDate.firstOrNull()?.day ?: ""
+                DailyCafeteriaPlan(
+                    date = date,
+                    day = day,
+                    dailyPlans = menusWithDate.map { menuWithDate -> menuWithDate.menu },
+                )
+            }.sortedBy { it.date }
+
+    if (dailyCafeteriaPlans.isEmpty()) return emptyList()
+
+    val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
+    val firstDate = LocalDate.parse(dailyCafeteriaPlans.first().date, formatter)
+    val sundayDate = firstDate.minusDays(1)
+    val sundayDateString = sundayDate.format(formatter)
+
+    val sundayMenu =
+        DailyCafeteriaPlan(
+            date = sundayDateString,
+            day = "일",
+            dailyPlans =
+                listOf(
+                    CafeteriaPlan(
+                        mealType = MealType.BREAKFAST,
+                        isOperating = false,
+                        notOperatingReason = "미운영",
+                        operatingTime = null,
+                        courseTitle = null,
+                        menus = null,
+                    ),
+                    CafeteriaPlan(
+                        mealType = MealType.LUNCH,
+                        isOperating = false,
+                        notOperatingReason = "미운영",
+                        operatingTime = null,
+                        courseTitle = null,
+                        menus = null,
+                    ),
+                    CafeteriaPlan(
+                        mealType = MealType.DINNER,
+                        isOperating = false,
+                        notOperatingReason = "미운영",
+                        operatingTime = null,
+                        courseTitle = null,
+                        menus = null,
+                    ),
+                ),
+        )
+
+    return listOf(sundayMenu) + dailyCafeteriaPlans
 }

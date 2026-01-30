@@ -44,7 +44,7 @@ class RemoteScheduleRepository
                 if (response.isSuccessful) {
                     val responseBody = response.body()?.string()
                     if (responseBody.isNullOrBlank()) {
-                        return Result.success(emptyList())
+                        return Result.failure(Exception(GET_SCHEDULES_FAILED_ERROR))
                     }
 
                     val academicSchedules = responseBody.parseHtmlToAcademicSchedules()
