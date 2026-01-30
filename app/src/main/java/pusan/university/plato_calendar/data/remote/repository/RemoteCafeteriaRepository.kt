@@ -103,7 +103,7 @@ private fun String.parseHtmlToWeeklyPlans(): List<DailyCafeteriaPlan> {
 
         val tdElements = Regex("<td>(.*?)</td>", RegexOption.DOT_MATCHES_ALL).findAll(row).toList()
 
-        if (timeRange.isBlank() || timeRange.contains("미운영") || timeRange.contains("x")) {
+        if (timeRange.isBlank() || timeRange.contains(NOT_OPERATE) || timeRange.contains("x")) {
             dateInfoList.forEach { (day, date) ->
                 menusWithDate.add(
                     MenuWithDate(
@@ -215,7 +215,7 @@ private fun String.parseHtmlToWeeklyPlans(): List<DailyCafeteriaPlan> {
             .flatMap { (_, dailyMenus) ->
                 val reasonOfDay = dailyMenus.firstNotNullOfOrNull { it.menu.notOperatingReason }
 
-                val finalReason = reasonOfDay ?: "미운영"
+                val finalReason = reasonOfDay ?: NOT_OPERATE
 
                 dailyMenus.map { menuWithDate ->
                     if (!menuWithDate.menu.isOperating && menuWithDate.menu.notOperatingReason == null) {
@@ -251,32 +251,16 @@ private fun String.parseHtmlToWeeklyPlans(): List<DailyCafeteriaPlan> {
             date = sundayDateString,
             day = "일",
             dailyPlans =
-                listOf(
+                listOf(MealType.BREAKFAST, MealType.LUNCH, MealType.BREAKFAST).map { mealType ->
                     CafeteriaPlan(
-                        mealType = MealType.BREAKFAST,
+                        mealType = mealType,
                         isOperating = false,
-                        notOperatingReason = "미운영",
+                        notOperatingReason = NOT_OPERATE,
                         operatingTime = null,
                         courseTitle = null,
                         menus = null,
-                    ),
-                    CafeteriaPlan(
-                        mealType = MealType.LUNCH,
-                        isOperating = false,
-                        notOperatingReason = "미운영",
-                        operatingTime = null,
-                        courseTitle = null,
-                        menus = null,
-                    ),
-                    CafeteriaPlan(
-                        mealType = MealType.DINNER,
-                        isOperating = false,
-                        notOperatingReason = "미운영",
-                        operatingTime = null,
-                        courseTitle = null,
-                        menus = null,
-                    ),
-                ),
+                    )
+                }
         )
 
     return listOf(sundayMenu) + dailyCafeteriaPlans
@@ -285,7 +269,7 @@ private fun String.parseHtmlToWeeklyPlans(): List<DailyCafeteriaPlan> {
 private fun String.parseNotice(): String {
     val noticeRegex =
         Regex("<div class=\"dish-notice\">(.*?)</div>\\s*</div>", RegexOption.DOT_MATCHES_ALL)
-    val noticeMatch = noticeRegex.find(this) ?: return "공지 없음"
+    val noticeMatch = noticeRegex.find(this) ?: return HAS_NO_NOTICE
 
     val noticeContent = noticeMatch.groupValues[1]
 
@@ -325,3 +309,6 @@ private fun String.parseNotice(): String {
         .filter { it.isNotBlank() }
         .joinToString("\n")
 }
+
+private const val HAS_NO_NOTICE = "공지 없음"
+private const val NOT_OPERATE = "미운영"
