@@ -31,9 +31,6 @@ class ScheduleManager
         private val _schedules = MutableStateFlow<List<ScheduleUiModel>>(emptyList())
         val schedules: StateFlow<List<ScheduleUiModel>> = _schedules.asStateFlow()
 
-        private val _isLoading = MutableStateFlow(true)
-        val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
-
         fun updateToday() {
             val previousTodayDate = _today.value.toLocalDate()
             _today.value = LocalDateTime.now()
@@ -48,10 +45,6 @@ class ScheduleManager
         fun updateSchedules(schedules: List<ScheduleUiModel>) {
             _schedules.value = schedules
             refreshMonthlySchedules()
-        }
-
-        fun updateLoading(isLoading: Boolean) {
-            _isLoading.value = isLoading
         }
 
         fun updateSelectedDate(date: LocalDate) {

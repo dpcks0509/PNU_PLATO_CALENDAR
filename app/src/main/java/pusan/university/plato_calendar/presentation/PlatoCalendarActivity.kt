@@ -33,6 +33,7 @@ import pusan.university.plato_calendar.presentation.common.component.AnimatedToa
 import pusan.university.plato_calendar.presentation.common.eventbus.NotificationEvent
 import pusan.university.plato_calendar.presentation.common.eventbus.NotificationEventBus
 import pusan.university.plato_calendar.presentation.common.extension.noRippleClickable
+import pusan.university.plato_calendar.presentation.common.manager.LoadingManager
 import pusan.university.plato_calendar.presentation.common.manager.LoginManager
 import pusan.university.plato_calendar.presentation.common.manager.ScheduleManager
 import pusan.university.plato_calendar.presentation.common.manager.SettingsManager
@@ -55,6 +56,9 @@ class PlatoCalendarActivity : ComponentActivity() {
 
     @Inject
     lateinit var scheduleManager: ScheduleManager
+
+    @Inject
+    lateinit var loadingManager: LoadingManager
 
     @Inject
     lateinit var settingsManager: SettingsManager
@@ -106,7 +110,7 @@ class PlatoCalendarActivity : ComponentActivity() {
 
         setContent {
             val navController = rememberNavController()
-            val isLoading by scheduleManager.isLoading.collectAsStateWithLifecycle()
+            val isLoading by loadingManager.isLoading.collectAsStateWithLifecycle()
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = navBackStackEntry?.destination?.route
 
