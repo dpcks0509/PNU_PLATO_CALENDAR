@@ -100,14 +100,14 @@ fun ToDoContent(
     onEvent: (ToDoEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val scrollState = rememberScrollState()
+
     val within7Days = state.within7Days
     val completedSchedules = state.completedSchedules
     val courseSchedules = state.courseSchedules
     val customSchedules = state.customSchedules
     val academicSchedules = state.academicSchedules
-
-    var expandedToDoSection by rememberSaveable { mutableStateOf<ToDoSection?>(ToDoSection.WITHIN_7_DAYS) }
-    val scrollState = rememberScrollState()
+    var expandedToDoSections by rememberSaveable { mutableStateOf<ToDoSection?>(ToDoSection.WITHIN_7_DAYS) }
 
     PullToRefreshContainer(
         modifier = modifier,
@@ -137,10 +137,10 @@ fun ToDoContent(
                     toDoSection = section,
                     items = schedules,
                     today = state.today,
-                    isExpanded = expandedToDoSection == section,
+                    isExpanded = expandedToDoSections == section,
                     onSectionClick = { clickedSection ->
-                        expandedToDoSection =
-                            if (expandedToDoSection == clickedSection) {
+                        expandedToDoSections =
+                            if (expandedToDoSections == clickedSection) {
                                 null
                             } else {
                                 clickedSection
