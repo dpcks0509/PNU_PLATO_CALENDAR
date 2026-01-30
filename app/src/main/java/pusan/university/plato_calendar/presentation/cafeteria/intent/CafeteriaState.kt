@@ -9,5 +9,5 @@ data class CafeteriaState(
 ) : UiState {
     fun getWeeklyPlanByCafeteria(cafeteria: Cafeteria): CafeteriaWeeklyPlan =
         cafeteriaWeeklyPlans.find { cafeteriaWeeklyPlan -> cafeteriaWeeklyPlan.cafeteria == cafeteria }
-            ?: CafeteriaWeeklyPlan(cafeteria, emptyList())
+            ?: CafeteriaWeeklyPlan(cafeteria, "", emptyList())
 }
