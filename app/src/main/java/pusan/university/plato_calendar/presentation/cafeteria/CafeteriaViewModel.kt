@@ -15,6 +15,7 @@ import pusan.university.plato_calendar.presentation.cafeteria.intent.CafeteriaSt
 import pusan.university.plato_calendar.presentation.common.base.BaseViewModel
 import pusan.university.plato_calendar.presentation.common.eventbus.ToastEventBus
 import pusan.university.plato_calendar.presentation.common.manager.LoadingManager
+import pusan.university.plato_calendar.presentation.common.manager.ScheduleManager
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,10 +25,45 @@ class CafeteriaViewModel
         private val loadingManager: LoadingManager,
         private val cafeteriaRepository: CafeteriaRepository,
         private val cafeteriaDataStore: CafeteriaDataStore,
-    ) : BaseViewModel<CafeteriaState, CafeteriaEvent, CafeteriaSideEffect>(initialState = CafeteriaState()) {
+        private val scheduleManager: ScheduleManager,
+    ) : BaseViewModel<CafeteriaState, CafeteriaEvent, CafeteriaSideEffect>(
+            initialState =
+                CafeteriaState(
+                    today = scheduleManager.today.value.toLocalDate(),
+                    selectedDate = scheduleManager.today.value.toLocalDate(),
+                ),
+        ) {
         override suspend fun handleEvent(event: CafeteriaEvent) {
             when (event) {
-                is SelectCafeteria -> cafeteriaDataStore.setSelectedCafeteria(event.cafeteria)
+                is SelectCafeteria -> {
+                    cafeteriaDataStore.setSelectedCafeteria(event.cafeteria)
+                }
+
+                is CafeteriaEvent.PreviousDay -> {
+                    setState {
+                        val weekStartDate = getWeekStartDate()
+                        val newDate = selectedDate.minusDays(1)
+
+                        if (weekStartDate != null && !newDate.isBefore(weekStartDate)) {
+                            copy(selectedDate = newDate)
+                        } else {
+                            this
+                        }
+                    }
+                }
+
+                is CafeteriaEvent.NextDay -> {
+                    setState {
+                        val weekEndDate = getWeekEndDate()
+                        val newDate = selectedDate.plusDays(1)
+
+                        if (weekEndDate != null && !newDate.isAfter(weekEndDate)) {
+                            copy(selectedDate = newDate)
+                        } else {
+                            this
+                        }
+                    }
+                }
             }
         }
 

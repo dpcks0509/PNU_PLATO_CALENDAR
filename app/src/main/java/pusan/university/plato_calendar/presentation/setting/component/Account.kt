@@ -72,8 +72,8 @@ fun Account(
             Text(
                 text = buttonText,
                 fontSize = 14.sp,
-                fontWeight = FontWeight.SemiBold,
                 color = White,
+                fontWeight = FontWeight.SemiBold,
             )
         }
     }

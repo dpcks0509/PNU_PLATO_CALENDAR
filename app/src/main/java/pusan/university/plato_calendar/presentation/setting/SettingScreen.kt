@@ -11,6 +11,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -71,12 +72,17 @@ fun SettingScreen(
     val notificationPermissionLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             when {
-                isGranted -> viewModel.setEvent(UpdateNotificationsEnabled(true))
+                isGranted -> {
+                    viewModel.setEvent(UpdateNotificationsEnabled(true))
+                }
+
                 activity?.shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) == false -> {
                     viewModel.setEvent(SettingEvent.ShowNotificationPermissionSettingsDialog)
                 }
 
-                else -> viewModel.setEvent(UpdateNotificationsEnabled(false))
+                else -> {
+                    viewModel.setEvent(UpdateNotificationsEnabled(false))
+                }
             }
         }
 
@@ -111,10 +117,11 @@ fun SettingScreen(
                 }
             }
 
-            else -> viewModel.setEvent(event)
+            else -> {
+                viewModel.setEvent(event)
+            }
         }
     }
-
 
     SettingContent(
         state = state,
@@ -153,78 +160,102 @@ fun SettingContent(
     onEvent: (SettingEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    LazyColumn(
-        state = lazyListState,
-        modifier =
-            modifier
-                .padding(horizontal = 16.dp)
-                .fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(18.dp),
+    Column(
+        modifier = modifier.padding(bottom = 24.dp, start = 16.dp, end = 16.dp),
     ) {
-        item {
-            TopBar(title = "설정")
-        }
+        TopBar(title = "설정")
 
-        SettingMenu.entries.forEach { menu ->
-            item {
-                SettingSection(title = menu.title) {
-                    when (menu) {
-                        ACCOUNT -> {
-                            Account(
-                                userInfo = state.userInfo,
-                                onClickLoginLogout = {
-                                    val isLoggedIn = state.userInfo != null
-                                    onEvent(if (isLoggedIn) SettingEvent.Logout else SettingEvent.ShowLoginDialog)
-                                },
-                            )
-                        }
+        LazyColumn(
+            state = lazyListState,
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            SettingMenu.entries.forEach { menu ->
+                item {
+                    SettingSection(title = menu.title) {
+                        when (menu) {
+                            ACCOUNT -> {
+                                Account(
+                                    userInfo = state.userInfo,
+                                    onClickLoginLogout = {
+                                        val isLoggedIn = state.userInfo != null
+                                        onEvent(if (isLoggedIn) SettingEvent.Logout else SettingEvent.ShowLoginDialog)
+                                    },
+                                )
+                            }
 
-                        NOTIFICATIONS -> {
-                            menu.items.forEachIndexed { index, content ->
-                                when {
-                                    content == NOTIFICATIONS_ENABLED -> {
-                                        NotificationToggleItem(
-                                            label = content.getLabel(),
-                                            checked = state.notificationsEnabled,
-                                            onCheckedChange = { enabled ->
-                                                onEvent(
-                                                    UpdateNotificationsEnabled(enabled)
-                                                )
-                                            },
-                                        )
-                                    }
-
-                                    content == FIRST_REMINDER -> {
-                                        ReminderDropdownItem(
-                                            label = content.getLabel(),
-                                            selectedLabel = state.firstReminderTime.label,
-                                            enabled = state.hasNotificationPermission,
-                                            onSelect = { option ->
-                                                onEvent(
-                                                    UpdateFirstReminderTime(
-                                                        option
+                            NOTIFICATIONS -> {
+                                menu.items.forEachIndexed { index, content ->
+                                    when {
+                                        content == NOTIFICATIONS_ENABLED -> {
+                                            NotificationToggleItem(
+                                                label = content.getLabel(),
+                                                checked = state.notificationsEnabled,
+                                                onCheckedChange = { enabled ->
+                                                    onEvent(
+                                                        UpdateNotificationsEnabled(enabled),
                                                     )
-                                                )
-                                            },
-                                        )
-                                    }
+                                                },
+                                            )
+                                        }
 
-                                    content == SECOND_REMINDER -> {
-                                        ReminderDropdownItem(
-                                            label = content.getLabel(),
-                                            selectedLabel = state.secondReminderTime.label,
-                                            onSelect = { option ->
-                                                onEvent(
-                                                    UpdateSecondReminderTime(
-                                                        option
+                                        content == FIRST_REMINDER -> {
+                                            ReminderDropdownItem(
+                                                label = content.getLabel(),
+                                                selectedLabel = state.firstReminderTime.label,
+                                                enabled = state.hasNotificationPermission,
+                                                onSelect = { option ->
+                                                    onEvent(
+                                                        UpdateFirstReminderTime(
+                                                            option,
+                                                        ),
                                                     )
-                                                )
-                                            },
-                                            enabled = state.hasNotificationPermission,
-                                        )
-                                    }
+                                                },
+                                            )
+                                        }
 
-                                    index != menu.items.lastIndex -> {
+                                        content == SECOND_REMINDER -> {
+                                            ReminderDropdownItem(
+                                                label = content.getLabel(),
+                                                selectedLabel = state.secondReminderTime.label,
+                                                onSelect = { option ->
+                                                    onEvent(
+                                                        UpdateSecondReminderTime(
+                                                            option,
+                                                        ),
+                                                    )
+                                                },
+                                                enabled = state.hasNotificationPermission,
+                                            )
+                                        }
+
+                                        index != menu.items.lastIndex -> {
+                                            Spacer(
+                                                modifier =
+                                                    Modifier
+                                                        .fillMaxWidth()
+                                                        .height(1.dp)
+                                                        .background(MediumGray),
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
+                            USER_SUPPORT, USAGE_GUIDE -> {
+                                menu.items.forEachIndexed { index, content ->
+                                    SettingItem(
+                                        content = content,
+                                        navigateToWebView = { navigateUrl ->
+                                            onEvent(
+                                                NavigateToWebView(
+                                                    navigateUrl,
+                                                ),
+                                            )
+                                        },
+                                    )
+
+                                    if (index != menu.items.lastIndex) {
                                         Spacer(
                                             modifier =
                                                 Modifier
@@ -236,52 +267,22 @@ fun SettingContent(
                                 }
                             }
                         }
-
-                        USER_SUPPORT, USAGE_GUIDE -> {
-                            menu.items.forEachIndexed { index, content ->
-                                SettingItem(
-                                    content = content,
-                                    navigateToWebView = { navigateUrl ->
-                                        onEvent(
-                                            NavigateToWebView(
-                                                navigateUrl
-                                            )
-                                        )
-                                    },
-                                )
-
-                                if (index != menu.items.lastIndex) {
-                                    Spacer(
-                                        modifier =
-                                            Modifier
-                                                .fillMaxWidth()
-                                                .height(1.dp)
-                                                .background(MediumGray),
-                                    )
-                                }
-                            }
-                        }
                     }
                 }
             }
         }
-
-        item {
-            Spacer(modifier = Modifier.height(24.dp))
-        }
     }
 }
 
-private fun checkNotificationPermission(context: Context): Boolean {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+private fun checkNotificationPermission(context: Context): Boolean =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         ContextCompat.checkSelfPermission(
             context,
-            Manifest.permission.POST_NOTIFICATIONS
+            Manifest.permission.POST_NOTIFICATIONS,
         ) == PackageManager.PERMISSION_GRANTED
     } else {
         true
     }
-}
 
 @Preview(showBackground = true)
 @Composable

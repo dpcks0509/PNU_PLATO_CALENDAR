@@ -7,4 +7,8 @@ sealed interface CafeteriaEvent : UiEvent {
     data class SelectCafeteria(
         val cafeteria: Cafeteria,
     ) : CafeteriaEvent
+    
+    data object PreviousDay : CafeteriaEvent
+    
+    data object NextDay : CafeteriaEvent
 }
