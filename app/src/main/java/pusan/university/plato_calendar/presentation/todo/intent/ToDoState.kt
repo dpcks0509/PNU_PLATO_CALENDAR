@@ -41,14 +41,12 @@ data class ToDoState(
             )
 
     val within7Days =
-        validSchedules.filter { schedule ->
-            val daysUntilEnd =
-                when (schedule) {
-                    is AcademicScheduleUiModel -> ChronoUnit.DAYS.between(today.toLocalDate(), schedule.endAt)
-                    is PersonalScheduleUiModel -> ChronoUnit.DAYS.between(today.toLocalDate(), schedule.endAt.toLocalDate())
-                }
-            daysUntilEnd in 0..7
-        }
+        validSchedules
+            .filterIsInstance<PersonalScheduleUiModel>()
+            .filter { schedule ->
+                val daysUntilEnd = ChronoUnit.DAYS.between(today.toLocalDate(), schedule.endAt.toLocalDate())
+                daysUntilEnd in 0..7
+            }
 
     val completedSchedules =
         schedules
