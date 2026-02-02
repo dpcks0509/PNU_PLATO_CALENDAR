@@ -2,10 +2,8 @@ package pusan.university.plato_calendar.presentation.todo
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -114,46 +112,48 @@ fun ToDoContent(
         onRefresh = { onEvent(ToDoEvent.Refresh) },
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier =
                 Modifier
                     .fillMaxSize()
                     .verticalScroll(scrollState)
-                    .padding(horizontal = 16.dp),
+                    .padding(bottom = 24.dp, start = 16.dp, end = 16.dp),
         ) {
             TopBar(title = "할일")
 
-            ToDoSection.entries.forEach { section ->
-                val schedules =
-                    when (section) {
-                        ToDoSection.WITHIN_7_DAYS -> within7Days
-                        ToDoSection.COMPLETED -> completedSchedules
-                        ToDoSection.COURSE -> courseSchedules
-                        ToDoSection.CUSTOM -> customSchedules
-                        ToDoSection.ACADEMIC -> academicSchedules
-                    }
+            Column(
+                modifier = Modifier.fillMaxSize().padding(top = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                ToDoSection.entries.forEach { section ->
+                    val schedules =
+                        when (section) {
+                            ToDoSection.WITHIN_7_DAYS -> within7Days
+                            ToDoSection.COMPLETED -> completedSchedules
+                            ToDoSection.COURSE -> courseSchedules
+                            ToDoSection.CUSTOM -> customSchedules
+                            ToDoSection.ACADEMIC -> academicSchedules
+                        }
 
-                ExpandableToDoSection(
-                    toDoSection = section,
-                    items = schedules,
-                    today = state.today,
-                    isExpanded = expandedToDoSections == section,
-                    onSectionClick = { clickedSection ->
-                        expandedToDoSections =
-                            if (expandedToDoSections == clickedSection) {
-                                null
-                            } else {
-                                clickedSection
-                            }
-                    },
-                    toggleCompletion = { id, completed ->
-                        onEvent(TogglePersonalScheduleCompletion(id, completed))
-                    },
-                    onScheduleClick = { schedule -> onEvent(ShowScheduleBottomSheet(schedule)) },
-                )
+                    ExpandableToDoSection(
+                        toDoSection = section,
+                        items = schedules,
+                        today = state.today,
+                        isExpanded = expandedToDoSections == section,
+                        onSectionClick = { clickedSection ->
+                            expandedToDoSections =
+                                if (expandedToDoSections == clickedSection) {
+                                    null
+                                } else {
+                                    clickedSection
+                                }
+                        },
+                        toggleCompletion = { id, completed ->
+                            onEvent(TogglePersonalScheduleCompletion(id, completed))
+                        },
+                        onScheduleClick = { schedule -> onEvent(ShowScheduleBottomSheet(schedule)) },
+                    )
+                }
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }

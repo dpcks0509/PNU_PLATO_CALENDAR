@@ -79,7 +79,7 @@ fun ReminderDropdownItem(
                 Icon(
                     imageVector = Icons.Filled.KeyboardArrowDown,
                     contentDescription = null,
-                    tint = MediumGray,
+                    tint = Gray,
                 )
             }
 

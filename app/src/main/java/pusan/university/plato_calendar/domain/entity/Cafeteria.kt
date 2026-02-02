@@ -13,7 +13,7 @@ enum class Cafeteria(
         restaurantCode = "PG002",
     ),
     GEUMJEONG_STAFF(
-        title = "금정 교직",
+        title = "금정 교직원",
         campus = Campus.PUSAN,
         buildingCode = "R001",
         restaurantCode = "PG001",
@@ -43,13 +43,13 @@ enum class Cafeteria(
         restaurantCode = "M001",
     ),
     MIRYANG_STUDENT_HALL_STAFF(
-        title = "밀양 교직",
+        title = "밀양 교직원",
         campus = Campus.MIRYANG,
         buildingCode = "R005",
         restaurantCode = "M002",
     ),
     YANGSAN_CONVENIENCE(
-        title = "양산 편의",
+        title = "양산 편의동",
         campus = Campus.YANGSAN,
         buildingCode = "R006",
         restaurantCode = "Y001",
