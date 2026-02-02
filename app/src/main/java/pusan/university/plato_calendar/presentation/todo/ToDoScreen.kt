@@ -32,7 +32,7 @@ import pusan.university.plato_calendar.presentation.common.component.PullToRefre
 import pusan.university.plato_calendar.presentation.common.component.TopBar
 import pusan.university.plato_calendar.presentation.common.component.bottomsheet.ScheduleBottomSheet
 import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarTheme
-import pusan.university.plato_calendar.presentation.todo.component.ExpandableSection
+import pusan.university.plato_calendar.presentation.todo.component.ExpandableToDoSection
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.DeleteCustomSchedule
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.EditCustomSchedule
@@ -133,7 +133,7 @@ fun ToDoContent(
                         ToDoSection.ACADEMIC -> academicSchedules
                     }
 
-                ExpandableSection(
+                ExpandableToDoSection(
                     toDoSection = section,
                     items = schedules,
                     today = state.today,
