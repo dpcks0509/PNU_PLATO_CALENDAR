@@ -28,7 +28,12 @@ data class CalendarState(
                     }
                 }.sortedWith(
                     compareBy(
-                        { if (it is AcademicScheduleUiModel) 0 else 1 },
+                        {
+                            when (it) {
+                                is PersonalScheduleUiModel -> 0
+                                is AcademicScheduleUiModel -> 1
+                            }
+                        },
                         { if (it is PersonalScheduleUiModel) it.isCompleted else false },
                         {
                             when (it) {
