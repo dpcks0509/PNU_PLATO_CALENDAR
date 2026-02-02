@@ -41,7 +41,7 @@ import java.time.LocalDateTime
 private const val HAS_NO_SCHEDULE = "일정 없음"
 
 @Composable
-fun ExpandableSection(
+fun ExpandableToDoSection(
     toDoSection: ToDoSection,
     items: List<ScheduleUiModel>,
     today: LocalDateTime,
