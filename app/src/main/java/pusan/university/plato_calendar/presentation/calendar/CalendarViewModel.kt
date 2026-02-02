@@ -63,7 +63,10 @@ class CalendarViewModel
         private val alarmScheduler: AlarmScheduler,
     ) : BaseViewModel<CalendarState, CalendarEvent, CalendarSideEffect>(
             initialState =
-                CalendarState(today = scheduleManager.today.value.toLocalDate()),
+                CalendarState(
+                    today = scheduleManager.today.value.toLocalDate(),
+                    selectedDate = scheduleManager.today.value.toLocalDate(),
+                ),
         ) {
         private var pendingOpenScheduleId: Long? = null
 
@@ -198,7 +201,8 @@ class CalendarViewModel
                 .getAcademicSchedules()
                 .onSuccess {
                     val academicSchedules =
-                        it.map(::AcademicScheduleUiModel)
+                        it
+                            .map(::AcademicScheduleUiModel)
                             .toSet()
                             .toList()
 

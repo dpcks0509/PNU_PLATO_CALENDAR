@@ -70,7 +70,7 @@ fun ExpandableToDoSection(
                 is IconType.Vector -> {
                     Icon(
                         imageVector = icon.imageVector,
-                        contentDescription = "Vector",
+                        contentDescription = null,
                         tint = PrimaryColor,
                     )
                 }
@@ -78,7 +78,7 @@ fun ExpandableToDoSection(
                 is IconType.Resource -> {
                     Icon(
                         painter = painterResource(id = icon.resId),
-                        contentDescription = "Resource",
+                        contentDescription = null,
                         tint = PrimaryColor,
                     )
                 }
@@ -93,7 +93,7 @@ fun ExpandableToDoSection(
             )
             Icon(
                 imageVector = Icons.Default.KeyboardArrowDown,
-                contentDescription = "Arrow",
+                contentDescription = null,
                 tint = PrimaryColor,
                 modifier = Modifier.rotate(rotation),
             )

@@ -188,7 +188,7 @@ object CalendarWidget : GlanceAppWidget() {
                     ) {
                         Image(
                             provider = ImageProvider(R.drawable.ic_refresh),
-                            contentDescription = "Refresh",
+                            contentDescription = null,
                             modifier = GlanceModifier.width(20.dp).height(20.dp),
                         )
                     }
@@ -219,7 +219,7 @@ object CalendarWidget : GlanceAppWidget() {
                     ) {
                         Image(
                             provider = ImageProvider(R.drawable.ic_add),
-                            contentDescription = "Add",
+                            contentDescription = null,
                             modifier = GlanceModifier.width(20.dp).height(20.dp),
                         )
                     }
