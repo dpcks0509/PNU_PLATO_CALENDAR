@@ -73,7 +73,7 @@ fun CourseScheduleContent(
     ) {
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-            contentDescription = "Back",
+            contentDescription = null,
             tint = White,
             modifier =
                 Modifier
@@ -168,7 +168,7 @@ fun CourseScheduleContent(
         ) {
             Icon(
                 imageVector = Icons.Default.Info,
-                contentDescription = "CourseName",
+                contentDescription = null,
                 tint = Black,
                 modifier = Modifier.size(24.dp),
             )
@@ -201,7 +201,7 @@ fun CourseScheduleContent(
         ) {
             Icon(
                 imageVector = Icons.Default.Menu,
-                contentDescription = "Description",
+                contentDescription = null,
                 tint = Black,
                 modifier = Modifier.size(24.dp),
             )
@@ -243,7 +243,7 @@ fun CourseScheduleContent(
         ) {
             Icon(
                 imageVector = Icons.Default.DateRange,
-                contentDescription = "Date",
+                contentDescription = null,
                 tint = Black,
                 modifier = Modifier.size(24.dp),
             )
@@ -283,7 +283,7 @@ fun CourseScheduleContent(
 
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = "Arrow",
+                contentDescription = null,
                 tint = Black,
                 modifier = Modifier.size(24.dp),
             )

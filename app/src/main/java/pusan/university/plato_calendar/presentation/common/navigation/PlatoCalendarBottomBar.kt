@@ -54,14 +54,14 @@ fun PlatoCalendarBottomBar(navController: NavController) {
                             is IconType.Vector -> {
                                 Icon(
                                     imageVector = icon.imageVector,
-                                    contentDescription = "Vector",
+                                    contentDescription = null,
                                 )
                             }
 
                             is IconType.Resource -> {
                                 Icon(
                                     painter = painterResource(id = icon.resId),
-                                    contentDescription = "Resource",
+                                    contentDescription = null,
                                 )
                             }
                         }

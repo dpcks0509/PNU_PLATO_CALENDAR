@@ -78,7 +78,7 @@ fun ReminderDropdownItem(
 
                 Icon(
                     imageVector = Icons.Filled.KeyboardArrowDown,
-                    contentDescription = "Arrow",
+                    contentDescription = null,
                     tint = MediumGray,
                 )
             }

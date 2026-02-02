@@ -48,7 +48,7 @@ fun Account(
     ) {
         Icon(
             imageVector = Icons.Default.AccountCircle,
-            contentDescription = "Account",
+            contentDescription = null,
             tint = PrimaryColor,
             modifier = Modifier.size(28.dp),
         )

@@ -10,7 +10,7 @@ import java.time.LocalDate
 
 data class CalendarState(
     val today: LocalDate,
-    val selectedDate: LocalDate = today,
+    val selectedDate: LocalDate,
     val currentYearMonth: YearMonth = YearMonth(year = today.year, month = today.monthValue),
     val schedules: List<ScheduleUiModel> = emptyList(),
     val scheduleBottomSheetContent: ScheduleBottomSheetContent? = null,

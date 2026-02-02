@@ -71,7 +71,7 @@ fun CalendarTopBar(
                     text = "TODAY",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(vertical = 4.dp)
+                    modifier = Modifier.padding(vertical = 4.dp),
                 )
             }
         }
@@ -80,7 +80,7 @@ fun CalendarTopBar(
 
         Icon(
             imageVector = Icons.Default.Add,
-            contentDescription = "Add",
+            contentDescription = null,
             tint = White,
             modifier =
                 Modifier
