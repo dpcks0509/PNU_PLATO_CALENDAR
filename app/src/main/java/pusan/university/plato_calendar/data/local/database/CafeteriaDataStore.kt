@@ -15,44 +15,43 @@ import java.io.IOException
 import javax.inject.Inject
 
 class CafeteriaDataStore
-@Inject
-constructor(
-    private val context: Context,
-) {
-    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PINNED_CAFETERIA)
+    @Inject
+    constructor(
+        private val context: Context,
+    ) {
+        private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = SELECTED_CAFETERIA)
 
-    val pinnedCafeteria: Flow<Cafeteria?> =
-        context
-            .dataStore
-            .data
-            .catch { exception ->
-                if (exception is IOException) {
-                    emit(emptyPreferences())
-                } else {
-                    throw exception
+        val selectedCafeteria: Flow<Cafeteria> =
+            context
+                .dataStore
+                .data
+                .catch { exception ->
+                    if (exception is IOException) {
+                        emit(emptyPreferences())
+                    } else {
+                        throw exception
+                    }
+                }.map { preferences ->
+                    val cafeteriaName = preferences[KEY_SELECTED_CAFETERIA_NAME]
+                    cafeteriaName?.let {
+                        runCatching { Cafeteria.valueOf(it) }.getOrNull()
+                    } ?: Cafeteria.GEUMJEONG_STUDENT
                 }
-            }
-            .map { preferences ->
-                val cafeteriaName = preferences[KEY_PINNED_CAFETERIA_NAME]
-                cafeteriaName?.let {
-                    runCatching { Cafeteria.valueOf(it) }.getOrNull()
-                }
-            }
 
-    suspend fun setPinnedCafeteria(cafeteria: Cafeteria) {
-        context.dataStore.edit { prefs ->
-            prefs[KEY_PINNED_CAFETERIA_NAME] = cafeteria.name
+        suspend fun setSelectedCafeteria(cafeteria: Cafeteria) {
+            context.dataStore.edit { prefs ->
+                prefs[KEY_SELECTED_CAFETERIA_NAME] = cafeteria.name
+            }
+        }
+
+        suspend fun clearSelectedCafeteria() {
+            context.dataStore.edit { prefs ->
+                prefs.remove(KEY_SELECTED_CAFETERIA_NAME)
+            }
+        }
+
+        companion object {
+            private const val SELECTED_CAFETERIA = "selected_cafeteria"
+            private val KEY_SELECTED_CAFETERIA_NAME = stringPreferencesKey("selected_cafeteria_name")
         }
     }
-
-    suspend fun clearPinnedCafeteria() {
-        context.dataStore.edit { prefs ->
-            prefs.remove(KEY_PINNED_CAFETERIA_NAME)
-        }
-    }
-
-    companion object {
-        private const val PINNED_CAFETERIA = "pinned_cafeteria"
-        private val KEY_PINNED_CAFETERIA_NAME = stringPreferencesKey("pinned_cafeteria_name")
-    }
-}
