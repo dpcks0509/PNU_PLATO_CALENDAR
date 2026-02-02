@@ -20,8 +20,8 @@ data class DaySchedule(
                 !(schedule is PersonalScheduleUiModel && schedule.isCompleted)
             }.sortedBy { schedule ->
                 when (schedule) {
-                    is AcademicScheduleUiModel -> 0
-                    is PersonalScheduleUiModel -> 1
+                    is PersonalScheduleUiModel -> 0
+                    is AcademicScheduleUiModel -> 1
                 }
             }.take(MAX_SCHEDULES_SIZE)
 

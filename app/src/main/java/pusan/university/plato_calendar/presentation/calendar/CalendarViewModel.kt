@@ -197,7 +197,10 @@ class CalendarViewModel
             scheduleRepository
                 .getAcademicSchedules()
                 .onSuccess {
-                    val academicSchedules = it.map(::AcademicScheduleUiModel)
+                    val academicSchedules =
+                        it.map(::AcademicScheduleUiModel)
+                            .toSet()
+                            .toList()
 
                     return academicSchedules
                 }.onFailure { throwable ->
