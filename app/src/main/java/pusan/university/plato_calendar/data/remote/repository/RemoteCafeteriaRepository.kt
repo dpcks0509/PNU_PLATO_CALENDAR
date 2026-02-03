@@ -2,10 +2,12 @@ package pusan.university.plato_calendar.data.remote.repository
 
 import pusan.university.plato_calendar.data.remote.service.CafeteriaService
 import pusan.university.plato_calendar.domain.entity.Cafeteria
-import pusan.university.plato_calendar.domain.entity.CafeteriaPlan
 import pusan.university.plato_calendar.domain.entity.CafeteriaWeeklyPlan
+import pusan.university.plato_calendar.domain.entity.CourseMenu
 import pusan.university.plato_calendar.domain.entity.DailyCafeteriaPlan
+import pusan.university.plato_calendar.domain.entity.MealInfo
 import pusan.university.plato_calendar.domain.entity.MealType
+import pusan.university.plato_calendar.domain.entity.OperationInfo
 import pusan.university.plato_calendar.domain.repository.CafeteriaRepository
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -57,7 +59,9 @@ private fun String.parseHtmlToWeeklyPlans(): List<DailyCafeteriaPlan> {
     data class MenuWithDate(
         val date: String,
         val day: String,
-        val menu: CafeteriaPlan,
+        val mealType: MealType,
+        val menu: CourseMenu,
+        val operationInfo: OperationInfo,
     )
 
     val menusWithDate = mutableListOf<MenuWithDate>()
@@ -110,14 +114,17 @@ private fun String.parseHtmlToWeeklyPlans(): List<DailyCafeteriaPlan> {
                     MenuWithDate(
                         date = date,
                         day = day,
+                        mealType = mealType,
                         menu =
-                            CafeteriaPlan(
-                                mealType = mealType,
+                            CourseMenu(
+                                courseTitle = null,
+                                menus = null,
+                            ),
+                        operationInfo =
+                            OperationInfo(
                                 isOperating = false,
                                 notOperatingReason = null,
                                 operatingTime = null,
-                                courseTitle = null,
-                                menus = null,
                             ),
                     ),
                 )
@@ -159,14 +166,17 @@ private fun String.parseHtmlToWeeklyPlans(): List<DailyCafeteriaPlan> {
                                 MenuWithDate(
                                     date = date,
                                     day = day,
+                                    mealType = mealType,
                                     menu =
-                                        CafeteriaPlan(
-                                            mealType = mealType,
+                                        CourseMenu(
+                                            courseTitle = h3Content,
+                                            menus = dishes,
+                                        ),
+                                    operationInfo =
+                                        OperationInfo(
                                             isOperating = true,
                                             notOperatingReason = null,
                                             operatingTime = timeRange,
-                                            courseTitle = h3Content,
-                                            menus = dishes,
                                         ),
                                 ),
                             )
@@ -175,14 +185,17 @@ private fun String.parseHtmlToWeeklyPlans(): List<DailyCafeteriaPlan> {
                                 MenuWithDate(
                                     date = date,
                                     day = day,
+                                    mealType = mealType,
                                     menu =
-                                        CafeteriaPlan(
-                                            mealType = mealType,
+                                        CourseMenu(
+                                            courseTitle = null,
+                                            menus = null,
+                                        ),
+                                    operationInfo =
+                                        OperationInfo(
                                             isOperating = false,
                                             notOperatingReason = h3Content,
                                             operatingTime = null,
-                                            courseTitle = null,
-                                            menus = null,
                                         ),
                                 ),
                             )
@@ -195,14 +208,17 @@ private fun String.parseHtmlToWeeklyPlans(): List<DailyCafeteriaPlan> {
                         MenuWithDate(
                             date = date,
                             day = day,
+                            mealType = mealType,
                             menu =
-                                CafeteriaPlan(
-                                    mealType = mealType,
+                                CourseMenu(
+                                    courseTitle = null,
+                                    menus = null,
+                                ),
+                            operationInfo =
+                                OperationInfo(
                                     isOperating = false,
                                     notOperatingReason = null,
                                     operatingTime = null,
-                                    courseTitle = null,
-                                    menus = null,
                                 ),
                         ),
                     )
@@ -215,13 +231,16 @@ private fun String.parseHtmlToWeeklyPlans(): List<DailyCafeteriaPlan> {
         menusWithDate
             .groupBy { it.date }
             .flatMap { (_, dailyMenus) ->
-                val reasonOfDay = dailyMenus.firstNotNullOfOrNull { it.menu.notOperatingReason }
+                val reasonOfDay = dailyMenus.firstNotNullOfOrNull { it.operationInfo.notOperatingReason }
 
                 val finalReason = reasonOfDay ?: NOT_OPERATE
 
                 dailyMenus.map { menuWithDate ->
-                    if (!menuWithDate.menu.isOperating && menuWithDate.menu.notOperatingReason == null) {
-                        menuWithDate.copy(menu = menuWithDate.menu.copy(notOperatingReason = finalReason))
+                    if (!menuWithDate.operationInfo.isOperating && menuWithDate.operationInfo.notOperatingReason == null) {
+                        menuWithDate.copy(
+                            operationInfo =
+                                menuWithDate.operationInfo.copy(notOperatingReason = finalReason),
+                        )
                     } else {
                         menuWithDate
                     }
@@ -230,14 +249,26 @@ private fun String.parseHtmlToWeeklyPlans(): List<DailyCafeteriaPlan> {
 
     val dailyCafeteriaPlans =
         syncedMenusWithDate
-            .sortedWith(compareBy({ it.date }, { it.menu.mealType.ordinal }))
+            .sortedWith(compareBy({ it.date }, { it.mealType.ordinal }))
             .groupBy { it.date }
             .map { (date, menusWithDate) ->
                 val day = menusWithDate.firstOrNull()?.day ?: ""
+
+                val mealInfos =
+                    menusWithDate
+                        .groupBy { it.mealType }
+                        .map { (mealType, menus) ->
+                            MealInfo(
+                                mealType = mealType,
+                                operationInfo = menus.first().operationInfo,
+                                courseMenus = menus.map { it.menu },
+                            )
+                        }.sortedBy { it.mealType.ordinal }
+
                 DailyCafeteriaPlan(
                     date = date,
                     day = day,
-                    dailyPlans = menusWithDate.map { menuWithDate -> menuWithDate.menu },
+                    mealInfos = mealInfos,
                 )
             }.sortedBy { it.date }
 
@@ -252,15 +283,17 @@ private fun String.parseHtmlToWeeklyPlans(): List<DailyCafeteriaPlan> {
         DailyCafeteriaPlan(
             date = sundayDateString,
             day = "일",
-            dailyPlans =
+            mealInfos =
                 listOf(MealType.BREAKFAST, MealType.LUNCH, MealType.DINNER).map { mealType ->
-                    CafeteriaPlan(
+                    MealInfo(
                         mealType = mealType,
-                        isOperating = false,
-                        notOperatingReason = NOT_OPERATE,
-                        operatingTime = null,
-                        courseTitle = null,
-                        menus = null,
+                        operationInfo =
+                            OperationInfo(
+                                isOperating = false,
+                                notOperatingReason = NOT_OPERATE,
+                                operatingTime = null,
+                            ),
+                        courseMenus = emptyList(),
                     )
                 },
         )
