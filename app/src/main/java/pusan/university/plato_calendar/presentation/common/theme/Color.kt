@@ -8,7 +8,7 @@ val PrimaryLight = Color(0xFF3B6EC7)
 val PrimaryDark = Color(0xFF3B6EC7)
 
 val WhiteLight = Color.White
-val WhiteDark = Color.Black
+val WhiteDark = Color(0xFF121212)
 
 val BlackLight = Color.Black
 val BlackDark = Color.White
@@ -30,6 +30,15 @@ val GrayDark = Color(0x99FFFFFF)
 
 val RedLight = Color.Red
 val RedDark = Color(0xFFFF8A80)
+
+val LightYellowLight = Color(0xFFFFF9E6)
+val LightYellowDark = Color(0xFF3A3420)
+
+val YellowLight = Color(0xFFFFE082)
+val YellowDark = Color(0xFF5A5020)
+
+val BrownLight = Color(0xFF6D4C00)
+val BrownDark = Color(0xFFFFD580)
 
 val CalendarFlamingoLight = Color(0xFFE67C73)
 val CalendarFlamingoDark = Color(0xFFF6AEA9)
@@ -58,6 +67,9 @@ val Black: Color
 val White: Color
     @Composable get() = if (isSystemInDarkTheme()) WhiteDark else WhiteLight
 
+val WhiteGray: Color
+    @Composable get() = if (isSystemInDarkTheme()) VeryLightGrayDark else WhiteLight
+
 val LightBlue: Color
     @Composable get() = if (isSystemInDarkTheme()) LightBlueDark else LightBlueLight
 
@@ -72,6 +84,15 @@ val Gray: Color
 
 val Red: Color
     @Composable get() = if (isSystemInDarkTheme()) RedDark else RedLight
+
+val LightYellow: Color
+    @Composable get() = if (isSystemInDarkTheme()) LightYellowDark else LightYellowLight
+
+val Yellow: Color
+    @Composable get() = if (isSystemInDarkTheme()) YellowDark else YellowLight
+
+val Brown: Color
+    @Composable get() = if (isSystemInDarkTheme()) BrownDark else BrownLight
 
 val CalendarFlamingo: Color
     @Composable get() = if (isSystemInDarkTheme()) CalendarFlamingoDark else CalendarFlamingoLight

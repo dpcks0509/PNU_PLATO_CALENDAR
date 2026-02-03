@@ -25,7 +25,7 @@ class CafeteriaViewModel
         private val loadingManager: LoadingManager,
         private val cafeteriaRepository: CafeteriaRepository,
         private val cafeteriaDataStore: CafeteriaDataStore,
-        private val scheduleManager: ScheduleManager,
+        scheduleManager: ScheduleManager,
     ) : BaseViewModel<CafeteriaState, CafeteriaEvent, CafeteriaSideEffect>(
             initialState =
                 CafeteriaState(
