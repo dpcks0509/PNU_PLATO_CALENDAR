@@ -10,12 +10,11 @@ import java.time.format.DateTimeFormatter
 data class CafeteriaState(
     val today: LocalDate,
     val selectedDate: LocalDate,
-    val cafeteriaWeeklyPlans: List<CafeteriaWeeklyPlan> = emptyList(),
+    val cafeteriaWeeklyPlans: Map<Cafeteria, CafeteriaWeeklyPlan> = emptyMap(),
     val selectedCafeteria: Cafeteria = Cafeteria.GEUMJEONG_STUDENT,
 ) : UiState {
     fun getWeeklyPlanByCafeteria(cafeteria: Cafeteria): CafeteriaWeeklyPlan =
-        cafeteriaWeeklyPlans.find { cafeteriaWeeklyPlan -> cafeteriaWeeklyPlan.cafeteria == cafeteria }
-            ?: CafeteriaWeeklyPlan(cafeteria, "", emptyList())
+        cafeteriaWeeklyPlans[cafeteria] ?: CafeteriaWeeklyPlan(cafeteria, "", emptyList())
 
     fun getCurrentDailyPlan(): DailyCafeteriaPlan? {
         val weeklyPlan = getWeeklyPlanByCafeteria(selectedCafeteria)
