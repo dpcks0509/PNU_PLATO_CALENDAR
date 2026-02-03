@@ -2,8 +2,6 @@ package pusan.university.plato_calendar.presentation.cafeteria
 
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import pusan.university.plato_calendar.data.local.database.CafeteriaDataStore
 import pusan.university.plato_calendar.domain.entity.Cafeteria
@@ -69,44 +67,35 @@ class CafeteriaViewModel
 
         init {
             observeSelectedCafeteria()
-            getCafeteriaWeeklyPlan()
         }
 
         private fun observeSelectedCafeteria() {
             viewModelScope.launch {
                 cafeteriaDataStore.selectedCafeteria.collect { selectedCafeteria ->
                     setState { copy(selectedCafeteria = selectedCafeteria) }
+                    getCafeteriaWeeklyPlan(selectedCafeteria)
                 }
             }
         }
 
-        private fun getCafeteriaWeeklyPlan() {
+        private fun getCafeteriaWeeklyPlan(cafeteria: Cafeteria) {
             viewModelScope.launch {
+                if (state.value.cafeteriaWeeklyPlans.containsKey(cafeteria)) {
+                    return@launch
+                }
+
                 loadingManager.updateLoading(true)
 
-                val results =
-                    Cafeteria.entries
-                        .map { cafeteria ->
-                            async {
-                                cafeteriaRepository.getCafeteriaWeeklyPlan(cafeteria = cafeteria)
-                            }
-                        }.awaitAll()
-
-                var isErrorNotified = false
-
-                val cafeteriaWeeklyPlans =
-                    results
-                        .mapNotNull { result ->
-                            result
-                                .onFailure { throwable ->
-                                    if (!isErrorNotified) {
-                                        ToastEventBus.sendError(throwable.message)
-                                        isErrorNotified = true
-                                    }
-                                }.getOrNull()
+                cafeteriaRepository
+                    .getCafeteriaWeeklyPlan(cafeteria = cafeteria)
+                    .onSuccess { weeklyPlan ->
+                        setState {
+                            copy(cafeteriaWeeklyPlans = cafeteriaWeeklyPlans + (cafeteria to weeklyPlan))
                         }
+                    }.onFailure { throwable ->
+                        ToastEventBus.sendError(throwable.message)
+                    }
 
-                setState { copy(cafeteriaWeeklyPlans = cafeteriaWeeklyPlans) }
                 loadingManager.updateLoading(false)
             }
         }
