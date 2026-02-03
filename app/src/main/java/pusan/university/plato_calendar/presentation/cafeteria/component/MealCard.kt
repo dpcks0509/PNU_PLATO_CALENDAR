@@ -21,8 +21,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pusan.university.plato_calendar.R
-import pusan.university.plato_calendar.domain.entity.CafeteriaPlan
+import pusan.university.plato_calendar.domain.entity.CourseMenu
 import pusan.university.plato_calendar.domain.entity.MealType
+import pusan.university.plato_calendar.domain.entity.OperationInfo
 import pusan.university.plato_calendar.presentation.common.theme.Black
 import pusan.university.plato_calendar.presentation.common.theme.Gray
 import pusan.university.plato_calendar.presentation.common.theme.PrimaryColor
@@ -32,7 +33,8 @@ import kotlin.collections.forEach
 @Composable
 fun MealCard(
     mealType: MealType,
-    plans: List<CafeteriaPlan>,
+    courseMenus: List<CourseMenu>,
+    operationInfo: OperationInfo?,
     modifier: Modifier = Modifier,
 ) {
     Card(
@@ -45,9 +47,6 @@ fun MealCard(
             verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.padding(20.dp),
         ) {
-            // 공지사항 (운영 안함 or 기타 알림) - 첫 번째 plan만 확인
-            val firstPlan = plans.first()
-
             Row(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -58,7 +57,7 @@ fun MealCard(
                     color = Black,
                 )
 
-                if (firstPlan.operatingTime != null) {
+                if (operationInfo?.operatingTime != null) {
                     Spacer(modifier = Modifier.width(8.dp))
 
                     Icon(
@@ -71,16 +70,16 @@ fun MealCard(
                     Spacer(modifier = Modifier.width(4.dp))
 
                     Text(
-                        text = "운영시간: ${firstPlan.operatingTime}",
+                        text = "운영시간: ${operationInfo.operatingTime}",
                         fontSize = 14.sp,
                         color = Gray,
                     )
                 }
             }
 
-            if (!firstPlan.isOperating) {
+            if (operationInfo?.isOperating == false) {
                 Text(
-                    text = firstPlan.notOperatingReason ?: "",
+                    text = operationInfo.notOperatingReason ?: "",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Gray,
@@ -90,9 +89,9 @@ fun MealCard(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    plans.forEach { plan ->
+                    courseMenus.forEach { plan ->
                         Column {
-                            // 가격 및 코스 제목
+                            // 가격 및 코��� 제목
                             plan.courseTitle?.let { title ->
                                 Text(
                                     text = title,
