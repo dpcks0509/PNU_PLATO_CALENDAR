@@ -147,7 +147,7 @@ fun CustomScheduleContent(
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
             contentDescription = null,
-            tint = White,
+            tint = Color.White,
             modifier =
                 Modifier
                     .size(32.dp)
@@ -160,7 +160,7 @@ fun CustomScheduleContent(
             text = "개인 일정",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            color = White,
+            color = Color.White,
             modifier = Modifier.weight(1f),
         )
 

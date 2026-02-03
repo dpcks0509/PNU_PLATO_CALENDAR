@@ -64,7 +64,7 @@ fun AcademicScheduleContent(
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
             contentDescription = null,
-            tint = White,
+            tint = Color.White,
             modifier =
                 Modifier
                     .size(32.dp)
@@ -77,7 +77,7 @@ fun AcademicScheduleContent(
             text = "학사 일정",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            color = White,
+            color = Color.White,
         )
     }
 

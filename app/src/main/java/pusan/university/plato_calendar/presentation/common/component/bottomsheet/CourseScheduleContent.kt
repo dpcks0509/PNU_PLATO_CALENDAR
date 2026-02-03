@@ -74,7 +74,7 @@ fun CourseScheduleContent(
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
             contentDescription = null,
-            tint = White,
+            tint = Color.White,
             modifier =
                 Modifier
                     .size(32.dp)
@@ -87,7 +87,7 @@ fun CourseScheduleContent(
             text = "수업 일정",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            color = White,
+            color = Color.White,
         )
     }
 

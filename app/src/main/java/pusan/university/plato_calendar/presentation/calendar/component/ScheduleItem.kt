@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -89,14 +90,14 @@ fun AcademicScheduleItem(
             text = schedule.title,
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
-            color = White,
+            color = Color.White,
         )
 
         Text(
             text = formatDateRange(schedule.startAt, schedule.endAt),
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
-            color = White,
+            color = Color.White,
         )
     }
 }
@@ -122,19 +123,22 @@ private fun PersonalScheduleItem(
             text = title,
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
-            color = White,
+            color = Color.White,
         )
 
         Text(
             text = schedule.deadLine,
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
-            color = White,
+            color = Color.White,
         )
     }
 }
 
-private fun formatDateRange(startAt: LocalDate, endAt: LocalDate): String {
+private fun formatDateRange(
+    startAt: LocalDate,
+    endAt: LocalDate,
+): String {
     val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
     return "${startAt.format(formatter)} ~ ${endAt.format(formatter)}"
 }

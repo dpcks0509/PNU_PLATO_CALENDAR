@@ -1,6 +1,10 @@
 package pusan.university.plato_calendar.presentation.common.theme
 
+import android.graphics.Color
 import android.os.Build
+import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -8,7 +12,9 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 
 private val DarkColorScheme =
     darkColorScheme(
@@ -54,6 +60,30 @@ fun PlatoCalendarTheme(
             darkTheme -> DarkColorScheme
             else -> LightColorScheme
         }
+
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val activity = view.context as? ComponentActivity ?: return@SideEffect
+            
+            val statusBarStyle = if (darkTheme) {
+                SystemBarStyle.dark(Color.TRANSPARENT)
+            } else {
+                SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
+            }
+            
+            val navigationBarStyle = if (darkTheme) {
+                SystemBarStyle.dark(Color.TRANSPARENT)
+            } else {
+                SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
+            }
+            
+            activity.enableEdgeToEdge(
+                statusBarStyle = statusBarStyle,
+                navigationBarStyle = navigationBarStyle
+            )
+        }
+    }
 
     MaterialTheme(
         colorScheme = colorScheme,

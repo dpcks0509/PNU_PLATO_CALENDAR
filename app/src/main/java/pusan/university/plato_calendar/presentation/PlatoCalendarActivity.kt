@@ -3,13 +3,10 @@ package pusan.university.plato_calendar.presentation
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -94,19 +91,6 @@ class PlatoCalendarActivity : ComponentActivity() {
             loginManager.autoLogin()
             handleNotificationIntent(intent)
         }
-
-        enableEdgeToEdge(
-            statusBarStyle =
-                SystemBarStyle.light(
-                    scrim = Color.TRANSPARENT,
-                    darkScrim = Color.TRANSPARENT,
-                ),
-            navigationBarStyle =
-                SystemBarStyle.light(
-                    scrim = Color.TRANSPARENT,
-                    darkScrim = Color.TRANSPARENT,
-                ),
-        )
 
         setContent {
             val navController = rememberNavController()

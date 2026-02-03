@@ -146,7 +146,7 @@ fun NewScheduleContent(
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
             contentDescription = null,
-            tint = White,
+            tint = Color.White,
             modifier =
                 Modifier
                     .size(32.dp)
@@ -159,7 +159,7 @@ fun NewScheduleContent(
             text = "일정 생성",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            color = White,
+            color = Color.White,
             modifier = Modifier.weight(1f),
         )
 

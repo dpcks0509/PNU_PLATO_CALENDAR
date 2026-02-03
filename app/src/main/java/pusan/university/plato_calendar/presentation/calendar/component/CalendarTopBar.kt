@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -51,7 +52,7 @@ fun CalendarTopBar(
             text = "${currentYearMonth.year}년 ${currentYearMonth.month}월",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            color = White,
+            color = Color.White,
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -60,17 +61,18 @@ fun CalendarTopBar(
             OutlinedButton(
                 onClick = moveToToday,
                 shape = RoundedCornerShape(40.dp),
-                border = BorderStroke(2.dp, White),
+                border = BorderStroke(2.dp, Color.White),
                 colors =
                     ButtonDefaults.outlinedButtonColors(
                         containerColor = PrimaryColor,
-                        contentColor = White,
+                        contentColor = Color.White,
                     ),
             ) {
                 Text(
                     text = "TODAY",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
+                    color = Color.White,
                     modifier = Modifier.padding(vertical = 4.dp),
                 )
             }
@@ -81,7 +83,7 @@ fun CalendarTopBar(
         Icon(
             imageVector = Icons.Default.Add,
             contentDescription = null,
-            tint = White,
+            tint = Color.White,
             modifier =
                 Modifier
                     .size(28.dp)
