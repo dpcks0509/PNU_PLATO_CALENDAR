@@ -17,7 +17,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -33,21 +32,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import pusan.university.plato_calendar.R
 import pusan.university.plato_calendar.domain.entity.Schedule.NewSchedule
 import pusan.university.plato_calendar.presentation.calendar.model.PickerTarget
 import pusan.university.plato_calendar.presentation.common.component.TimePickerDialog
 import pusan.university.plato_calendar.presentation.common.extension.formatTimeWithMidnightSpecialCase
 import pusan.university.plato_calendar.presentation.common.extension.noRippleClickable
+import pusan.university.plato_calendar.presentation.common.saver.LocalDateSaver
+import pusan.university.plato_calendar.presentation.common.saver.LocalDateTimeSaver
 import pusan.university.plato_calendar.presentation.common.theme.Black
 import pusan.university.plato_calendar.presentation.common.theme.Gray
 import pusan.university.plato_calendar.presentation.common.theme.LightGray
@@ -74,8 +78,8 @@ fun NewScheduleContent(
 ) {
     val color = PrimaryColor
 
-    var title: String by remember { mutableStateOf("") }
-    var description: String by remember { mutableStateOf("") }
+    var title by rememberSaveable { mutableStateOf("") }
+    var description by rememberSaveable { mutableStateOf("") }
 
     val initialStartTime =
         remember(selectedDate) {
@@ -87,18 +91,18 @@ fun NewScheduleContent(
             }
         }
 
-    var startAt: LocalDateTime by remember { mutableStateOf(initialStartTime) }
-    var endAt: LocalDateTime by remember { mutableStateOf(initialStartTime.plusHours(1)) }
+    var startAt by rememberSaveable(stateSaver = LocalDateTimeSaver) { mutableStateOf(initialStartTime) }
+    var endAt by rememberSaveable(stateSaver = LocalDateTimeSaver) { mutableStateOf(initialStartTime.plusHours(1)) }
 
-    var showStartDatePicker by remember { mutableStateOf(false) }
-    var showEndDatePicker by remember { mutableStateOf(false) }
-    var timePickerFor by remember { mutableStateOf<PickerTarget?>(null) }
+    var showStartDatePicker by rememberSaveable { mutableStateOf(false) }
+    var showEndDatePicker by rememberSaveable { mutableStateOf(false) }
+    var timePickerFor by rememberSaveable { mutableStateOf<PickerTarget?>(null) }
 
     val zoneId = ZoneId.systemDefault()
     val today = LocalDateTime.now().toLocalDate()
-    val currentMonthStart = LocalDate.of(today.year, today.monthValue, 1)
-    val minDate = minOf(today.minusDays(5), currentMonthStart)
-    val maxDate = remember(today) { today.plusYears(1).minusDays(1) }
+    val currentMonthStart = rememberSaveable(today, saver = LocalDateSaver) { LocalDate.of(today.year, today.monthValue, 1) }
+    val minDate = rememberSaveable(today, saver = LocalDateSaver) { minOf(today.minusDays(5), currentMonthStart) }
+    val maxDate = rememberSaveable(today, saver = LocalDateSaver) { today.plusYears(1).minusDays(1) }
 
     val selectableDates =
         remember(minDate, maxDate) {
@@ -127,12 +131,12 @@ fun NewScheduleContent(
     }
 
     val dateFormatter = DateTimeFormatter.ofPattern("M월 d일 (E)", Locale.KOREAN)
-    val formattedStartDate = remember(startAt) { startAt.format(dateFormatter) }
-    val formattedStartTime = remember(startAt) { startAt.formatTimeWithMidnightSpecialCase() }
-    val formattedEndDate = remember(endAt) { endAt.format(dateFormatter) }
-    val formattedEndTime = remember(endAt) { endAt.formatTimeWithMidnightSpecialCase() }
-    val formattedStartYear = remember(startAt) { "${startAt.year}년" }
-    val formattedEndYear = remember(endAt) { "${endAt.year}년" }
+    val formattedStartDate = rememberSaveable(startAt) { startAt.format(dateFormatter) }
+    val formattedStartTime = rememberSaveable(startAt) { startAt.formatTimeWithMidnightSpecialCase() }
+    val formattedEndDate = rememberSaveable(endAt) { endAt.format(dateFormatter) }
+    val formattedEndTime = rememberSaveable(endAt) { endAt.formatTimeWithMidnightSpecialCase() }
+    val formattedStartYear = rememberSaveable(startAt) { "${startAt.year}년" }
+    val formattedEndYear = rememberSaveable(endAt) { "${endAt.year}년" }
 
     Row(
         modifier =
@@ -150,7 +154,7 @@ fun NewScheduleContent(
             modifier =
                 Modifier
                     .size(32.dp)
-                    .noRippleClickable(onDismissRequest),
+                    .noRippleClickable(onClick = onDismissRequest),
         )
 
         Spacer(modifier = Modifier.width(8.dp))
@@ -193,7 +197,8 @@ fun NewScheduleContent(
                     clip = true,
                     ambientColor = Black,
                     spotColor = Black,
-                ).background(White),
+                )
+                .background(White),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Spacer(modifier = Modifier.width(12.dp))
@@ -257,7 +262,8 @@ fun NewScheduleContent(
                     clip = true,
                     ambientColor = Black,
                     spotColor = Black,
-                ).background(White)
+                )
+                .background(White)
                 .padding(vertical = 18.dp, horizontal = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -314,7 +320,7 @@ fun NewScheduleContent(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
-                imageVector = Icons.Default.DateRange,
+                painter = painterResource(R.drawable.ic_calendar),
                 contentDescription = null,
                 tint = Black,
                 modifier = Modifier.size(24.dp),

@@ -1,8 +1,6 @@
 package pusan.university.plato_calendar.presentation.calendar.component
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,7 +13,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import pusan.university.plato_calendar.presentation.calendar.model.DaySchedule
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
+import pusan.university.plato_calendar.presentation.common.extension.noRippleClickable
 import pusan.university.plato_calendar.presentation.common.theme.Black
 import pusan.university.plato_calendar.presentation.common.theme.Gray
 import pusan.university.plato_calendar.presentation.common.theme.MediumGray
@@ -46,23 +44,17 @@ fun DayItem(
         Column(
             modifier =
                 modifier
-                    .clickable(
-                        indication = null,
-                        interactionSource = remember { MutableInteractionSource() },
-                        onClick = { onDateClick(daySchedule.date) },
-                    )
+                    .noRippleClickable { onDateClick(daySchedule.date) }
                     .then(
                         if (daySchedule.isSelected) {
                             Modifier
                                 .clip(
                                     RoundedCornerShape(12.dp),
-                                )
-                                .background(MediumGray)
+                                ).background(MediumGray)
                         } else {
                             Modifier
                         },
-                    )
-                    .padding(top = 6.dp, bottom = 12.dp, start = 6.dp, end = 6.dp),
+                    ).padding(top = 6.dp, bottom = 12.dp, start = 6.dp, end = 6.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween,
         ) {

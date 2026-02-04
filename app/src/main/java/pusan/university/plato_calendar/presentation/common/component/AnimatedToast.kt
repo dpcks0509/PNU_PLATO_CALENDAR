@@ -21,7 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,8 +44,8 @@ import pusan.university.plato_calendar.presentation.common.eventbus.ToastMessage
 
 @Composable
 fun AnimatedToast() {
-    var currentMessage by remember { mutableStateOf<ToastMessage?>(null) }
-    var isVisible by remember { mutableStateOf(false) }
+    var currentMessage by rememberSaveable { mutableStateOf<ToastMessage?>(null) }
+    var isVisible by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         ToastEventBus.toastMessage.collect { message ->

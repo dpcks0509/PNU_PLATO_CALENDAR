@@ -18,7 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,7 +47,7 @@ fun ToDoScheduleItem(
     modifier: Modifier = Modifier,
     toggleCompletion: (Long, Boolean) -> Unit = { _, _ -> },
 ) {
-    var isCompleted by remember {
+    var isCompleted by rememberSaveable {
         mutableStateOf(
             when (schedule) {
                 is PersonalScheduleUiModel -> schedule.isCompleted

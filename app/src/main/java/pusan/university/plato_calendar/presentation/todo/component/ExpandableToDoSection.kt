@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel
 import pusan.university.plato_calendar.presentation.common.extension.noRippleClickable
-import pusan.university.plato_calendar.presentation.common.icon.IconType
 import pusan.university.plato_calendar.presentation.common.theme.Gray
 import pusan.university.plato_calendar.presentation.common.theme.PrimaryColor
 import pusan.university.plato_calendar.presentation.common.theme.VeryLightGray
@@ -66,23 +65,11 @@ fun ExpandableToDoSection(
                     .padding(horizontal = 16.dp, vertical = 18.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            when (val icon = toDoSection.icon) {
-                is IconType.Vector -> {
-                    Icon(
-                        imageVector = icon.imageVector,
-                        contentDescription = null,
-                        tint = PrimaryColor,
-                    )
-                }
-
-                is IconType.Resource -> {
-                    Icon(
-                        painter = painterResource(id = icon.resId),
-                        contentDescription = null,
-                        tint = PrimaryColor,
-                    )
-                }
-            }
+            Icon(
+                painter = painterResource(id = toDoSection.icon),
+                contentDescription = null,
+                tint = PrimaryColor,
+            )
             Spacer(modifier = Modifier.width(12.dp))
             Text(
                 text = toDoSection.title,

@@ -17,7 +17,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -28,10 +27,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import pusan.university.plato_calendar.R
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pusan.university.plato_calendar.presentation.common.extension.noRippleClickable
 import pusan.university.plato_calendar.presentation.common.theme.Black
@@ -68,7 +69,7 @@ fun AcademicScheduleContent(
             modifier =
                 Modifier
                     .size(32.dp)
-                    .noRippleClickable(onDismissRequest),
+                    .noRippleClickable(onClick = onDismissRequest),
         )
 
         Spacer(modifier = Modifier.width(8.dp))
@@ -95,7 +96,8 @@ fun AcademicScheduleContent(
                     clip = true,
                     ambientColor = Black,
                     spotColor = Black,
-                ).background(White),
+                )
+                .background(White),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Spacer(modifier = Modifier.width(12.dp))
@@ -147,7 +149,8 @@ fun AcademicScheduleContent(
                     clip = true,
                     ambientColor = Black,
                     spotColor = Black,
-                ).background(White)
+                )
+                .background(White)
                 .padding(vertical = 18.dp, horizontal = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -157,7 +160,7 @@ fun AcademicScheduleContent(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
-                imageVector = Icons.Default.DateRange,
+                painter = painterResource(R.drawable.ic_calendar),
                 contentDescription = null,
                 tint = Black,
                 modifier = Modifier.size(24.dp),

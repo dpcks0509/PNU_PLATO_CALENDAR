@@ -8,8 +8,6 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
@@ -48,8 +46,8 @@ fun Calendar(
         beyondViewportPageCount = 1,
         modifier = modifier,
     ) { page ->
-        val yearMonth by remember(page) { mutableStateOf(baseYearMonth.plusMonths(page)) }
-        val monthSchedule by remember(yearMonth) { mutableStateOf(getMonthSchedule(yearMonth)) }
+        val yearMonth = remember(page) { baseYearMonth.plusMonths(page) }
+        val monthSchedule = remember(yearMonth) { getMonthSchedule(yearMonth) }
 
         Column {
             DayOfWeekHeader(modifier = Modifier.padding(top = 4.dp))
