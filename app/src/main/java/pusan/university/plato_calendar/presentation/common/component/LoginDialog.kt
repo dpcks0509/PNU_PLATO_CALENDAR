@@ -20,10 +20,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,10 +51,14 @@ fun LoginDialog(
     onLoginRequest: suspend (LoginCredentials) -> Boolean,
 ) {
     val coroutineScope = rememberCoroutineScope()
-    var userName by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var isLoggingIn by remember { mutableStateOf(false) }
-    val isButtonEnabled = userName.isNotBlank() && password.isNotBlank() && !isLoggingIn
+    var userName by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
+    var isLoggingIn by rememberSaveable { mutableStateOf(false) }
+    val isButtonEnabled by remember {
+        derivedStateOf {
+            userName.isNotBlank() && password.isNotBlank() && !isLoggingIn
+        }
+    }
 
     Dialog(onDismissRequest = { if (!isLoggingIn) onDismissRequest() }) {
         Card(

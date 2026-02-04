@@ -17,7 +17,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Icon
@@ -30,11 +29,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import pusan.university.plato_calendar.R
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
 import pusan.university.plato_calendar.presentation.common.extension.formatTimeWithMidnightSpecialCase
 import pusan.university.plato_calendar.presentation.common.extension.noRippleClickable
@@ -78,7 +79,7 @@ fun CourseScheduleContent(
             modifier =
                 Modifier
                     .size(32.dp)
-                    .noRippleClickable(onDismissRequest),
+                    .noRippleClickable(onClick = onDismissRequest),
         )
 
         Spacer(modifier = Modifier.width(8.dp))
@@ -105,7 +106,8 @@ fun CourseScheduleContent(
                     clip = true,
                     ambientColor = Black,
                     spotColor = Black,
-                ).background(White),
+                )
+                .background(White),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Spacer(modifier = Modifier.width(12.dp))
@@ -157,7 +159,8 @@ fun CourseScheduleContent(
                     clip = true,
                     ambientColor = Black,
                     spotColor = Black,
-                ).background(White)
+                )
+                .background(White)
                 .padding(vertical = 18.dp, horizontal = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -242,7 +245,7 @@ fun CourseScheduleContent(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
-                imageVector = Icons.Default.DateRange,
+                painter = painterResource(R.drawable.ic_calendar),
                 contentDescription = null,
                 tint = Black,
                 modifier = Modifier.size(24.dp),

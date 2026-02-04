@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -43,7 +44,9 @@ fun TimePicker(
     onTimeChange: (hour: Int, minute: Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val density = LocalDensity.current
     val itemHeight = 56.dp
+    val itemHeightPx = with(density) { itemHeight.toPx() }
     val visibleItemsCount = 3
 
     val hourRange = 0..23
@@ -59,7 +62,7 @@ fun TimePicker(
         derivedStateOf {
             val firstVisibleItem = hourListState.firstVisibleItemIndex
             val offset = hourListState.firstVisibleItemScrollOffset
-            if (offset > itemHeight.value / 2) {
+            if (offset > itemHeightPx / 2) {
                 (firstVisibleItem + 1).coerceIn(hourRange)
             } else {
                 firstVisibleItem.coerceIn(hourRange)
@@ -71,7 +74,7 @@ fun TimePicker(
         derivedStateOf {
             val firstVisibleItem = minuteListState.firstVisibleItemIndex
             val offset = minuteListState.firstVisibleItemScrollOffset
-            if (offset > itemHeight.value / 2) {
+            if (offset > itemHeightPx / 2) {
                 (firstVisibleItem + 1).coerceIn(minuteRange)
             } else {
                 firstVisibleItem.coerceIn(minuteRange)

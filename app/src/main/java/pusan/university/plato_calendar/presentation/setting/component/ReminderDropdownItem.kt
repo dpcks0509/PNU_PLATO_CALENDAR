@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,7 +40,7 @@ fun ReminderDropdownItem(
     enabled: Boolean,
     onSelect: (NotificationTime) -> Unit,
 ) {
-    var isDropdownExpanded by remember { mutableStateOf(false) }
+    var isDropdownExpanded by rememberSaveable { mutableStateOf(false) }
 
     Row(
         modifier =

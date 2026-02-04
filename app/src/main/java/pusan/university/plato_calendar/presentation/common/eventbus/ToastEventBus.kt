@@ -1,7 +1,9 @@
 package pusan.university.plato_calendar.presentation.common.eventbus
 
+import android.os.Parcelable
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.parcelize.Parcelize
 
 object ToastEventBus {
     private val _toastMessage = MutableSharedFlow<ToastMessage>(replay = 1)
@@ -20,13 +22,15 @@ object ToastEventBus {
     }
 }
 
-sealed class ToastMessage {
+sealed class ToastMessage : Parcelable {
     abstract val message: String
 
+    @Parcelize
     data class Success(
         override val message: String,
     ) : ToastMessage()
 
+    @Parcelize
     data class Error(
         override val message: String,
     ) : ToastMessage()

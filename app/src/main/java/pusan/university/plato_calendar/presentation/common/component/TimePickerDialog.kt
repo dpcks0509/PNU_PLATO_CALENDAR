@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,8 +34,8 @@ fun TimePickerDialog(
     onDismiss: () -> Unit,
     onConfirm: (hour: Int, minute: Int) -> Unit,
 ) {
-    var selectedHour by remember { mutableIntStateOf(initialHour) }
-    var selectedMinute by remember { mutableIntStateOf(initialMinute) }
+    var selectedHour by rememberSaveable { mutableIntStateOf(initialHour) }
+    var selectedMinute by rememberSaveable { mutableIntStateOf(initialMinute) }
 
     Dialog(onDismissRequest = onDismiss) {
         Card(

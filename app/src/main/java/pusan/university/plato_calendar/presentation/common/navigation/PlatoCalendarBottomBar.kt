@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
-import pusan.university.plato_calendar.presentation.common.icon.IconType
 import pusan.university.plato_calendar.presentation.common.theme.Gray
 import pusan.university.plato_calendar.presentation.common.theme.LightBlue
 import pusan.university.plato_calendar.presentation.common.theme.PrimaryColor
@@ -50,21 +49,10 @@ fun PlatoCalendarBottomBar(navController: NavController) {
 
                 NavigationBarItem(
                     icon = {
-                        when (val icon = item.icon) {
-                            is IconType.Vector -> {
-                                Icon(
-                                    imageVector = icon.imageVector,
-                                    contentDescription = null,
-                                )
-                            }
-
-                            is IconType.Resource -> {
-                                Icon(
-                                    painter = painterResource(id = icon.resId),
-                                    contentDescription = null,
-                                )
-                            }
-                        }
+                        Icon(
+                            painter = painterResource(id = item.icon),
+                            contentDescription = null,
+                        )
                     },
                     label = {
                         Text(
