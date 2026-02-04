@@ -18,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -29,7 +28,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pusan.university.plato_calendar.presentation.common.extension.noRippleClickable
 import pusan.university.plato_calendar.presentation.common.theme.Gray
-import pusan.university.plato_calendar.presentation.common.theme.MediumGray
 import pusan.university.plato_calendar.presentation.common.theme.VeryLightGray
 import pusan.university.plato_calendar.presentation.setting.model.NotificationTime
 
