@@ -28,7 +28,6 @@ import pusan.university.plato_calendar.presentation.common.theme.Black
 import pusan.university.plato_calendar.presentation.common.theme.Gray
 import pusan.university.plato_calendar.presentation.common.theme.PrimaryColor
 import pusan.university.plato_calendar.presentation.common.theme.WhiteGray
-import kotlin.collections.forEach
 
 @Composable
 fun MealCard(
