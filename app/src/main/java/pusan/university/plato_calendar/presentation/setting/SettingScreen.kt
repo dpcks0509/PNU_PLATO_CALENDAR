@@ -161,7 +161,7 @@ fun SettingContent(
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier.padding(bottom = 24.dp, start = 16.dp, end = 16.dp),
+        modifier = modifier.padding(start = 16.dp, end = 16.dp),
     ) {
         TopBar(title = "설정")
 
@@ -269,6 +269,10 @@ fun SettingContent(
                         }
                     }
                 }
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }
