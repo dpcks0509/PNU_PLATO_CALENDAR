@@ -18,13 +18,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import pusan.university.plato_calendar.domain.entity.Cafeteria
+import pusan.university.plato_calendar.domain.entity.CafeteriaWeeklyPlan
+import pusan.university.plato_calendar.domain.entity.DailyCafeteriaPlan
 import pusan.university.plato_calendar.presentation.cafeteria.intent.CafeteriaEvent
 import pusan.university.plato_calendar.presentation.cafeteria.intent.CafeteriaState
 import pusan.university.plato_calendar.presentation.common.theme.Black
 import pusan.university.plato_calendar.presentation.common.theme.Gray
 import pusan.university.plato_calendar.presentation.common.theme.LightGray
+import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarTheme
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
+import java.util.Locale
 
 @Composable
 fun DateSelector(
@@ -64,23 +73,13 @@ fun DateSelector(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            val dayOfWeek =
-                when (state.selectedDate.dayOfWeek.value) {
-                    1 -> "월"
-                    2 -> "화"
-                    3 -> "수"
-                    4 -> "목"
-                    5 -> "금"
-                    6 -> "토"
-                    7 -> "일"
-                    else -> ""
-                }
+            val dayOfWeek = state.selectedDate.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.KOREAN)
+            val selectedDateInfo = "${state.selectedDate.monthValue.toString().padStart(2, '0')}월 ${
+                state.selectedDate.dayOfMonth.toString().padStart(2, '0')
+            }일 ($dayOfWeek)"
 
             Text(
-                text =
-                    "${state.selectedDate.monthValue.toString().padStart(2, '0')}월 ${
-                        state.selectedDate.dayOfMonth.toString().padStart(2, '0')
-                    }일 ($dayOfWeek)",
+                text = selectedDateInfo,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Black,
@@ -105,5 +104,41 @@ fun DateSelector(
                 modifier = Modifier.size(32.dp),
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun DateSelectorPreview() {
+    val today = LocalDate.now()
+    val weekStart = today.minusDays(2)
+
+    val dailyPlans = (0..6).map { dayOffset ->
+        val date = weekStart.plusDays(dayOffset.toLong())
+        DailyCafeteriaPlan(
+            date = date.format(DateTimeFormatter.ofPattern("yyyy.MM.dd")),
+            day = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.KOREAN),
+            mealInfos = emptyList()
+        )
+    }
+
+    val state = CafeteriaState(
+        today = today,
+        selectedDate = today,
+        cafeteriaWeeklyPlans = mapOf(
+            Cafeteria.GEUMJEONG_STUDENT to CafeteriaWeeklyPlan(
+                cafeteria = Cafeteria.GEUMJEONG_STUDENT,
+                notice = "",
+                weeklyPlans = dailyPlans
+            )
+        ),
+        selectedCafeteria = Cafeteria.GEUMJEONG_STUDENT
+    )
+
+    PlatoCalendarTheme {
+        DateSelector(
+            state = state,
+            onEvent = {}
+        )
     }
 }

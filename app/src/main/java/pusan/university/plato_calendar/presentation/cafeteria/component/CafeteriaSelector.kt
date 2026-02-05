@@ -22,11 +22,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pusan.university.plato_calendar.domain.entity.Cafeteria
 import pusan.university.plato_calendar.presentation.common.theme.Black
 import pusan.university.plato_calendar.presentation.common.theme.Gray
+import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarTheme
 
 @Composable
 fun CafeteriaSelector(
@@ -34,7 +36,7 @@ fun CafeteriaSelector(
     onCafeteriaSelected: (Cafeteria) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var expanded by rememberSaveable { mutableStateOf(false) }
+    var isDropdownExpanded by rememberSaveable { mutableStateOf(false) }
 
     Box(
         contentAlignment = Alignment.Center,
@@ -48,7 +50,7 @@ fun CafeteriaSelector(
                     .clickable(
                         indication = null,
                         interactionSource = remember { MutableInteractionSource() },
-                        onClick = { expanded = true },
+                        onClick = { isDropdownExpanded = true },
                     ).padding(vertical = 4.dp),
         ) {
             Text(
@@ -66,18 +68,29 @@ fun CafeteriaSelector(
         }
 
         DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
+            expanded = isDropdownExpanded,
+            onDismissRequest = { isDropdownExpanded = false },
         ) {
             Cafeteria.entries.forEach { cafeteria ->
                 DropdownMenuItem(
                     text = { Text(cafeteria.title) },
                     onClick = {
                         onCafeteriaSelected(cafeteria)
-                        expanded = false
+                        isDropdownExpanded = false
                     },
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun CafeteriaSelectorPreview() {
+    PlatoCalendarTheme {
+        CafeteriaSelector(
+            selectedCafeteria = Cafeteria.GEUMJEONG_STUDENT,
+            onCafeteriaSelected = {},
+        )
     }
 }
