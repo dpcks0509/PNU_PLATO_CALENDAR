@@ -14,7 +14,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import pusan.university.plato_calendar.presentation.common.theme.White
 
 @Composable
 fun ActionButton(
@@ -26,13 +25,13 @@ fun ActionButton(
         onClick = onClick,
         enabled = enabled,
         shape = RoundedCornerShape(20.dp),
-        border = BorderStroke(2.dp, White.copy(alpha = if (enabled) 1f else 0.5f)),
+        border = BorderStroke(2.dp, Color.White.copy(alpha = if (enabled) 1f else 0.5f)),
         colors =
             ButtonDefaults.outlinedButtonColors(
                 containerColor = Color.Transparent,
-                contentColor = White,
+                contentColor = Color.White,
                 disabledContainerColor = Color.Transparent,
-                disabledContentColor = White.copy(alpha = 0.5f),
+                disabledContentColor = Color.White.copy(alpha = 0.5f),
             ),
         contentPadding = PaddingValues(vertical = 8.dp, horizontal = 16.dp),
         modifier = Modifier.height(36.dp),
@@ -42,6 +41,7 @@ fun ActionButton(
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
             textAlign = TextAlign.Center,
+            color = Color.White,
         )
     }
 }
