@@ -75,16 +75,12 @@ fun CafeteriaContent(
             }
 
             val dailyPlan = state.getCurrentDailyPlan()
-            if (dailyPlan != null) {
+            dailyPlan?.let {
                 MealType.entries.forEach { mealType ->
                     val mealInfo = dailyPlan.getMealInfo(mealType)
 
                     if (mealInfo != null) {
-                        MealCard(
-                            mealType = mealInfo.mealType,
-                            courseMenus = mealInfo.courseMenus,
-                            operationInfo = mealInfo.operationInfo,
-                        )
+                        MealCard(mealInfo = mealInfo)
                     }
                 }
             }
