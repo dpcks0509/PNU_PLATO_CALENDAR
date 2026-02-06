@@ -2,6 +2,7 @@ package pusan.university.plato_calendar.presentation
 
 import android.Manifest
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -71,26 +72,10 @@ class PlatoCalendarActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        notificationPermissionLauncher =
-            registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-                lifecycleScope.launch {
-                    settingsManager.setNotificationsEnabled(isGranted)
-                }
-            }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (
-                checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) !=
-                PackageManager.PERMISSION_GRANTED
-            ) {
-                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
-        }
-
-        lifecycleScope.launch {
-            loginManager.autoLogin()
-            handleNotificationIntent(intent)
-        }
+        setSmartOrientation()
+        setupNotificationPermission()
+        requestNotificationPermissionIfNeeded()
+        initializeApp()
 
         setContent {
             val navController = rememberNavController()
@@ -165,6 +150,43 @@ class PlatoCalendarActivity : ComponentActivity() {
             lifecycleScope.launch {
                 NotificationEventBus.sendEvent(NotificationEvent.OpenNewSchedule)
             }
+        }
+    }
+
+    private fun setupNotificationPermission() {
+        notificationPermissionLauncher =
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+                lifecycleScope.launch {
+                    settingsManager.setNotificationsEnabled(isGranted)
+                }
+            }
+    }
+
+    private fun requestNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (
+                checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) !=
+                PackageManager.PERMISSION_GRANTED
+            ) {
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
+
+    private fun initializeApp() {
+        lifecycleScope.launch {
+            loginManager.autoLogin()
+            handleNotificationIntent(intent)
+        }
+    }
+
+    private fun setSmartOrientation() {
+        val screenWidthDp = resources.configuration.smallestScreenWidthDp
+
+        requestedOrientation = if (screenWidthDp >= 600) {
+            ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        } else {
+            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
     }
 }
