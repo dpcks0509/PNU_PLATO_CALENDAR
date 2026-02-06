@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pusan.university.plato_calendar.presentation.common.theme.PrimaryColor
 import pusan.university.plato_calendar.presentation.common.theme.VeryLightGray
+import pusan.university.plato_calendar.presentation.common.theme.White
 
 @Composable
 fun NotificationToggleItem(
@@ -45,7 +46,11 @@ fun NotificationToggleItem(
             checked = checked,
             onCheckedChange = onCheckedChange,
             enabled = enabled,
-            colors = SwitchDefaults.colors(checkedTrackColor = PrimaryColor),
+            colors =
+                SwitchDefaults.colors(
+                    checkedTrackColor = PrimaryColor,
+                    checkedThumbColor = White,
+                ),
         )
     }
 }
