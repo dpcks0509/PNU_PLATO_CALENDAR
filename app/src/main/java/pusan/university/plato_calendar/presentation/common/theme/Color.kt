@@ -89,10 +89,13 @@ val Brown: Color
     @Composable get() = if (isSystemInDarkTheme()) BrownDark else BrownLight
 
 val CalendarFlamingo: Color
-    @Composable get() = if (isSystemInDarkTheme()) CalendarFlamingoDark else CalendarFlamingoLight
+    @Composable get() = CalendarFlamingoLight
+//    if (isSystemInDarkTheme()) CalendarFlamingoDark else CalendarFlamingoLight
 
 val CalendarSage: Color
-    @Composable get() = if (isSystemInDarkTheme()) CalendarSageDark else CalendarSageLight
+    @Composable get() = CalendarSageLight
+//    if (isSystemInDarkTheme()) CalendarSageDark else CalendarSageLight
 
 val CalendarLavender: Color
-    @Composable get() = if (isSystemInDarkTheme()) CalendarLavenderDark else CalendarLavenderLight
+    @Composable get() = CalendarLavenderLight
+//    if (isSystemInDarkTheme()) CalendarLavenderDark else CalendarLavenderLight
