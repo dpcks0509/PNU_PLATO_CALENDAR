@@ -115,9 +115,7 @@ fun ScheduleBottomSheet(
                     )
                 }
 
-                null -> {
-                    Unit
-                }
+                null -> Unit
             }
         }
     }
