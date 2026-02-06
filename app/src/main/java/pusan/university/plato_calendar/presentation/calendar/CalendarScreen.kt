@@ -32,17 +32,7 @@ import pusan.university.plato_calendar.presentation.calendar.component.CalendarT
 import pusan.university.plato_calendar.presentation.calendar.component.MAX_MONTH_SIZE
 import pusan.university.plato_calendar.presentation.calendar.component.SelectedDateScheduleInfo
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent
-import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.DeleteCustomSchedule
-import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.EditCustomSchedule
-import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.HideLoginDialog
-import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.HideScheduleBottomSheet
-import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.MakeCustomSchedule
-import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.MoveToToday
-import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.ShowScheduleBottomSheet
-import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.ShowScheduleBottomSheetById
-import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.TogglePersonalScheduleCompletion
-import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.UpdateCurrentYearMonth
-import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.UpdateSelectedDate
+import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.*
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarSideEffect
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarState
 import pusan.university.plato_calendar.presentation.calendar.model.DaySchedule
@@ -166,7 +156,7 @@ fun CalendarContent(
 
     PullToRefreshContainer(
         modifier = modifier,
-        onRefresh = { onEvent(CalendarEvent.Refresh) },
+        onRefresh = { onEvent(Refresh) },
     ) {
         Column(
             Modifier.verticalScroll(scrollState),

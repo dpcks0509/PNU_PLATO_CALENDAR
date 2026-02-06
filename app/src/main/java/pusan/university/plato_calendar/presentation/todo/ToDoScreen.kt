@@ -32,11 +32,7 @@ import pusan.university.plato_calendar.presentation.common.component.bottomsheet
 import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarTheme
 import pusan.university.plato_calendar.presentation.todo.component.ExpandableToDoSection
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent
-import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.DeleteCustomSchedule
-import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.EditCustomSchedule
-import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.HideScheduleBottomSheet
-import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.ShowScheduleBottomSheet
-import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.TogglePersonalScheduleCompletion
+import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.*
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoSideEffect
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoState
 import pusan.university.plato_calendar.presentation.todo.model.ToDoSection
@@ -109,7 +105,7 @@ fun ToDoContent(
 
     PullToRefreshContainer(
         modifier = modifier,
-        onRefresh = { onEvent(ToDoEvent.Refresh) },
+        onRefresh = { onEvent(Refresh) },
     ) {
         Column(
             modifier =
