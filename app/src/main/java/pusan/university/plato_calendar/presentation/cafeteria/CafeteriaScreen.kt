@@ -20,7 +20,10 @@ import pusan.university.plato_calendar.presentation.cafeteria.component.DateSele
 import pusan.university.plato_calendar.presentation.cafeteria.component.MealCard
 import pusan.university.plato_calendar.presentation.cafeteria.component.Notice
 import pusan.university.plato_calendar.presentation.cafeteria.intent.CafeteriaEvent
+import pusan.university.plato_calendar.presentation.cafeteria.intent.CafeteriaEvent.Refresh
+import pusan.university.plato_calendar.presentation.cafeteria.intent.CafeteriaEvent.SelectCafeteria
 import pusan.university.plato_calendar.presentation.cafeteria.intent.CafeteriaState
+import pusan.university.plato_calendar.presentation.common.component.PullToRefreshContainer
 import pusan.university.plato_calendar.presentation.common.component.TopBar
 import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarTheme
 
@@ -50,37 +53,43 @@ fun CafeteriaContent(
 ) {
     val scrollState = rememberScrollState()
 
-    Column(
-        modifier =
-            modifier
-                .verticalScroll(scrollState)
-                .padding(bottom = 24.dp, start = 16.dp, end = 16.dp),
+    PullToRefreshContainer(
+        modifier = modifier,
+        onRefresh = { onEvent(Refresh) },
     ) {
-        TopBar(title = "학식")
-
-        DateSelector(state = state, onEvent = onEvent)
-
-        CafeteriaSelector(
-            selectedCafeteria = state.selectedCafeteria,
-            onCafeteriaSelected = { onEvent(CafeteriaEvent.SelectCafeteria(it)) },
-        )
-
         Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+                    .padding(bottom = 24.dp, start = 16.dp, end = 16.dp),
         ) {
-            val weeklyPlan = state.getWeeklyPlanByCafeteria(state.selectedCafeteria)
-            if (weeklyPlan.notice.isNotEmpty()) {
-                Notice(text = weeklyPlan.notice)
-            }
+            TopBar(title = "학식")
 
-            val dailyPlan = state.getCurrentDailyPlan()
-            dailyPlan?.let {
-                MealType.entries.forEach { mealType ->
-                    val mealInfo = dailyPlan.getMealInfo(mealType)
+            DateSelector(state = state, onEvent = onEvent)
 
-                    if (mealInfo != null) {
-                        MealCard(mealInfo = mealInfo)
+            CafeteriaSelector(
+                selectedCafeteria = state.selectedCafeteria,
+                onCafeteriaSelected = { onEvent(SelectCafeteria(it)) },
+            )
+
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                val weeklyPlan = state.getWeeklyPlanByCafeteria(state.selectedCafeteria)
+                if (weeklyPlan.notice.isNotEmpty()) {
+                    Notice(text = weeklyPlan.notice)
+                }
+
+                val dailyPlan = state.getCurrentDailyPlan()
+                dailyPlan?.let {
+                    MealType.entries.forEach { mealType ->
+                        val mealInfo = dailyPlan.getMealInfo(mealType)
+
+                        mealInfo?.let {
+                            MealCard(mealInfo = mealInfo)
+                        }
                     }
                 }
             }

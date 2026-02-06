@@ -11,4 +11,6 @@ sealed interface CafeteriaEvent : UiEvent {
     data object PreviousDay : CafeteriaEvent
     
     data object NextDay : CafeteriaEvent
+
+    data object Refresh : CafeteriaEvent
 }
