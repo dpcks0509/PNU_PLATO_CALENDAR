@@ -20,8 +20,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -32,7 +30,18 @@ import pusan.university.plato_calendar.presentation.calendar.component.CalendarT
 import pusan.university.plato_calendar.presentation.calendar.component.MAX_MONTH_SIZE
 import pusan.university.plato_calendar.presentation.calendar.component.SelectedDateScheduleInfo
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent
-import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.*
+import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.DeleteCustomSchedule
+import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.EditCustomSchedule
+import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.HideLoginDialog
+import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.HideScheduleBottomSheet
+import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.MakeCustomSchedule
+import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.MoveToToday
+import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.Refresh
+import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.ShowScheduleBottomSheet
+import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.ShowScheduleBottomSheetById
+import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.TogglePersonalScheduleCompletion
+import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.UpdateCurrentYearMonth
+import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.UpdateSelectedDate
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarSideEffect
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarState
 import pusan.university.plato_calendar.presentation.calendar.model.DaySchedule
@@ -64,9 +73,6 @@ fun CalendarScreen(
         )
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
-
-    val context = LocalContext.current
-    val configuration = LocalConfiguration.current
 
     LaunchedEffect(viewModel.sideEffect) {
         viewModel.sideEffect.collect { sideEffect ->
@@ -249,7 +255,7 @@ fun CalendarScreenPreview() {
                     scheduleBottomSheetContent = ScheduleBottomSheetContent.NewScheduleContent,
                 ),
             pagerState = rememberPagerState(initialPage = 0, pageCount = { 12 }),
-            getMonthSchedule = { yearMonth -> monthSchedule },
+            getMonthSchedule = { monthSchedule },
             onEvent = {},
             modifier = Modifier.fillMaxSize(),
         )
