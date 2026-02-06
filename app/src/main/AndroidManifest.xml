@@ -23,7 +23,6 @@
             android:name="pusan.university.plato_calendar.presentation.PlatoCalendarActivity"
             android:exported="true"
             android:launchMode="singleTop"
-            android:screenOrientation="portrait"
             android:theme="@style/Theme.PlatoCalendar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
