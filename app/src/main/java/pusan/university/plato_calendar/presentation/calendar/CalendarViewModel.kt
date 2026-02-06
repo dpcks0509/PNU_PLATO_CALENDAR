@@ -303,9 +303,7 @@ class CalendarViewModel
                         loadingManager.updateLoading(false)
                     }
 
-                    LoginStatus.LoginInProgress -> {
-                        Unit
-                    }
+                    LoginStatus.LoginInProgress -> Unit
                 }
             }
         }

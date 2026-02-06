@@ -14,46 +14,46 @@ import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 class RemoteCafeteriaRepository
-    @Inject
-    constructor(
-        private val cafeteriaService: CafeteriaService,
-    ) : CafeteriaRepository {
-        override suspend fun getCafeteriaWeeklyPlan(cafeteria: Cafeteria): Result<CafeteriaWeeklyPlan> {
-            return try {
-                val response =
-                    cafeteriaService.getCafeteriaWeeklyPlan(
-                        campus = cafeteria.campus.name,
-                        buildingCode = cafeteria.buildingCode,
-                        restaurantCode = cafeteria.restaurantCode,
-                    )
+@Inject
+constructor(
+    private val cafeteriaService: CafeteriaService,
+) : CafeteriaRepository {
+    override suspend fun getCafeteriaWeeklyPlan(cafeteria: Cafeteria): Result<CafeteriaWeeklyPlan> {
+        return try {
+            val response =
+                cafeteriaService.getCafeteriaWeeklyPlan(
+                    campus = cafeteria.campus.name,
+                    buildingCode = cafeteria.buildingCode,
+                    restaurantCode = cafeteria.restaurantCode,
+                )
 
-                if (response.isSuccessful) {
-                    val responseBody = response.body()?.string()
-                    if (responseBody.isNullOrBlank()) {
-                        return Result.failure(Exception(GET_CAFETERIA_MENUS_FAILED_ERROR))
-                    }
-
-                    val parseHtmlToWeeklyPlans = responseBody.parseHtmlToWeeklyPlans()
-                    val notice = responseBody.parseNotice()
-                    Result.success(
-                        CafeteriaWeeklyPlan(
-                            cafeteria = cafeteria,
-                            notice = notice,
-                            weeklyPlans = parseHtmlToWeeklyPlans,
-                        ),
-                    )
-                } else {
-                    Result.failure(Exception(GET_CAFETERIA_MENUS_FAILED_ERROR))
+            if (response.isSuccessful) {
+                val responseBody = response.body()?.string()
+                if (responseBody.isNullOrBlank()) {
+                    return Result.failure(Exception(GET_CAFETERIA_MENUS_FAILED_ERROR))
                 }
-            } catch (e: Exception) {
-                Result.failure(e)
-            }
-        }
 
-        companion object {
-            private const val GET_CAFETERIA_MENUS_FAILED_ERROR = "식단 정보를 불러오는데 실패했습니다."
+                val parseHtmlToWeeklyPlans = responseBody.parseHtmlToWeeklyPlans()
+                val notice = responseBody.parseNotice()
+                Result.success(
+                    CafeteriaWeeklyPlan(
+                        cafeteria = cafeteria,
+                        notice = notice,
+                        weeklyPlans = parseHtmlToWeeklyPlans,
+                    ),
+                )
+            } else {
+                Result.failure(Exception(GET_CAFETERIA_MENUS_FAILED_ERROR))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
+
+    companion object {
+        private const val GET_CAFETERIA_MENUS_FAILED_ERROR = "식단 정보를 불러오는데 실패했습니다."
+    }
+}
 
 private fun String.parseHtmlToWeeklyPlans(): List<DailyCafeteriaPlan> {
     data class MenuWithDate(
