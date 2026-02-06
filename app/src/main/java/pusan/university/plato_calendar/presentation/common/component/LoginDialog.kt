@@ -150,7 +150,12 @@ fun LoginDialog(
                                     modifier = Modifier.size(20.dp),
                                 )
                             } else {
-                                Text(text = "로그인", color = White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                                Text(
+                                    text = "로그인",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Color.White.copy(alpha = if (isButtonEnabled) 1f else 0.5f),
+                                )
                             }
                         }
                     }
