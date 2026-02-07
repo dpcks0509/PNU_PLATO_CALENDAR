@@ -4,6 +4,8 @@
     android:initialLayout="@layout/glance_default_loading_layout"
     android:minWidth="240dp"
     android:minHeight="180dp"
+    android:targetCellWidth="3"
+    android:targetCellHeight="3"
     android:previewImage="@mipmap/ic_plato_calendar"
     android:resizeMode="horizontal|vertical"
     android:updatePeriodMillis="3600000"
