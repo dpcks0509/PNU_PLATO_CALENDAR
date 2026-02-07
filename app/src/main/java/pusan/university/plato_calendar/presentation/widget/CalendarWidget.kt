@@ -2,7 +2,6 @@ package pusan.university.plato_calendar.presentation.widget
 
 import android.content.Context
 import android.content.Intent
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.Preferences
@@ -22,6 +21,7 @@ import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.items
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
+import androidx.glance.color.ColorProvider
 import androidx.glance.currentState
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
@@ -39,7 +39,6 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
-import androidx.glance.unit.ColorProvider
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
@@ -51,6 +50,15 @@ import pusan.university.plato_calendar.presentation.common.manager.ScheduleManag
 import pusan.university.plato_calendar.presentation.common.manager.SettingsManager
 import pusan.university.plato_calendar.presentation.common.notification.AlarmScheduler
 import pusan.university.plato_calendar.presentation.common.serializer.PersonalScheduleSerializer.deserializePersonalSchedules
+import pusan.university.plato_calendar.presentation.common.theme.BlackDark
+import pusan.university.plato_calendar.presentation.common.theme.BlackLight
+import pusan.university.plato_calendar.presentation.common.theme.GrayDark
+import pusan.university.plato_calendar.presentation.common.theme.GrayLight
+import pusan.university.plato_calendar.presentation.common.theme.MediumGrayLight
+import pusan.university.plato_calendar.presentation.common.theme.PrimaryDark
+import pusan.university.plato_calendar.presentation.common.theme.PrimaryLight
+import pusan.university.plato_calendar.presentation.common.theme.RedDark
+import pusan.university.plato_calendar.presentation.common.theme.RedLight
 import pusan.university.plato_calendar.presentation.widget.callback.NavigateDateCallback
 import pusan.university.plato_calendar.presentation.widget.callback.OpenNewScheduleCallback
 import pusan.university.plato_calendar.presentation.widget.callback.RefreshSchedulesCallback
@@ -138,7 +146,7 @@ object CalendarWidget : GlanceAppWidget() {
                                 TextStyle(
                                     fontSize = 40.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = ColorProvider(Color.Black),
+                                    color = ColorProvider(day = BlackLight, night = BlackDark),
                                     textAlign = TextAlign.Center,
                                 ),
                             modifier = GlanceModifier.width(52.dp),
@@ -155,7 +163,7 @@ object CalendarWidget : GlanceAppWidget() {
                                     TextStyle(
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.Medium,
-                                        color = ColorProvider(Color.Black),
+                                        color = ColorProvider(day = BlackLight, night = BlackDark),
                                     ),
                             )
                             Text(
@@ -169,7 +177,7 @@ object CalendarWidget : GlanceAppWidget() {
                                     TextStyle(
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.Normal,
-                                        color = ColorProvider(Color.Gray),
+                                        color = ColorProvider(day = GrayLight, night = GrayDark),
                                     ),
                             )
                         }
@@ -208,7 +216,8 @@ object CalendarWidget : GlanceAppWidget() {
                                                 "pusan.university.plato_calendar",
                                                 "pusan.university.plato_calendar.presentation.PlatoCalendarActivity",
                                             )
-                                            action = OpenNewScheduleCallback.ACTION_OPEN_NEW_SCHEDULE
+                                            action =
+                                                OpenNewScheduleCallback.ACTION_OPEN_NEW_SCHEDULE
                                             flags =
                                                 Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
                                             addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
@@ -245,22 +254,22 @@ object CalendarWidget : GlanceAppWidget() {
                                     TextStyle(
                                         fontSize = 12.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color =
-                                            ColorProvider(
-                                                when {
-                                                    isToday -> {
-                                                        Color(0xFF3B6EC7)
-                                                    }
+                                        color = when {
+                                            isToday -> ColorProvider(
+                                                day = PrimaryLight,
+                                                night = PrimaryDark
+                                            )
 
-                                                    date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY -> {
-                                                        Color.Red
-                                                    }
+                                            date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY -> ColorProvider(
+                                                day = RedLight,
+                                                night = RedDark
+                                            )
 
-                                                    else -> {
-                                                        Color.Black
-                                                    }
-                                                },
-                                            ),
+                                            else -> ColorProvider(
+                                                day = BlackLight,
+                                                night = BlackDark
+                                            )
+                                        }
                                     ),
                             )
                         }
@@ -315,22 +324,22 @@ object CalendarWidget : GlanceAppWidget() {
                                         TextStyle(
                                             fontSize = 16.sp,
                                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                            color =
-                                                ColorProvider(
-                                                    when {
-                                                        isToday -> {
-                                                            Color(0xFF3B6EC7)
-                                                        }
+                                            color = when {
+                                                isToday -> ColorProvider(
+                                                    day = PrimaryLight,
+                                                    night = PrimaryDark
+                                                )
 
-                                                        date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY -> {
-                                                            Color.Red
-                                                        }
+                                                date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY -> ColorProvider(
+                                                    day = RedLight,
+                                                    night = RedDark
+                                                )
 
-                                                        else -> {
-                                                            Color.Black
-                                                        }
-                                                    },
-                                                ),
+                                                else -> ColorProvider(
+                                                    day = BlackLight,
+                                                    night = BlackDark
+                                                )
+                                            }
                                         ),
                                 )
                             }
@@ -372,7 +381,12 @@ object CalendarWidget : GlanceAppWidget() {
                             GlanceModifier
                                 .fillMaxWidth()
                                 .height(1.dp)
-                                .background(Color(0xFFCCCCCC)),
+                                .background(
+                                    ColorProvider(
+                                        day = MediumGrayLight,
+                                        night = MediumGrayLight
+                                    )
+                                ),
                     )
 
                     Spacer(
@@ -396,7 +410,7 @@ object CalendarWidget : GlanceAppWidget() {
                             style =
                                 TextStyle(
                                     fontSize = 14.sp,
-                                    color = ColorProvider(Color.Gray),
+                                    color = ColorProvider(day = GrayLight, night = GrayDark),
                                 ),
                         )
                     }
