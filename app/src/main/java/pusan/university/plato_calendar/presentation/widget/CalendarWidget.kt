@@ -1,7 +1,6 @@
 package pusan.university.plato_calendar.presentation.widget
 
 import android.content.Context
-import android.content.Intent
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.Preferences
@@ -12,11 +11,11 @@ import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.action.actionParametersOf
+import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.LinearProgressIndicator
 import androidx.glance.appwidget.action.actionRunCallback
-import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.items
 import androidx.glance.appwidget.provideContent
@@ -45,6 +44,7 @@ import dagger.hilt.components.SingletonComponent
 import pusan.university.plato_calendar.R
 import pusan.university.plato_calendar.domain.repository.CourseRepository
 import pusan.university.plato_calendar.domain.repository.ScheduleRepository
+import pusan.university.plato_calendar.presentation.PlatoCalendarActivity
 import pusan.university.plato_calendar.presentation.common.manager.LoginManager
 import pusan.university.plato_calendar.presentation.common.manager.ScheduleManager
 import pusan.university.plato_calendar.presentation.common.manager.SettingsManager
@@ -127,6 +127,7 @@ object CalendarWidget : GlanceAppWidget() {
                     GlanceModifier
                         .fillMaxSize()
                         .background(ImageProvider(R.drawable.widget_background))
+                        .clickable(actionStartActivity<PlatoCalendarActivity>())
                         .padding(16.dp),
                 verticalAlignment = Alignment.Vertical.Top,
             ) {
@@ -189,9 +190,7 @@ object CalendarWidget : GlanceAppWidget() {
                                 .width(36.dp)
                                 .height(36.dp)
                                 .background(ImageProvider(R.drawable.widget_circle_blue))
-                                .clickable(
-                                    actionRunCallback<RefreshSchedulesCallback>(),
-                                ),
+                                .clickable(actionRunCallback<RefreshSchedulesCallback>()),
                         contentAlignment = Alignment.Center,
                     ) {
                         Image(
@@ -209,21 +208,7 @@ object CalendarWidget : GlanceAppWidget() {
                                 .width(36.dp)
                                 .height(36.dp)
                                 .background(ImageProvider(R.drawable.widget_circle_blue))
-                                .clickable(
-                                    actionStartActivity(
-                                        Intent().apply {
-                                            setClassName(
-                                                "pusan.university.plato_calendar",
-                                                "pusan.university.plato_calendar.presentation.PlatoCalendarActivity",
-                                            )
-                                            action =
-                                                OpenNewScheduleCallback.ACTION_OPEN_NEW_SCHEDULE
-                                            flags =
-                                                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                                            addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                                        },
-                                    ),
-                                ),
+                                .clickable(actionRunCallback<OpenNewScheduleCallback>()),
                         contentAlignment = Alignment.Center,
                     ) {
                         Image(
