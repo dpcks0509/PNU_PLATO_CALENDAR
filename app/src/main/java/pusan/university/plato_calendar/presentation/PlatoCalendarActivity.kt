@@ -28,8 +28,8 @@ import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import pusan.university.plato_calendar.presentation.common.component.AnimatedToast
-import pusan.university.plato_calendar.presentation.common.eventbus.NotificationEvent
-import pusan.university.plato_calendar.presentation.common.eventbus.NotificationEventBus
+import pusan.university.plato_calendar.presentation.common.eventbus.WidgetEvent
+import pusan.university.plato_calendar.presentation.common.eventbus.WidgetEventBus
 import pusan.university.plato_calendar.presentation.common.extension.noRippleClickable
 import pusan.university.plato_calendar.presentation.common.manager.LoadingManager
 import pusan.university.plato_calendar.presentation.common.manager.LoginManager
@@ -45,6 +45,7 @@ import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarTh
 import pusan.university.plato_calendar.presentation.common.theme.PrimaryColor
 import pusan.university.plato_calendar.presentation.common.theme.White
 import pusan.university.plato_calendar.presentation.widget.callback.OpenNewScheduleCallback
+import pusan.university.plato_calendar.presentation.widget.callback.OpenScheduleDetailCallback
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -141,14 +142,16 @@ class PlatoCalendarActivity : ComponentActivity() {
             notificationHelper.cancelNotification(notificationId)
         }
         if (scheduleId != -1L) {
+            val selectedDate = intent.getStringExtra(OpenScheduleDetailCallback.EXTRA_SELECTED_DATE)
             lifecycleScope.launch {
-                NotificationEventBus.sendEvent(NotificationEvent.OpenSchedule(scheduleId))
+                WidgetEventBus.sendEvent(WidgetEvent.OpenSchedule(scheduleId, selectedDate))
             }
         }
 
         if (intent.action == OpenNewScheduleCallback.ACTION_OPEN_NEW_SCHEDULE) {
+            val selectedDate = intent.getStringExtra(OpenNewScheduleCallback.EXTRA_SELECTED_DATE)
             lifecycleScope.launch {
-                NotificationEventBus.sendEvent(NotificationEvent.OpenNewSchedule)
+                WidgetEventBus.sendEvent(WidgetEvent.OpenNewSchedule(selectedDate))
             }
         }
     }

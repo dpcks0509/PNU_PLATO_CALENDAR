@@ -91,18 +91,39 @@ fun NewScheduleContent(
             }
         }
 
-    var startAt by rememberSaveable(stateSaver = LocalDateTimeSaver) { mutableStateOf(initialStartTime) }
-    var endAt by rememberSaveable(stateSaver = LocalDateTimeSaver) { mutableStateOf(initialStartTime.plusHours(1)) }
-
+    var startAt by rememberSaveable(stateSaver = LocalDateTimeSaver) {
+        mutableStateOf(
+            initialStartTime
+        )
+    }
+    var endAt by rememberSaveable(stateSaver = LocalDateTimeSaver) {
+        mutableStateOf(
+            initialStartTime.plusHours(
+                1
+            )
+        )
+    }
     var showStartDatePicker by rememberSaveable { mutableStateOf(false) }
     var showEndDatePicker by rememberSaveable { mutableStateOf(false) }
     var timePickerFor by rememberSaveable { mutableStateOf<PickerTarget?>(null) }
 
     val zoneId = ZoneId.systemDefault()
     val today = LocalDateTime.now().toLocalDate()
-    val currentMonthStart = rememberSaveable(today, saver = LocalDateSaver) { LocalDate.of(today.year, today.monthValue, 1) }
-    val minDate = rememberSaveable(today, saver = LocalDateSaver) { minOf(today.minusDays(5), currentMonthStart) }
-    val maxDate = rememberSaveable(today, saver = LocalDateSaver) { today.plusYears(1).minusDays(1) }
+    val currentMonthStart = rememberSaveable(today, saver = LocalDateSaver) {
+        LocalDate.of(
+            today.year,
+            today.monthValue,
+            1
+        )
+    }
+    val minDate = rememberSaveable(today, saver = LocalDateSaver) {
+        minOf(
+            today.minusDays(5),
+            currentMonthStart
+        )
+    }
+    val maxDate =
+        rememberSaveable(today, saver = LocalDateSaver) { today.plusYears(1).minusDays(1) }
 
     val selectableDates =
         remember(minDate, maxDate) {
@@ -114,7 +135,8 @@ fun NewScheduleContent(
                     return notBefore && notAfter
                 }
 
-                override fun isSelectableYear(year: Int): Boolean = year in minDate.year..maxDate.year
+                override fun isSelectableYear(year: Int): Boolean =
+                    year in minDate.year..maxDate.year
             }
         }
 
@@ -132,7 +154,8 @@ fun NewScheduleContent(
 
     val dateFormatter = DateTimeFormatter.ofPattern("M월 d일 (E)", Locale.KOREAN)
     val formattedStartDate = rememberSaveable(startAt) { startAt.format(dateFormatter) }
-    val formattedStartTime = rememberSaveable(startAt) { startAt.formatTimeWithMidnightSpecialCase() }
+    val formattedStartTime =
+        rememberSaveable(startAt) { startAt.formatTimeWithMidnightSpecialCase() }
     val formattedEndDate = rememberSaveable(endAt) { endAt.format(dateFormatter) }
     val formattedEndTime = rememberSaveable(endAt) { endAt.formatTimeWithMidnightSpecialCase() }
     val formattedStartYear = rememberSaveable(startAt) { "${startAt.year}년" }

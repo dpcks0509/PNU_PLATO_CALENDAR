@@ -52,8 +52,8 @@ import pusan.university.plato_calendar.presentation.common.component.LoginDialog
 import pusan.university.plato_calendar.presentation.common.component.PullToRefreshContainer
 import pusan.university.plato_calendar.presentation.common.component.bottomsheet.ScheduleBottomSheet
 import pusan.university.plato_calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent
-import pusan.university.plato_calendar.presentation.common.eventbus.NotificationEvent
-import pusan.university.plato_calendar.presentation.common.eventbus.NotificationEventBus
+import pusan.university.plato_calendar.presentation.common.eventbus.WidgetEvent
+import pusan.university.plato_calendar.presentation.common.eventbus.WidgetEventBus
 import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarTheme
 import pusan.university.plato_calendar.presentation.common.theme.PrimaryColor
 import java.time.LocalDate
@@ -93,13 +93,21 @@ fun CalendarScreen(
     }
 
     LaunchedEffect(Unit) {
-        NotificationEventBus.events.collect { event ->
+        WidgetEventBus.events.collect { event ->
             when (event) {
-                is NotificationEvent.OpenSchedule -> {
+                is WidgetEvent.OpenSchedule -> {
+                    event.date?.let { dateStr ->
+                        val date = LocalDate.parse(dateStr)
+                        viewModel.setEvent(UpdateSelectedDate(date))
+                    }
                     viewModel.setEvent(ShowScheduleBottomSheetById(event.scheduleId))
                 }
 
-                is NotificationEvent.OpenNewSchedule -> {
+                is WidgetEvent.OpenNewSchedule -> {
+                    event.date?.let { dateStr ->
+                        val date = LocalDate.parse(dateStr)
+                        viewModel.setEvent(UpdateSelectedDate(date))
+                    }
                     viewModel.setEvent(ShowScheduleBottomSheet())
                 }
             }

@@ -208,7 +208,13 @@ object CalendarWidget : GlanceAppWidget() {
                                 .width(36.dp)
                                 .height(36.dp)
                                 .background(ImageProvider(R.drawable.widget_circle_blue))
-                                .clickable(actionRunCallback<OpenNewScheduleCallback>()),
+                                .clickable(
+                                    actionRunCallback<OpenNewScheduleCallback>(
+                                        actionParametersOf(
+                                            OpenNewScheduleCallback.selectedDateKey to selectedDate.toString(),
+                                        ),
+                                    ),
+                                ),
                         contentAlignment = Alignment.Center,
                     ) {
                         Image(
