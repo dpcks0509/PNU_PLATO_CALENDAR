@@ -1,14 +1,9 @@
 package pusan.university.plato_calendar.presentation.setting
 
 import android.Manifest
-import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,6 +18,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,12 +28,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.launch
 import pusan.university.plato_calendar.presentation.common.component.LoginDialog
 import pusan.university.plato_calendar.presentation.common.component.TopBar
+import pusan.university.plato_calendar.presentation.common.eventbus.NotificationPermissionEvent
+import pusan.university.plato_calendar.presentation.common.eventbus.NotificationPermissionEventBus
 import pusan.university.plato_calendar.presentation.common.theme.MediumGray
 import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarTheme
 import pusan.university.plato_calendar.presentation.setting.component.Account
-import pusan.university.plato_calendar.presentation.setting.component.NotificationPermissionSettingsDialog
 import pusan.university.plato_calendar.presentation.setting.component.NotificationToggleItem
 import pusan.university.plato_calendar.presentation.setting.component.ReminderDropdownItem
 import pusan.university.plato_calendar.presentation.setting.component.SettingItem
@@ -66,25 +64,10 @@ fun SettingScreen(
     viewModel: SettingViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+
     val lazyListState = rememberLazyListState()
     val context = LocalContext.current
-    val activity = context as? Activity
-    val notificationPermissionLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            when {
-                isGranted -> {
-                    viewModel.setEvent(UpdateNotificationsEnabled(true))
-                }
-
-                activity?.shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) == false -> {
-                    viewModel.setEvent(SettingEvent.ShowNotificationPermissionSettingsDialog)
-                }
-
-                else -> {
-                    viewModel.setEvent(UpdateNotificationsEnabled(false))
-                }
-            }
-        }
+    val coroutineScope = rememberCoroutineScope()
 
     LifecycleEventEffect(event = Lifecycle.Event.ON_RESUME) {
         val granted = checkNotificationPermission(context)
@@ -92,9 +75,27 @@ fun SettingScreen(
     }
 
     LaunchedEffect(Unit) {
-        viewModel.sideEffect.collect { sideEffect ->
-            when (sideEffect) {
-                is SettingSideEffect.NavigateToWebView -> navigateToWebView(sideEffect.url)
+        launch {
+            NotificationPermissionEventBus.events.collect { event ->
+                when (event) {
+                    is NotificationPermissionEvent.PermissionResult -> {
+                        if (event.isGranted) {
+                            viewModel.setEvent(UpdateNotificationsEnabled(true))
+                        } else {
+                            viewModel.setEvent(UpdateNotificationsEnabled(false))
+                        }
+                    }
+
+                    is NotificationPermissionEvent.RequestPermission -> Unit
+                }
+            }
+        }
+
+        launch {
+            viewModel.sideEffect.collect { sideEffect ->
+                when (sideEffect) {
+                    is SettingSideEffect.NavigateToWebView -> navigateToWebView(sideEffect.url)
+                }
             }
         }
     }
@@ -108,10 +109,8 @@ fun SettingScreen(
                     if (checkNotificationPermission(context)) {
                         viewModel.setEvent(event)
                     } else {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                        } else {
-                            viewModel.setEvent(event)
+                        coroutineScope.launch {
+                            NotificationPermissionEventBus.sendEvent(NotificationPermissionEvent.RequestPermission)
                         }
                     }
                 }
@@ -134,21 +133,6 @@ fun SettingScreen(
         LoginDialog(
             onDismissRequest = { viewModel.setEvent(SettingEvent.HideLoginDialog) },
             onLoginRequest = { loginCredentials -> viewModel.tryLogin(loginCredentials) },
-        )
-    }
-
-    if (state.isNotificationPermissionSettingsDialogVisible) {
-        NotificationPermissionSettingsDialog(
-            onDismissRequest = { viewModel.setEvent(SettingEvent.HideNotificationPermissionSettingsDialog) },
-            onNavigateToSettings = {
-                viewModel.setEvent(SettingEvent.HideNotificationPermissionSettingsDialog)
-                val intent =
-                    Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                        data = Uri.fromParts("package", context.packageName, null)
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    }
-                context.startActivity(intent)
-            },
         )
     }
 }
