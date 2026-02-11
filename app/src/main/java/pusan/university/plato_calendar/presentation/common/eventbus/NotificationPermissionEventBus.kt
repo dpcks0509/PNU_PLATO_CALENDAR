@@ -15,5 +15,4 @@ object NotificationPermissionEventBus {
 
 sealed interface NotificationPermissionEvent {
     data object RequestPermission : NotificationPermissionEvent
-    data class PermissionResult(val isGranted: Boolean) : NotificationPermissionEvent
 }

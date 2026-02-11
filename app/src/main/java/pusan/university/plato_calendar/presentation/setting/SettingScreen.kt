@@ -76,22 +76,6 @@ fun SettingScreen(
 
     LaunchedEffect(Unit) {
         launch {
-            NotificationPermissionEventBus.events.collect { event ->
-                when (event) {
-                    is NotificationPermissionEvent.PermissionResult -> {
-                        if (event.isGranted) {
-                            viewModel.setEvent(UpdateNotificationsEnabled(true))
-                        } else {
-                            viewModel.setEvent(UpdateNotificationsEnabled(false))
-                        }
-                    }
-
-                    is NotificationPermissionEvent.RequestPermission -> Unit
-                }
-            }
-        }
-
-        launch {
             viewModel.sideEffect.collect { sideEffect ->
                 when (sideEffect) {
                     is SettingSideEffect.NavigateToWebView -> navigateToWebView(sideEffect.url)

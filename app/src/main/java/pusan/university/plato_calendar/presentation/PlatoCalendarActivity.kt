@@ -33,6 +33,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import pusan.university.plato_calendar.data.local.database.SettingsDataStore
 import pusan.university.plato_calendar.presentation.common.component.AnimatedToast
 import pusan.university.plato_calendar.presentation.common.eventbus.NotificationPermissionEvent
 import pusan.university.plato_calendar.presentation.common.eventbus.NotificationPermissionEventBus
@@ -77,6 +78,9 @@ class PlatoCalendarActivity : ComponentActivity() {
     @Inject
     lateinit var notificationHelper: NotificationHelper
 
+    @Inject
+    lateinit var settingsDataStore: SettingsDataStore
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -95,9 +99,6 @@ class PlatoCalendarActivity : ComponentActivity() {
             ) { isGranted ->
                 lifecycleScope.launch {
                     settingsManager.setNotificationsEnabled(isGranted)
-                    NotificationPermissionEventBus.sendEvent(
-                        NotificationPermissionEvent.PermissionResult(isGranted)
-                    )
                 }
 
                 if (!isGranted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -121,13 +122,11 @@ class PlatoCalendarActivity : ComponentActivity() {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                                 notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                             } else {
-                                NotificationPermissionEventBus.sendEvent(
-                                    NotificationPermissionEvent.PermissionResult(true)
-                                )
+                                lifecycleScope.launch {
+                                    settingsManager.setNotificationsEnabled(true)
+                                }
                             }
                         }
-
-                        is NotificationPermissionEvent.PermissionResult -> Unit
                     }
                 }
             }
