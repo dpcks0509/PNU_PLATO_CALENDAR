@@ -48,10 +48,10 @@ import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiMod
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.YearMonth
 import pusan.university.plato_calendar.presentation.common.component.PullToRefreshContainer
-import pusan.university.plato_calendar.presentation.common.eventbus.DialogEventBus
 import pusan.university.plato_calendar.presentation.common.component.bottomsheet.ScheduleBottomSheet
 import pusan.university.plato_calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent
 import pusan.university.plato_calendar.presentation.common.component.dialog.content.DialogContent
+import pusan.university.plato_calendar.presentation.common.eventbus.DialogEventBus
 import pusan.university.plato_calendar.presentation.common.eventbus.WidgetEvent
 import pusan.university.plato_calendar.presentation.common.eventbus.WidgetEventBus
 import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarTheme

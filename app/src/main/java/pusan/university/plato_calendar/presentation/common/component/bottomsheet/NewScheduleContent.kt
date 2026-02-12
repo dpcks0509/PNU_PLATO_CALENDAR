@@ -27,11 +27,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,6 +40,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 import pusan.university.plato_calendar.R
 import pusan.university.plato_calendar.domain.entity.Schedule.NewSchedule
 import pusan.university.plato_calendar.presentation.calendar.model.PickerTarget
@@ -80,27 +79,17 @@ fun NewScheduleContent(
     var title by rememberSaveable { mutableStateOf("") }
     var description by rememberSaveable { mutableStateOf("") }
 
-    val initialStartTime =
-        remember(selectedDate) {
-            val today = LocalDateTime.now()
-            if (selectedDate == today.toLocalDate()) {
-                today
-            } else {
-                LocalDateTime.of(selectedDate, LocalTime.of(9, 0))
-            }
-        }
-
     var startAt by rememberSaveable(stateSaver = LocalDateTimeSaver) {
-        mutableStateOf(
-            initialStartTime
-        )
+        val today = LocalDateTime.now()
+        val initialStartTime = if (selectedDate == today.toLocalDate()) {
+            today
+        } else {
+            LocalDateTime.of(selectedDate, LocalTime.of(9, 0))
+        }
+        mutableStateOf(initialStartTime)
     }
     var endAt by rememberSaveable(stateSaver = LocalDateTimeSaver) {
-        mutableStateOf(
-            initialStartTime.plusHours(
-                1
-            )
-        )
+        mutableStateOf(startAt.plusHours(1))
     }
     var timePickerFor by rememberSaveable { mutableStateOf<PickerTarget?>(null) }
     val scope = rememberCoroutineScope()
@@ -465,6 +454,7 @@ fun NewScheduleContent(
                         },
                     ),
                 )
+
                 timePickerFor = null
             }
         }
