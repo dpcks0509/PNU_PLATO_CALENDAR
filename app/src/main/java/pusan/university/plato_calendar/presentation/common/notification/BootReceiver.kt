@@ -32,9 +32,9 @@ class BootReceiver : BroadcastReceiver() {
         }
 
         val pendingResult = goAsync()
-        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+        val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
-        scope.launch {
+        coroutineScope.launch {
             try {
                 val settings = settingsManager.appSettings.first()
                 val schedules = scheduleManager.schedules.first()

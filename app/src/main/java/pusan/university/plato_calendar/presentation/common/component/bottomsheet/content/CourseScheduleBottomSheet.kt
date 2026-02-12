@@ -1,4 +1,4 @@
-package pusan.university.plato_calendar.presentation.common.component.bottomsheet
+package pusan.university.plato_calendar.presentation.common.component.bottomsheet.content
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -52,7 +52,7 @@ private const val HAS_NO_DESCRIPTION = "설명 없음"
 fun CourseScheduleContent(
     schedule: CourseScheduleUiModel,
     toggleScheduleCompletion: (Long, Boolean) -> Unit,
-    onDismissRequest: () -> Unit,
+    onDismiss: () -> Unit,
 ) {
     val dateFormatter = DateTimeFormatter.ofPattern("M월 d일 (E)", Locale.KOREAN)
     val formattedStartDate = schedule.startAt.format(dateFormatter)
@@ -78,7 +78,7 @@ fun CourseScheduleContent(
             modifier =
                 Modifier
                     .size(32.dp)
-                    .noRippleClickable(onClick = onDismissRequest),
+                    .noRippleClickable(onClick = onDismiss),
         )
 
         Spacer(modifier = Modifier.width(8.dp))

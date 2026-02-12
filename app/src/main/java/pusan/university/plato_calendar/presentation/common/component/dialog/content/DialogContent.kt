@@ -6,29 +6,29 @@ import pusan.university.plato_calendar.domain.entity.LoginCredentials
 
 @Parcelize
 sealed interface DialogContent : Parcelable {
-    data class DeleteSchedule(
+    data class DeleteScheduleContent(
         val scheduleId: Long,
         val onConfirm: () -> Unit,
     ) : DialogContent
 
-    data class NotificationPermission(
+    data class NotificationPermissionContent(
         val onConfirm: () -> Unit,
     ) : DialogContent
 
-    data class Login(
+    data class LoginContent(
         val onConfirm: suspend (LoginCredentials) -> Unit,
     ) : DialogContent
 
-    data class TimePicker(
-        val initialHour: Int,
-        val initialMinute: Int,
-        val onConfirm: (hour: Int, minute: Int) -> Unit,
-    ) : DialogContent
-
-    data class DatePicker(
+    data class DatePickerContent(
         val initialSelectedDateMillis: Long,
         val minDateMillis: Long,
         val maxDateMillis: Long,
         val onConfirm: (selectedDateMillis: Long) -> Unit,
+    ) : DialogContent
+
+    data class TimePickerContent(
+        val initialHour: Int,
+        val initialMinute: Int,
+        val onConfirm: (hour: Int, minute: Int) -> Unit,
     ) : DialogContent
 }

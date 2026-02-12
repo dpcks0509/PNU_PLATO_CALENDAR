@@ -1,4 +1,4 @@
-package pusan.university.plato_calendar.presentation.common.component.bottomsheet
+package pusan.university.plato_calendar.presentation.common.component.bottomsheet.content
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -45,7 +45,7 @@ import java.util.Locale
 @Composable
 fun AcademicScheduleContent(
     schedule: AcademicScheduleUiModel,
-    onDismissRequest: () -> Unit,
+    onDismiss: () -> Unit,
 ) {
     val dateFormatter = DateTimeFormatter.ofPattern("M월 d일 (E)", Locale.KOREAN)
     val formattedStartDate = schedule.startAt.format(dateFormatter)
@@ -69,7 +69,7 @@ fun AcademicScheduleContent(
             modifier =
                 Modifier
                     .size(32.dp)
-                    .noRippleClickable(onClick = onDismissRequest),
+                    .noRippleClickable(onClick = onDismiss),
         )
 
         Spacer(modifier = Modifier.width(8.dp))

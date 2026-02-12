@@ -12,7 +12,7 @@ import pusan.university.plato_calendar.presentation.common.component.dialog.cont
 fun Dialog(state: DialogState) {
     state.content?.let { content ->
         when (content) {
-            is DialogContent.DeleteSchedule -> {
+            is DialogContent.DeleteScheduleContent -> {
                 DeleteScheduleDialog(
                     onDismiss = { state.hide() },
                     onConfirm = {
@@ -22,7 +22,7 @@ fun Dialog(state: DialogState) {
                 )
             }
 
-            is DialogContent.NotificationPermission -> {
+            is DialogContent.NotificationPermissionContent -> {
                 NotificationPermissionDialog(
                     onDismiss = { state.hide() },
                     onConfirm = {
@@ -32,7 +32,7 @@ fun Dialog(state: DialogState) {
                 )
             }
 
-            is DialogContent.Login -> {
+            is DialogContent.LoginContent -> {
                 LoginDialog(
                     onDismiss = { state.hide() },
                     onConfirm = { credentials ->
@@ -42,19 +42,7 @@ fun Dialog(state: DialogState) {
                 )
             }
 
-            is DialogContent.TimePicker -> {
-                TimePickerDialog(
-                    initialHour = content.initialHour,
-                    initialMinute = content.initialMinute,
-                    onDismiss = { state.hide() },
-                    onConfirm = { hour, minute ->
-                        state.hide()
-                        content.onConfirm(hour, minute)
-                    },
-                )
-            }
-
-            is DialogContent.DatePicker -> {
+            is DialogContent.DatePickerContent -> {
                 DatePickerDialog(
                     initialSelectedDateMillis = content.initialSelectedDateMillis,
                     minDateMillis = content.minDateMillis,
@@ -63,6 +51,18 @@ fun Dialog(state: DialogState) {
                     onConfirm = { selectedDateMillis ->
                         state.hide()
                         content.onConfirm(selectedDateMillis)
+                    },
+                )
+            }
+
+            is DialogContent.TimePickerContent -> {
+                TimePickerDialog(
+                    initialHour = content.initialHour,
+                    initialMinute = content.initialMinute,
+                    onDismiss = { state.hide() },
+                    onConfirm = { hour, minute ->
+                        state.hide()
+                        content.onConfirm(hour, minute)
                     },
                 )
             }

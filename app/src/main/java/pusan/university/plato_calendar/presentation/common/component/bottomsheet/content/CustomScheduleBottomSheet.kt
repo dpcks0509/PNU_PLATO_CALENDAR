@@ -1,4 +1,4 @@
-package pusan.university.plato_calendar.presentation.common.component.bottomsheet
+package pusan.university.plato_calendar.presentation.common.component.bottomsheet.content
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -76,8 +76,8 @@ fun CustomScheduleContent(
     schedule: CustomScheduleUiModel,
     editSchedule: (CustomSchedule) -> Unit,
     toggleScheduleCompletion: (Long, Boolean) -> Unit,
-    onDeleteRequest: () -> Unit,
-    onDismissRequest: () -> Unit,
+    deleteSchedule: () -> Unit,
+    onDismiss: () -> Unit,
 ) {
     var title by rememberSaveable { mutableStateOf(schedule.title) }
     var description by rememberSaveable { mutableStateOf(schedule.description.orEmpty()) }
@@ -85,7 +85,7 @@ fun CustomScheduleContent(
     var endAt by rememberSaveable(stateSaver = LocalDateTimeSaver) { mutableStateOf(schedule.endAt) }
 
     var timePickerFor by rememberSaveable { mutableStateOf<PickerTarget?>(null) }
-    val scope = rememberCoroutineScope()
+    val coroutineScope = rememberCoroutineScope()
 
     val zoneId = ZoneId.systemDefault()
     val today = LocalDateTime.now().toLocalDate()
@@ -139,7 +139,7 @@ fun CustomScheduleContent(
             modifier =
                 Modifier
                     .size(32.dp)
-                    .noRippleClickable(onClick = onDismissRequest),
+                    .noRippleClickable(onClick = onDismiss),
         )
 
         Spacer(modifier = Modifier.width(8.dp))
@@ -323,9 +323,9 @@ fun CustomScheduleContent(
                         .background(LightGray)
                         .padding(vertical = 8.dp)
                         .noRippleClickable {
-                            scope.launch {
+                            coroutineScope.launch {
                                 DialogEventBus.show(
-                                    DialogContent.DatePicker(
+                                    DialogContent.DatePickerContent(
                                         initialSelectedDateMillis = initialMillisFor(startAt),
                                         minDateMillis = minDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
                                         maxDateMillis = maxDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
@@ -380,9 +380,9 @@ fun CustomScheduleContent(
                         .background(LightGray)
                         .padding(vertical = 8.dp)
                         .noRippleClickable {
-                            scope.launch {
+                            coroutineScope.launch {
                                 DialogEventBus.show(
-                                    DialogContent.DatePicker(
+                                    DialogContent.DatePickerContent(
                                         initialSelectedDateMillis = initialMillisFor(endAt),
                                         minDateMillis = minDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
                                         maxDateMillis = maxDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
@@ -464,7 +464,7 @@ fun CustomScheduleContent(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .noRippleClickable { onDeleteRequest() },
+                    .noRippleClickable { deleteSchedule() },
         )
     }
 
@@ -474,9 +474,9 @@ fun CustomScheduleContent(
         val initialDateTime = if (target == PickerTarget.START) startAt else endAt
 
         LaunchedEffect(timePickerFor) {
-            scope.launch {
+            coroutineScope.launch {
                 DialogEventBus.show(
-                    DialogContent.TimePicker(
+                    DialogContent.TimePickerContent(
                         initialHour = initialDateTime.hour,
                         initialMinute = initialDateTime.minute,
                         onConfirm = { hour, minute ->

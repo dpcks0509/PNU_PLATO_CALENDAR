@@ -86,7 +86,7 @@ fun ToDoScreen(
             toggleScheduleCompletion = { id, completed ->
                 viewModel.setEvent(TogglePersonalScheduleCompletion(id, completed))
             },
-            onDismissRequest = { coroutineScope.launch { sheetState.hide() } },
+            onDismiss = { coroutineScope.launch { sheetState.hide() } },
             modifier = Modifier.fillMaxWidth(),
         )
     }

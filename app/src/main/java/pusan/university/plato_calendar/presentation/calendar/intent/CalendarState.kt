@@ -5,7 +5,7 @@ import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiMod
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.YearMonth
 import pusan.university.plato_calendar.presentation.common.base.UiState
-import pusan.university.plato_calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent
+import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.ScheduleBottomSheetContent
 import java.time.LocalDate
 
 data class CalendarState(

@@ -17,7 +17,7 @@ class CalendarWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget
         get() = CalendarWidget
 
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun onUpdate(
         context: Context,
@@ -26,7 +26,7 @@ class CalendarWidgetReceiver : GlanceAppWidgetReceiver() {
     ) {
         super.onUpdate(context, appWidgetManager, appWidgetIds)
 
-        scope.launch {
+        coroutineScope.launch {
             appWidgetIds.forEach { appWidgetId ->
                 try {
                     val glanceId =

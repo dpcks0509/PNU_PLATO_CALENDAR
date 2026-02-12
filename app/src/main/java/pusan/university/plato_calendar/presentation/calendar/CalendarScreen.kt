@@ -49,7 +49,7 @@ import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiMod
 import pusan.university.plato_calendar.presentation.calendar.model.YearMonth
 import pusan.university.plato_calendar.presentation.common.component.PullToRefreshContainer
 import pusan.university.plato_calendar.presentation.common.component.bottomsheet.ScheduleBottomSheet
-import pusan.university.plato_calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent
+import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.ScheduleBottomSheetContent
 import pusan.university.plato_calendar.presentation.common.component.dialog.content.DialogContent
 import pusan.university.plato_calendar.presentation.common.eventbus.DialogEventBus
 import pusan.university.plato_calendar.presentation.common.eventbus.WidgetEvent
@@ -92,7 +92,7 @@ fun CalendarScreen(
                 CalendarSideEffect.ShowLoginDialog -> {
                     coroutineScope.launch {
                         DialogEventBus.show(
-                            DialogContent.Login(
+                            DialogContent.LoginContent(
                                 onConfirm = { credentials ->
                                     viewModel.setEvent(CalendarEvent.Login(credentials))
                                 },
@@ -156,7 +156,7 @@ fun CalendarScreen(
                     ),
                 )
             },
-            onDismissRequest = { coroutineScope.launch { sheetState.hide() } },
+            onDismiss = { coroutineScope.launch { sheetState.hide() } },
             modifier = Modifier.fillMaxWidth(),
         )
     }

@@ -95,7 +95,7 @@ fun SettingScreen(
                     } else {
                         coroutineScope.launch {
                             DialogEventBus.show(
-                                DialogContent.NotificationPermission(
+                                DialogContent.NotificationPermissionContent(
                                     onConfirm = { viewModel.setEvent(event) },
                                 ),
                             )
@@ -151,7 +151,7 @@ fun SettingContent(
                                         } else {
                                             coroutineScope.launch {
                                                 DialogEventBus.show(
-                                                    DialogContent.Login(
+                                                    DialogContent.LoginContent(
                                                         onConfirm = { credentials ->
                                                             onEvent(SettingEvent.Login(credentials))
                                                         },

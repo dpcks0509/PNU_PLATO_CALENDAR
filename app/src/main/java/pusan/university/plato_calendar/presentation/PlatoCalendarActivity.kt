@@ -98,7 +98,7 @@ class PlatoCalendarActivity : ComponentActivity() {
 
                 if (!isGranted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     dialogState.show(
-                        DialogContent.NotificationPermission {
+                        DialogContent.NotificationPermissionContent {
                             val intent =
                                 Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                                     data = Uri.fromParts("package", packageName, null)

@@ -17,10 +17,14 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import pusan.university.plato_calendar.domain.entity.Schedule.NewSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
-import pusan.university.plato_calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent.AcademicScheduleContent
-import pusan.university.plato_calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent.CourseScheduleContent
-import pusan.university.plato_calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent.CustomScheduleContent
-import pusan.university.plato_calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent.NewScheduleContent
+import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.ScheduleBottomSheetContent.AcademicScheduleContent
+import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.ScheduleBottomSheetContent.CourseScheduleContent
+import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.ScheduleBottomSheetContent.CustomScheduleContent
+import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.ScheduleBottomSheetContent.NewScheduleContent
+import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.AcademicScheduleContent
+import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.CourseScheduleContent
+import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.NewScheduleContent
+import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.ScheduleBottomSheetContent
 import pusan.university.plato_calendar.presentation.common.component.dialog.content.DialogContent
 import pusan.university.plato_calendar.presentation.common.eventbus.DialogEventBus
 import pusan.university.plato_calendar.presentation.common.theme.White
@@ -36,15 +40,15 @@ fun ScheduleBottomSheet(
     editSchedule: (CustomSchedule) -> Unit,
     deleteSchedule: (Long) -> Unit,
     toggleScheduleCompletion: (Long, Boolean) -> Unit,
-    onDismissRequest: () -> Unit,
+    onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val scrollState = rememberScrollState()
-    val scope = rememberCoroutineScope()
+    val coroutineScope = rememberCoroutineScope()
 
     ModalBottomSheet(
         sheetState = sheetState,
-        onDismissRequest = onDismissRequest,
+        onDismissRequest = onDismiss,
         dragHandle = null,
         modifier = modifier,
     ) {
@@ -60,7 +64,7 @@ fun ScheduleBottomSheet(
                 is AcademicScheduleContent -> {
                     AcademicScheduleContent(
                         schedule = content.schedule,
-                        onDismissRequest = onDismissRequest,
+                        onDismiss = onDismiss,
                     )
                 }
 
@@ -68,26 +72,26 @@ fun ScheduleBottomSheet(
                     CourseScheduleContent(
                         schedule = content.schedule,
                         toggleScheduleCompletion = toggleScheduleCompletion,
-                        onDismissRequest = onDismissRequest,
+                        onDismiss = onDismiss,
                     )
                 }
 
                 is CustomScheduleContent -> {
-                    CustomScheduleContent(
+                    pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.CustomScheduleContent(
                         schedule = content.schedule,
                         editSchedule = editSchedule,
                         toggleScheduleCompletion = toggleScheduleCompletion,
-                        onDeleteRequest = {
-                            scope.launch {
+                        deleteSchedule = {
+                            coroutineScope.launch {
                                 DialogEventBus.show(
-                                    DialogContent.DeleteSchedule(
+                                    DialogContent.DeleteScheduleContent(
                                         scheduleId = content.schedule.id,
                                         onConfirm = { deleteSchedule(content.schedule.id) },
                                     ),
                                 )
                             }
                         },
-                        onDismissRequest = onDismissRequest,
+                        onDismiss = onDismiss,
                     )
                 }
 
@@ -95,7 +99,7 @@ fun ScheduleBottomSheet(
                     NewScheduleContent(
                         selectedDate = selectedDate,
                         makeSchedule = makeSchedule,
-                        onDismissRequest = onDismissRequest,
+                        onDismiss = onDismiss,
                     )
                 }
 

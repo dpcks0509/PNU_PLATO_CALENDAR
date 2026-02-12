@@ -1,4 +1,4 @@
-package pusan.university.plato_calendar.presentation.common.component.bottomsheet
+package pusan.university.plato_calendar.presentation.common.component.bottomsheet.content
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -72,7 +72,7 @@ private const val DESCRIPTION = "설명"
 fun NewScheduleContent(
     selectedDate: LocalDate,
     makeSchedule: (NewSchedule) -> Unit,
-    onDismissRequest: () -> Unit,
+    onDismiss: () -> Unit,
 ) {
     val color = PrimaryColor
 
@@ -92,7 +92,7 @@ fun NewScheduleContent(
         mutableStateOf(startAt.plusHours(1))
     }
     var timePickerFor by rememberSaveable { mutableStateOf<PickerTarget?>(null) }
-    val scope = rememberCoroutineScope()
+    val coroutineScope = rememberCoroutineScope()
 
     val zoneId = ZoneId.systemDefault()
     val today = LocalDateTime.now().toLocalDate()
@@ -149,7 +149,7 @@ fun NewScheduleContent(
             modifier =
                 Modifier
                     .size(32.dp)
-                    .noRippleClickable(onClick = onDismissRequest),
+                    .noRippleClickable(onClick = onDismiss),
         )
 
         Spacer(modifier = Modifier.width(8.dp))
@@ -331,9 +331,9 @@ fun NewScheduleContent(
                         .background(LightGray)
                         .padding(vertical = 8.dp)
                         .noRippleClickable {
-                            scope.launch {
+                            coroutineScope.launch {
                                 DialogEventBus.show(
-                                    DialogContent.DatePicker(
+                                    DialogContent.DatePickerContent(
                                         initialSelectedDateMillis = initialMillisFor(startAt),
                                         minDateMillis = minDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
                                         maxDateMillis = maxDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
@@ -388,9 +388,9 @@ fun NewScheduleContent(
                         .background(LightGray)
                         .padding(vertical = 8.dp)
                         .noRippleClickable {
-                            scope.launch {
+                            coroutineScope.launch {
                                 DialogEventBus.show(
-                                    DialogContent.DatePicker(
+                                    DialogContent.DatePickerContent(
                                         initialSelectedDateMillis = initialMillisFor(endAt),
                                         minDateMillis = minDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
                                         maxDateMillis = maxDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
@@ -434,9 +434,9 @@ fun NewScheduleContent(
         val initialDateTime = if (target == PickerTarget.START) startAt else endAt
 
         LaunchedEffect(timePickerFor) {
-            scope.launch {
+            coroutineScope.launch {
                 DialogEventBus.show(
-                    DialogContent.TimePicker(
+                    DialogContent.TimePickerContent(
                         initialHour = initialDateTime.hour,
                         initialMinute = initialDateTime.minute,
                         onConfirm = { hour, minute ->
