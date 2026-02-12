@@ -49,13 +49,20 @@ fun AnimatedToast() {
 
     LaunchedEffect(Unit) {
         ToastEventBus.toastMessage.collect { message ->
-            currentMessage = message
-            delay(300)
-            isVisible = true
+            if(isVisible) {
+                isVisible = false
+                delay(300)
+            }
 
+            currentMessage = message
+            isVisible = true
+        }
+    }
+
+    LaunchedEffect(isVisible) {
+        if (isVisible) {
             delay(3000)
             isVisible = false
-
             delay(300)
             currentMessage = null
         }

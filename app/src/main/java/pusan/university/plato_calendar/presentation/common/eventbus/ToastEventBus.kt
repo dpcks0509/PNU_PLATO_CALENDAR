@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.parcelize.Parcelize
 
 object ToastEventBus {
-    private val _toastMessage = MutableSharedFlow<ToastMessage>(replay = 1)
+    private val _toastMessage = MutableSharedFlow<ToastMessage>()
     val toastMessage = _toastMessage.asSharedFlow()
 
     suspend fun sendSuccess(message: String?) {
