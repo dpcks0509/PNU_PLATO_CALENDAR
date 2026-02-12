@@ -9,16 +9,14 @@ import pusan.university.plato_calendar.presentation.common.base.UiEvent
 import java.time.LocalDate
 
 sealed interface CalendarEvent : UiEvent {
+    data class Login(val credentials: LoginCredentials) : CalendarEvent
+
     data object MoveToToday : CalendarEvent
 
     data object Refresh : CalendarEvent
 
     data class MakeCustomSchedule(
         val schedule: NewSchedule,
-    ) : CalendarEvent
-
-    data class TryLogin(
-        val loginCredentials: LoginCredentials,
     ) : CalendarEvent
 
     data class EditCustomSchedule(
@@ -51,6 +49,4 @@ sealed interface CalendarEvent : UiEvent {
     ) : CalendarEvent
 
     data object HideScheduleBottomSheet : CalendarEvent
-
-    data object HideLoginDialog : CalendarEvent
 }

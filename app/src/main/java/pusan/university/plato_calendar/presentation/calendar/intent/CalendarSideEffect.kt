@@ -6,4 +6,6 @@ sealed interface CalendarSideEffect : UiSideEffect {
     data object HideScheduleBottomSheet : CalendarSideEffect
 
     data class ScrollToPage(val page: Int) : CalendarSideEffect
+
+    data object ShowLoginDialog : CalendarSideEffect
 }

@@ -1,12 +1,11 @@
 package pusan.university.plato_calendar.presentation.setting.intent
 
+import pusan.university.plato_calendar.domain.entity.LoginCredentials
 import pusan.university.plato_calendar.presentation.common.base.UiEvent
 import pusan.university.plato_calendar.presentation.setting.model.NotificationTime
 
 sealed interface SettingEvent : UiEvent {
-    data object ShowLoginDialog : SettingEvent
-
-    data object HideLoginDialog : SettingEvent
+    data class Login(val credentials: LoginCredentials) : SettingEvent
 
     data object Logout : SettingEvent
 

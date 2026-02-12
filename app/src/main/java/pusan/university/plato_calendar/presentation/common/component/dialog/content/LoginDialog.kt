@@ -1,4 +1,4 @@
-package pusan.university.plato_calendar.presentation.common.component
+package pusan.university.plato_calendar.presentation.common.component.dialog.content
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -47,8 +47,8 @@ import pusan.university.plato_calendar.presentation.common.theme.White
 
 @Composable
 fun LoginDialog(
-    onDismissRequest: () -> Unit,
-    onLoginRequest: suspend (LoginCredentials) -> Boolean,
+    onDismiss: () -> Unit,
+    onConfirm: suspend (LoginCredentials) -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
     var userName by rememberSaveable { mutableStateOf("") }
@@ -60,7 +60,7 @@ fun LoginDialog(
         }
     }
 
-    Dialog(onDismissRequest = { if (!isLoggingIn) onDismissRequest() }) {
+    Dialog(onDismissRequest = { if (!isLoggingIn) onDismiss() }) {
         Card(
             colors = CardDefaults.cardColors(containerColor = White),
             shape = RoundedCornerShape(20.dp),
@@ -129,7 +129,7 @@ fun LoginDialog(
                         onClick = {
                             coroutineScope.launch {
                                 isLoggingIn = true
-                                onLoginRequest(LoginCredentials(userName, password))
+                                onConfirm(LoginCredentials(userName, password))
                                 isLoggingIn = false
                             }
                         },

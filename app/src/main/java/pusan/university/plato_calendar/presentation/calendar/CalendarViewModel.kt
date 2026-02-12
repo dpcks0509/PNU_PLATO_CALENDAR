@@ -9,7 +9,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import pusan.university.plato_calendar.app.network.NoNetworkConnectivityException
 import pusan.university.plato_calendar.app.network.NoNetworkConnectivityException.Companion.NETWORK_ERROR_MESSAGE
-import pusan.university.plato_calendar.domain.entity.LoginCredentials
 import pusan.university.plato_calendar.domain.entity.LoginStatus
 import pusan.university.plato_calendar.domain.entity.Schedule.NewSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CourseSchedule
@@ -19,15 +18,14 @@ import pusan.university.plato_calendar.domain.repository.ScheduleRepository
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.DeleteCustomSchedule
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.EditCustomSchedule
-import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.HideLoginDialog
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.HideScheduleBottomSheet
+import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.Login
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.MakeCustomSchedule
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.MoveToToday
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.Refresh
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.ShowScheduleBottomSheet
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.ShowScheduleBottomSheetById
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.TogglePersonalScheduleCompletion
-import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.TryLogin
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.UpdateCurrentYearMonth
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.UpdateSelectedDate
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarSideEffect
@@ -94,6 +92,10 @@ constructor(
 
     override suspend fun handleEvent(event: CalendarEvent) {
         when (event) {
+            is Login -> {
+                loginManager.login(credentials = event.credentials)
+            }
+
             MoveToToday -> {
                 val today = scheduleManager.today.value.toLocalDate()
                 val baseToday = scheduleManager.baseToday
@@ -124,11 +126,6 @@ constructor(
 
             is MakeCustomSchedule -> {
                 makeCustomSchedule(event.schedule)
-            }
-
-            is TryLogin -> {
-                val isLoginSuccess = loginManager.login(event.loginCredentials)
-                if (isLoginSuccess) setState { copy(isLoginDialogVisible = false) }
             }
 
             is EditCustomSchedule -> {
@@ -190,10 +187,6 @@ constructor(
                         isScheduleBottomSheetVisible = false,
                     )
                 }
-            }
-
-            HideLoginDialog -> {
-                setState { copy(isLoginDialogVisible = false) }
             }
         }
     }
@@ -440,7 +433,7 @@ constructor(
                     )
                 }
             } else {
-                setState { copy(isLoginDialogVisible = true) }
+                setSideEffect { CalendarSideEffect.ShowLoginDialog }
             }
         }
     }
@@ -465,11 +458,5 @@ constructor(
                 pendingOpenScheduleId = scheduleId
             }
         }
-    }
-
-    suspend fun tryLogin(credentials: LoginCredentials): Boolean {
-        val isLoginSuccess = loginManager.login(credentials)
-        if (isLoginSuccess) setState { copy(isLoginDialogVisible = false) }
-        return isLoginSuccess
     }
 }

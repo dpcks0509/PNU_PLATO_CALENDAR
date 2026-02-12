@@ -18,22 +18,20 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,7 +47,8 @@ import pusan.university.plato_calendar.R
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
 import pusan.university.plato_calendar.presentation.calendar.model.PickerTarget
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
-import pusan.university.plato_calendar.presentation.common.component.TimePickerDialog
+import pusan.university.plato_calendar.presentation.common.component.dialog.content.DialogContent
+import pusan.university.plato_calendar.presentation.common.eventbus.DialogEventBus
 import pusan.university.plato_calendar.presentation.common.extension.formatTimeWithMidnightSpecialCase
 import pusan.university.plato_calendar.presentation.common.extension.noRippleClickable
 import pusan.university.plato_calendar.presentation.common.saver.LocalDateSaver
@@ -85,29 +84,14 @@ fun CustomScheduleContent(
     var startAt by rememberSaveable(stateSaver = LocalDateTimeSaver) { mutableStateOf(schedule.startAt) }
     var endAt by rememberSaveable(stateSaver = LocalDateTimeSaver) { mutableStateOf(schedule.endAt) }
 
-    var showStartDatePicker by rememberSaveable { mutableStateOf(false) }
-    var showEndDatePicker by rememberSaveable { mutableStateOf(false) }
     var timePickerFor by rememberSaveable { mutableStateOf<PickerTarget?>(null) }
+    val scope = rememberCoroutineScope()
 
     val zoneId = ZoneId.systemDefault()
     val today = LocalDateTime.now().toLocalDate()
     val currentMonthStart = rememberSaveable(today, saver = LocalDateSaver) { LocalDate.of(today.year, today.monthValue, 1) }
     val minDate = rememberSaveable(today, saver = LocalDateSaver) { minOf(today.minusDays(5), currentMonthStart) }
     val maxDate = rememberSaveable(today, saver = LocalDateSaver) { today.plusYears(1).minusDays(1) }
-
-    val selectableDates =
-        remember(minDate, maxDate) {
-            object : SelectableDates {
-                override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                    val date = Instant.ofEpochMilli(utcTimeMillis).atZone(zoneId).toLocalDate()
-                    val notBefore = !date.isBefore(minDate)
-                    val notAfter = !date.isAfter(maxDate)
-                    return notBefore && notAfter
-                }
-
-                override fun isSelectableYear(year: Int): Boolean = year in minDate.year..maxDate.year
-            }
-        }
 
     fun initialMillisFor(dateTime: LocalDateTime): Long {
         val date = dateTime.toLocalDate()
@@ -338,7 +322,23 @@ fun CustomScheduleContent(
                         .clip(RoundedCornerShape(8.dp))
                         .background(LightGray)
                         .padding(vertical = 8.dp)
-                        .noRippleClickable { showStartDatePicker = true },
+                        .noRippleClickable {
+                            scope.launch {
+                                DialogEventBus.show(
+                                    DialogContent.DatePicker(
+                                        initialSelectedDateMillis = initialMillisFor(startAt),
+                                        minDateMillis = minDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
+                                        maxDateMillis = maxDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
+                                        onConfirm = { millis ->
+                                            val pickedDate = Instant.ofEpochMilli(millis).atZone(zoneId).toLocalDate()
+                                            startAt = LocalDateTime.of(pickedDate, startAt.toLocalTime())
+                                            if (endAt.isBefore(startAt)) endAt = startAt.plusHours(1)
+                                            timePickerFor = PickerTarget.START
+                                        },
+                                    ),
+                                )
+                            }
+                        },
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
@@ -379,7 +379,23 @@ fun CustomScheduleContent(
                         .clip(RoundedCornerShape(8.dp))
                         .background(LightGray)
                         .padding(vertical = 8.dp)
-                        .noRippleClickable { showEndDatePicker = true },
+                        .noRippleClickable {
+                            scope.launch {
+                                DialogEventBus.show(
+                                    DialogContent.DatePicker(
+                                        initialSelectedDateMillis = initialMillisFor(endAt),
+                                        minDateMillis = minDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
+                                        maxDateMillis = maxDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
+                                        onConfirm = { millis ->
+                                            val pickedDate = Instant.ofEpochMilli(millis).atZone(zoneId).toLocalDate()
+                                            endAt = LocalDateTime.of(pickedDate, endAt.toLocalTime())
+                                            if (endAt.isBefore(startAt)) startAt = endAt.minusHours(1)
+                                            timePickerFor = PickerTarget.END
+                                        },
+                                    ),
+                                )
+                            }
+                        },
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
@@ -454,89 +470,32 @@ fun CustomScheduleContent(
 
     Spacer(modifier = Modifier.height(12.dp))
 
-    if (showStartDatePicker) {
-        val datePickerState =
-            rememberDatePickerState(
-                initialSelectedDateMillis = initialMillisFor(startAt),
-                selectableDates = selectableDates,
-            )
-        DatePickerDialog(
-            onDismissRequest = { showStartDatePicker = false },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        val millis = datePickerState.selectedDateMillis
-                        if (millis != null) {
-                            val pickedDate: LocalDate =
-                                Instant.ofEpochMilli(millis).atZone(zoneId).toLocalDate()
-                            startAt = LocalDateTime.of(pickedDate, startAt.toLocalTime())
-                            if (endAt.isBefore(startAt)) endAt = startAt.plusHours(1)
-                            timePickerFor = PickerTarget.START
-                        }
-                        showStartDatePicker = false
-                    },
-                ) { Text(text = "확인") }
-            },
-            dismissButton = {
-                TextButton(onClick = { showStartDatePicker = false }) { Text(text = "취소") }
-            },
-        ) {
-            DatePicker(state = datePickerState)
-        }
-    }
-
-    if (showEndDatePicker) {
-        val datePickerState =
-            rememberDatePickerState(
-                initialSelectedDateMillis = initialMillisFor(endAt),
-                selectableDates = selectableDates,
-            )
-        DatePickerDialog(
-            onDismissRequest = { showEndDatePicker = false },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        val millis = datePickerState.selectedDateMillis
-                        if (millis != null) {
-                            val pickedDate: LocalDate =
-                                Instant.ofEpochMilli(millis).atZone(zoneId).toLocalDate()
-                            endAt = LocalDateTime.of(pickedDate, endAt.toLocalTime())
-                            if (endAt.isBefore(startAt)) startAt = endAt.minusHours(1)
-                            timePickerFor = PickerTarget.END
-                        }
-                        showEndDatePicker = false
-                    },
-                ) { Text(text = "확인") }
-            },
-            dismissButton = {
-                TextButton(onClick = { showEndDatePicker = false }) { Text(text = "취소") }
-            },
-        ) {
-            DatePicker(state = datePickerState)
-        }
-    }
-
     timePickerFor?.let { target ->
         val initialDateTime = if (target == PickerTarget.START) startAt else endAt
 
-        TimePickerDialog(
-            initialHour = initialDateTime.hour,
-            initialMinute = initialDateTime.minute,
-            onDismiss = { timePickerFor = null },
-            onConfirm = { hour, minute ->
-                val updated =
-                    initialDateTime
-                        .withHour(hour)
-                        .withMinute(minute)
-                if (target == PickerTarget.START) {
-                    startAt = updated
-                    if (endAt.isBefore(startAt)) endAt = startAt.plusHours(1)
-                } else {
-                    endAt = updated
-                    if (endAt.isBefore(startAt)) startAt = endAt.minusHours(1)
-                }
+        LaunchedEffect(timePickerFor) {
+            scope.launch {
+                DialogEventBus.show(
+                    DialogContent.TimePicker(
+                        initialHour = initialDateTime.hour,
+                        initialMinute = initialDateTime.minute,
+                        onConfirm = { hour, minute ->
+                            val updated =
+                                initialDateTime
+                                    .withHour(hour)
+                                    .withMinute(minute)
+                            if (target == PickerTarget.START) {
+                                startAt = updated
+                                if (endAt.isBefore(startAt)) endAt = startAt.plusHours(1)
+                            } else {
+                                endAt = updated
+                                if (endAt.isBefore(startAt)) startAt = endAt.minusHours(1)
+                            }
+                        },
+                    ),
+                )
                 timePickerFor = null
-            },
-        )
+            }
+        }
     }
 }

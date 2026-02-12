@@ -28,11 +28,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import pusan.university.plato_calendar.presentation.common.component.LoginDialog
 import pusan.university.plato_calendar.presentation.common.component.TopBar
-import pusan.university.plato_calendar.presentation.common.eventbus.NotificationPermissionEvent
-import pusan.university.plato_calendar.presentation.common.eventbus.NotificationPermissionEventBus
+import pusan.university.plato_calendar.presentation.common.component.dialog.content.DialogContent
+import pusan.university.plato_calendar.presentation.common.eventbus.DialogEventBus
 import pusan.university.plato_calendar.presentation.common.theme.MediumGray
 import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarTheme
 import pusan.university.plato_calendar.presentation.setting.component.Account
@@ -94,7 +94,11 @@ fun SettingScreen(
                         viewModel.setEvent(event)
                     } else {
                         coroutineScope.launch {
-                            NotificationPermissionEventBus.sendEvent(NotificationPermissionEvent.RequestPermission)
+                            DialogEventBus.show(
+                                DialogContent.NotificationPermission(
+                                    onConfirm = { viewModel.setEvent(event) },
+                                ),
+                            )
                         }
                     }
                 }
@@ -109,22 +113,17 @@ fun SettingScreen(
     SettingContent(
         state = state,
         lazyListState = lazyListState,
+        coroutineScope = coroutineScope,
         onEvent = handleSettingEvent,
         modifier = modifier,
     )
-
-    if (state.isLoginDialogVisible) {
-        LoginDialog(
-            onDismissRequest = { viewModel.setEvent(SettingEvent.HideLoginDialog) },
-            onLoginRequest = { loginCredentials -> viewModel.tryLogin(loginCredentials) },
-        )
-    }
 }
 
 @Composable
 fun SettingContent(
     state: SettingState,
     lazyListState: LazyListState,
+    coroutineScope: CoroutineScope,
     onEvent: (SettingEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -147,7 +146,19 @@ fun SettingContent(
                                     userInfo = state.userInfo,
                                     onClickLoginLogout = {
                                         val isLoggedIn = state.userInfo != null
-                                        onEvent(if (isLoggedIn) SettingEvent.Logout else SettingEvent.ShowLoginDialog)
+                                        if (isLoggedIn) {
+                                            onEvent(SettingEvent.Logout)
+                                        } else {
+                                            coroutineScope.launch {
+                                                DialogEventBus.show(
+                                                    DialogContent.Login(
+                                                        onConfirm = { credentials ->
+                                                            onEvent(SettingEvent.Login(credentials))
+                                                        },
+                                                    ),
+                                                )
+                                            }
+                                        }
                                     },
                                 )
                             }
@@ -263,6 +274,7 @@ fun SettingPreview() {
         SettingContent(
             state = SettingState(),
             lazyListState = rememberLazyListState(),
+            coroutineScope = rememberCoroutineScope(),
             onEvent = {},
         )
     }

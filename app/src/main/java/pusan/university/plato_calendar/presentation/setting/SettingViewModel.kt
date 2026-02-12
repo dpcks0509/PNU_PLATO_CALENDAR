@@ -3,14 +3,12 @@ package pusan.university.plato_calendar.presentation.setting
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import pusan.university.plato_calendar.domain.entity.LoginCredentials
 import pusan.university.plato_calendar.domain.entity.LoginStatus
 import pusan.university.plato_calendar.presentation.common.base.BaseViewModel
 import pusan.university.plato_calendar.presentation.common.manager.LoginManager
 import pusan.university.plato_calendar.presentation.common.manager.SettingsManager
 import pusan.university.plato_calendar.presentation.setting.intent.SettingEvent
-import pusan.university.plato_calendar.presentation.setting.intent.SettingEvent.HideLoginDialog
-import pusan.university.plato_calendar.presentation.setting.intent.SettingEvent.ShowLoginDialog
+import pusan.university.plato_calendar.presentation.setting.intent.SettingEvent.Login
 import pusan.university.plato_calendar.presentation.setting.intent.SettingSideEffect
 import pusan.university.plato_calendar.presentation.setting.intent.SettingState
 import pusan.university.plato_calendar.presentation.setting.model.NotificationTime
@@ -51,14 +49,16 @@ constructor(
 
     override suspend fun handleEvent(event: SettingEvent) {
         when (event) {
-            ShowLoginDialog -> setState { copy(isLoginDialogVisible = true) }
-            HideLoginDialog -> setState { copy(isLoginDialogVisible = false) }
+            is Login -> {
+                loginManager.login(credentials = event.credentials)
+            }
+
             SettingEvent.Logout -> {
                 loginManager.logout()
             }
 
             is SettingEvent.UpdateNotificationsEnabled -> {
-                settingsManager.setNotificationsEnabled(event.enabled)
+                settingsManager.setNotificationsEnabled(enabled = event.enabled)
             }
 
             is SettingEvent.UpdateFirstReminderTime -> {
@@ -101,13 +101,6 @@ constructor(
                 setSideEffect { SettingSideEffect.NavigateToWebView(event.url) }
             }
         }
-    }
-
-    suspend fun tryLogin(credentials: LoginCredentials): Boolean {
-        val isLoginSuccess = loginManager.login(credentials)
-        if (isLoginSuccess) setState { copy(isLoginDialogVisible = false) }
-
-        return isLoginSuccess
     }
 
     private fun normalizeReminderTimes(

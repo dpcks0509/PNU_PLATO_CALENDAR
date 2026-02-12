@@ -16,16 +16,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -35,11 +29,12 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import pusan.university.plato_calendar.data.local.database.SettingsDataStore
 import pusan.university.plato_calendar.presentation.common.component.AnimatedToast
-import pusan.university.plato_calendar.presentation.common.eventbus.NotificationPermissionEvent
-import pusan.university.plato_calendar.presentation.common.eventbus.NotificationPermissionEventBus
+import pusan.university.plato_calendar.presentation.common.component.LoadingIndicator
+import pusan.university.plato_calendar.presentation.common.component.dialog.Dialog
+import pusan.university.plato_calendar.presentation.common.component.dialog.DialogState.Companion.rememberDialogState
+import pusan.university.plato_calendar.presentation.common.component.dialog.content.DialogContent
 import pusan.university.plato_calendar.presentation.common.eventbus.WidgetEvent
 import pusan.university.plato_calendar.presentation.common.eventbus.WidgetEventBus
-import pusan.university.plato_calendar.presentation.common.extension.noRippleClickable
 import pusan.university.plato_calendar.presentation.common.manager.LoadingManager
 import pusan.university.plato_calendar.presentation.common.manager.LoginManager
 import pusan.university.plato_calendar.presentation.common.manager.ScheduleManager
@@ -51,9 +46,7 @@ import pusan.university.plato_calendar.presentation.common.notification.AlarmSch
 import pusan.university.plato_calendar.presentation.common.notification.AlarmScheduler.Companion.EXTRA_SCHEDULE_ID
 import pusan.university.plato_calendar.presentation.common.notification.NotificationHelper
 import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarTheme
-import pusan.university.plato_calendar.presentation.common.theme.PrimaryColor
 import pusan.university.plato_calendar.presentation.common.theme.White
-import pusan.university.plato_calendar.presentation.setting.component.NotificationPermissionDialog
 import pusan.university.plato_calendar.presentation.widget.callback.OpenNewScheduleCallback
 import pusan.university.plato_calendar.presentation.widget.callback.OpenScheduleDetailCallback
 import javax.inject.Inject
@@ -85,15 +78,17 @@ class PlatoCalendarActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setSmartOrientation()
-        initializeApp()
+        if (savedInstanceState == null) {
+            initializeApp()
+        }
 
         setContent {
+            val dialogState = rememberDialogState()
             val navController = rememberNavController()
             val isLoading by loadingManager.isLoading.collectAsStateWithLifecycle()
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = navBackStackEntry?.destination?.route
 
-            var isNotificationPermissionDialogVisible by rememberSaveable { mutableStateOf(false) }
             val notificationPermissionLauncher = rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.RequestPermission()
             ) { isGranted ->
@@ -102,7 +97,16 @@ class PlatoCalendarActivity : ComponentActivity() {
                 }
 
                 if (!isGranted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    isNotificationPermissionDialogVisible = true
+                    dialogState.show(
+                        DialogContent.NotificationPermission {
+                            val intent =
+                                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                    data = Uri.fromParts("package", packageName, null)
+                                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                }
+                            startActivity(intent)
+                        },
+                    )
                 }
             }
 
@@ -116,19 +120,6 @@ class PlatoCalendarActivity : ComponentActivity() {
                     }
                 }
 
-                NotificationPermissionEventBus.events.collect { event ->
-                    when (event) {
-                        is NotificationPermissionEvent.RequestPermission -> {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                            } else {
-                                lifecycleScope.launch {
-                                    settingsManager.setNotificationsEnabled(true)
-                                }
-                            }
-                        }
-                    }
-                }
             }
 
             PlatoCalendarTheme {
@@ -153,41 +144,12 @@ class PlatoCalendarActivity : ComponentActivity() {
                         )
                     }
 
+                    Dialog(state = dialogState)
+
+                    LoadingIndicator(isLoading = isLoading)
+
                     AnimatedToast()
-
-                    if (isLoading) {
-                        Box(
-                            modifier =
-                                Modifier
-                                    .fillMaxSize()
-                                    .noRippleClickable(),
-                        ) {
-                            CircularProgressIndicator(
-                                color = PrimaryColor,
-                                modifier =
-                                    Modifier
-                                        .align(Alignment.Center)
-                                        .navigationBarsPadding(),
-                            )
-                        }
-                    }
                 }
-
-                NotificationPermissionDialog(
-                    isVisible = isNotificationPermissionDialogVisible,
-                    onDismiss = { isNotificationPermissionDialogVisible = false },
-                    onConfirm = {
-                        isNotificationPermissionDialogVisible = false
-
-                        val intent =
-                            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                data = Uri.fromParts("package", packageName, null)
-                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            }
-
-                        startActivity(intent)
-                    }
-                )
             }
         }
     }

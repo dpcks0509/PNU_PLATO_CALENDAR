@@ -32,7 +32,6 @@ import pusan.university.plato_calendar.presentation.calendar.component.SelectedD
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.DeleteCustomSchedule
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.EditCustomSchedule
-import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.HideLoginDialog
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.HideScheduleBottomSheet
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.MakeCustomSchedule
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.MoveToToday
@@ -48,10 +47,11 @@ import pusan.university.plato_calendar.presentation.calendar.model.DaySchedule
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.YearMonth
-import pusan.university.plato_calendar.presentation.common.component.LoginDialog
 import pusan.university.plato_calendar.presentation.common.component.PullToRefreshContainer
+import pusan.university.plato_calendar.presentation.common.eventbus.DialogEventBus
 import pusan.university.plato_calendar.presentation.common.component.bottomsheet.ScheduleBottomSheet
 import pusan.university.plato_calendar.presentation.common.component.bottomsheet.ScheduleBottomSheetContent
+import pusan.university.plato_calendar.presentation.common.component.dialog.content.DialogContent
 import pusan.university.plato_calendar.presentation.common.eventbus.WidgetEvent
 import pusan.university.plato_calendar.presentation.common.eventbus.WidgetEventBus
 import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarTheme
@@ -85,6 +85,18 @@ fun CalendarScreen(
                     coroutineScope.launch {
                         pagerState.scrollToPage(
                             sideEffect.page,
+                        )
+                    }
+                }
+
+                CalendarSideEffect.ShowLoginDialog -> {
+                    coroutineScope.launch {
+                        DialogEventBus.show(
+                            DialogContent.Login(
+                                onConfirm = { credentials ->
+                                    viewModel.setEvent(CalendarEvent.Login(credentials))
+                                },
+                            ),
                         )
                     }
                 }
@@ -146,13 +158,6 @@ fun CalendarScreen(
             },
             onDismissRequest = { coroutineScope.launch { sheetState.hide() } },
             modifier = Modifier.fillMaxWidth(),
-        )
-    }
-
-    if (state.isLoginDialogVisible) {
-        LoginDialog(
-            onDismissRequest = { viewModel.setEvent(HideLoginDialog) },
-            onLoginRequest = { loginCredentials -> viewModel.tryLogin(loginCredentials) },
         )
     }
 }
