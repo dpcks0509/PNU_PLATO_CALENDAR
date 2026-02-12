@@ -14,7 +14,6 @@ data class ToDoState(
     val today: LocalDateTime,
     val schedules: List<ScheduleUiModel> = emptyList(),
     val scheduleBottomSheetContent: ScheduleBottomSheetContent? = null,
-    val isScheduleBottomSheetVisible: Boolean = false,
 ) : UiState {
     private val validSchedules =
         schedules

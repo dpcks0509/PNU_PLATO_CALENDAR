@@ -17,14 +17,15 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import pusan.university.plato_calendar.domain.entity.Schedule.NewSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
+import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.AcademicScheduleContent
+import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.CourseScheduleContent
+import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.CustomScheduleContent
+import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.NewScheduleContent
+import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.ScheduleBottomSheetContent
 import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.ScheduleBottomSheetContent.AcademicScheduleContent
 import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.ScheduleBottomSheetContent.CourseScheduleContent
 import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.ScheduleBottomSheetContent.CustomScheduleContent
 import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.ScheduleBottomSheetContent.NewScheduleContent
-import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.AcademicScheduleContent
-import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.CourseScheduleContent
-import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.NewScheduleContent
-import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.ScheduleBottomSheetContent
 import pusan.university.plato_calendar.presentation.common.component.dialog.content.DialogContent
 import pusan.university.plato_calendar.presentation.common.eventbus.DialogEventBus
 import pusan.university.plato_calendar.presentation.common.theme.White
@@ -77,7 +78,7 @@ fun ScheduleBottomSheet(
                 }
 
                 is CustomScheduleContent -> {
-                    pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.CustomScheduleContent(
+                    CustomScheduleContent(
                         schedule = content.schedule,
                         editSchedule = editSchedule,
                         toggleScheduleCompletion = toggleScheduleCompletion,

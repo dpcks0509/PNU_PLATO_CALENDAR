@@ -34,7 +34,6 @@ import pusan.university.plato_calendar.presentation.todo.component.ExpandableToD
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.DeleteCustomSchedule
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.EditCustomSchedule
-import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.HideScheduleBottomSheet
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.Refresh
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.ShowScheduleBottomSheet
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.TogglePersonalScheduleCompletion
@@ -55,17 +54,30 @@ fun ToDoScreen(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
 
+    var isScheduleBottomSheetVisible by rememberSaveable { mutableStateOf(false) }
+
     LaunchedEffect(viewModel.sideEffect) {
         viewModel.sideEffect.collect { sideEffect ->
             when (sideEffect) {
-                ToDoSideEffect.HideScheduleBottomSheet -> coroutineScope.launch { sheetState.hide() }
+                ToDoSideEffect.HideScheduleBottomSheet -> {
+                    coroutineScope.launch { sheetState.hide() }
+                    isScheduleBottomSheetVisible = false
+                }
+
+                ToDoSideEffect.ShowScheduleBottomSheet -> {
+                    if (isScheduleBottomSheetVisible) {
+                        isScheduleBottomSheetVisible = false
+                        sheetState.hide()
+                    }
+                    isScheduleBottomSheetVisible = true
+                }
             }
         }
     }
 
     LaunchedEffect(sheetState.currentValue) {
         if (sheetState.currentValue == SheetValue.Hidden) {
-            viewModel.setEvent(HideScheduleBottomSheet)
+            isScheduleBottomSheetVisible = false
         }
     }
 
@@ -75,13 +87,13 @@ fun ToDoScreen(
         modifier = modifier,
     )
 
-    if (state.isScheduleBottomSheetVisible) {
+    if (isScheduleBottomSheetVisible) {
         ScheduleBottomSheet(
             content = state.scheduleBottomSheetContent,
             selectedDate = state.today.toLocalDate(),
             sheetState = sheetState,
             makeSchedule = { },
-            editSchedule = { schedule -> viewModel.setEvent(EditCustomSchedule(schedule)) },
+            editSchedule = { customSchedule -> viewModel.setEvent(EditCustomSchedule(customSchedule)) },
             deleteSchedule = { id -> viewModel.setEvent(DeleteCustomSchedule(id)) },
             toggleScheduleCompletion = { id, completed ->
                 viewModel.setEvent(TogglePersonalScheduleCompletion(id, completed))

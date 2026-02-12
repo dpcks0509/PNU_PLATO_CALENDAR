@@ -29,7 +29,6 @@ import pusan.university.plato_calendar.presentation.common.manager.ScheduleManag
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.DeleteCustomSchedule
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.EditCustomSchedule
-import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.HideScheduleBottomSheet
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.Refresh
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.ShowScheduleBottomSheet
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.TogglePersonalScheduleCompletion
@@ -37,6 +36,7 @@ import pusan.university.plato_calendar.presentation.todo.intent.ToDoSideEffect
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoState
 import javax.inject.Inject
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoSideEffect.HideScheduleBottomSheet as ToDoHideSheet
+import pusan.university.plato_calendar.presentation.todo.intent.ToDoSideEffect.ShowScheduleBottomSheet as ToDoShowSheet
 
 @HiltViewModel
 class ToDoViewModel
@@ -75,25 +75,21 @@ constructor(
 
             is TogglePersonalScheduleCompletion -> {
                 togglePersonalScheduleCompletion(
-                    event.id,
-                    event.isCompleted,
+                    id = event.id,
+                    isCompleted = event.isCompleted,
                 )
             }
 
             is ShowScheduleBottomSheet -> {
-                showScheduleBottomSheet(event)
-            }
-
-            is HideScheduleBottomSheet -> {
-                hideScheduleBottomSheet()
+                showScheduleBottomSheet(schedule = event.schedule)
             }
 
             is EditCustomSchedule -> {
-                editCustomSchedule(event.schedule)
+                editCustomSchedule(customSchedule = event.customSchedule)
             }
 
             is DeleteCustomSchedule -> {
-                deleteCustomSchedule(event.id)
+                deleteCustomSchedule(id = event.id)
             }
         }
     }
@@ -216,34 +212,22 @@ constructor(
             }
         scheduleManager.updateSchedules(updatedSchedules)
 
+        setState { copy(scheduleBottomSheetContent = null) }
         setSideEffect { ToDoHideSheet }
         ToastEventBus.sendSuccess(if (isCompleted) "일정이 완료되었습니다." else "일정이 재개되었습니다.")
     }
 
-    private fun showScheduleBottomSheet(event: ShowScheduleBottomSheet) {
+    private fun showScheduleBottomSheet(schedule: ScheduleUiModel?) {
         val content: ScheduleBottomSheetContent =
-            when (val schedule = event.schedule) {
+            when (schedule) {
                 is CourseScheduleUiModel -> CourseScheduleContent(schedule)
                 is CustomScheduleUiModel -> CustomScheduleContent(schedule)
                 is AcademicScheduleUiModel -> AcademicScheduleContent(schedule)
                 null -> ScheduleBottomSheetContent.NewScheduleContent
             }
 
-        setState {
-            copy(
-                scheduleBottomSheetContent = content,
-                isScheduleBottomSheetVisible = true,
-            )
-        }
-    }
-
-    private fun hideScheduleBottomSheet() {
-        setState {
-            copy(
-                scheduleBottomSheetContent = null,
-                isScheduleBottomSheetVisible = false,
-            )
-        }
+        setState { copy(scheduleBottomSheetContent = content) }
+        setSideEffect { ToDoShowSheet }
     }
 
     private suspend fun editCustomSchedule(customSchedule: CustomSchedule) {
@@ -266,6 +250,7 @@ constructor(
                     }
                 scheduleManager.updateSchedules(updatedSchedules)
 
+                setState { copy(scheduleBottomSheetContent = null) }
                 setSideEffect { ToDoHideSheet }
                 ToastEventBus.sendSuccess("일정이 수정되었습니다.")
             }.onFailure { throwable ->
@@ -283,6 +268,7 @@ constructor(
                     }
                 scheduleManager.updateSchedules(updatedSchedules)
 
+                setState { copy(scheduleBottomSheetContent = null) }
                 setSideEffect { ToDoHideSheet }
                 ToastEventBus.sendSuccess("일정이 삭제되었습니다.")
             }.onFailure { throwable ->

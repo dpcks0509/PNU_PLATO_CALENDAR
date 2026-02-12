@@ -17,7 +17,10 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,7 +35,6 @@ import pusan.university.plato_calendar.presentation.calendar.component.SelectedD
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.DeleteCustomSchedule
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.EditCustomSchedule
-import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.HideScheduleBottomSheet
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.MakeCustomSchedule
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.MoveToToday
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.Refresh
@@ -49,7 +51,6 @@ import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiMod
 import pusan.university.plato_calendar.presentation.calendar.model.YearMonth
 import pusan.university.plato_calendar.presentation.common.component.PullToRefreshContainer
 import pusan.university.plato_calendar.presentation.common.component.bottomsheet.ScheduleBottomSheet
-import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.ScheduleBottomSheetContent
 import pusan.university.plato_calendar.presentation.common.component.dialog.content.DialogContent
 import pusan.university.plato_calendar.presentation.common.eventbus.DialogEventBus
 import pusan.university.plato_calendar.presentation.common.eventbus.WidgetEvent
@@ -74,11 +75,22 @@ fun CalendarScreen(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
 
+    var isScheduleBottomSheetVisible by rememberSaveable { mutableStateOf(false) }
+
     LaunchedEffect(viewModel.sideEffect) {
         viewModel.sideEffect.collect { sideEffect ->
             when (sideEffect) {
                 CalendarSideEffect.HideScheduleBottomSheet -> {
                     coroutineScope.launch { sheetState.hide() }
+                    isScheduleBottomSheetVisible = false
+                }
+
+                CalendarSideEffect.ShowScheduleBottomSheet -> {
+                    if (isScheduleBottomSheetVisible) {
+                        isScheduleBottomSheetVisible = false
+                        sheetState.hide()
+                    }
+                    isScheduleBottomSheetVisible = true
                 }
 
                 is CalendarSideEffect.ScrollToPage -> {
@@ -128,7 +140,7 @@ fun CalendarScreen(
 
     LaunchedEffect(sheetState.currentValue) {
         if (sheetState.currentValue == SheetValue.Hidden) {
-            viewModel.setEvent(HideScheduleBottomSheet)
+            isScheduleBottomSheetVisible = false
         }
     }
 
@@ -140,7 +152,7 @@ fun CalendarScreen(
         modifier = modifier,
     )
 
-    if (state.isScheduleBottomSheetVisible) {
+    if (isScheduleBottomSheetVisible) {
         ScheduleBottomSheet(
             content = state.scheduleBottomSheetContent,
             selectedDate = state.selectedDate,
@@ -264,8 +276,6 @@ fun CalendarScreenPreview() {
                     today = today,
                     selectedDate = LocalDate.of(2024, 1, 11),
                     schedules = schedules,
-                    isScheduleBottomSheetVisible = false,
-                    scheduleBottomSheetContent = ScheduleBottomSheetContent.NewScheduleContent,
                 ),
             pagerState = rememberPagerState(initialPage = 0, pageCount = { 12 }),
             getMonthSchedule = { monthSchedule },

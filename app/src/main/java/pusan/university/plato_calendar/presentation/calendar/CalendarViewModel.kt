@@ -5,7 +5,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import pusan.university.plato_calendar.app.network.NoNetworkConnectivityException
 import pusan.university.plato_calendar.app.network.NoNetworkConnectivityException.Companion.NETWORK_ERROR_MESSAGE
@@ -18,7 +17,6 @@ import pusan.university.plato_calendar.domain.repository.ScheduleRepository
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.DeleteCustomSchedule
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.EditCustomSchedule
-import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.HideScheduleBottomSheet
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.Login
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.MakeCustomSchedule
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.MoveToToday
@@ -153,40 +151,11 @@ constructor(
             }
 
             is ShowScheduleBottomSheet -> {
-                if (state.value.isScheduleBottomSheetVisible) {
-                    setState {
-                        copy(
-                            scheduleBottomSheetContent = null,
-                            isScheduleBottomSheetVisible = false,
-                        )
-                    }
-                    delay(300)
-                }
-
                 showScheduleBottomSheet(schedule = event.schedule)
             }
 
             is ShowScheduleBottomSheetById -> {
-                if (state.value.isScheduleBottomSheetVisible) {
-                    setState {
-                        copy(
-                            scheduleBottomSheetContent = null,
-                            isScheduleBottomSheetVisible = false,
-                        )
-                    }
-                    delay(300)
-                }
-
                 showScheduleBottomSheetById(scheduleId = event.scheduleId)
-            }
-
-            HideScheduleBottomSheet -> {
-                setState {
-                    copy(
-                        scheduleBottomSheetContent = null,
-                        isScheduleBottomSheetVisible = false,
-                    )
-                }
             }
         }
     }
@@ -327,6 +296,7 @@ constructor(
                 val updatedSchedules = state.value.schedules + customSchedule
                 scheduleManager.updateSchedules(updatedSchedules)
 
+                setState { copy(scheduleBottomSheetContent = null) }
                 setSideEffect { CalendarSideEffect.HideScheduleBottomSheet }
                 ToastEventBus.sendSuccess("일정이 생성되었습니다.")
             }.onFailure { throwable ->
@@ -354,6 +324,7 @@ constructor(
                     }
                 scheduleManager.updateSchedules(updatedSchedules)
 
+                setState { copy(scheduleBottomSheetContent = null) }
                 setSideEffect { CalendarSideEffect.HideScheduleBottomSheet }
                 ToastEventBus.sendSuccess("일정이 수정되었습니다.")
             }.onFailure { throwable ->
@@ -374,6 +345,7 @@ constructor(
                 scheduleManager.updateSchedules(updatedSchedules)
                 alarmScheduler.cancelNotification(id)
 
+                setState { copy(scheduleBottomSheetContent = null) }
                 setSideEffect { CalendarSideEffect.HideScheduleBottomSheet }
                 ToastEventBus.sendSuccess("일정이 삭제되었습니다.")
             }.onFailure { throwable ->
@@ -404,12 +376,13 @@ constructor(
             }
         scheduleManager.updateSchedules(updatedSchedules)
 
+        setState { copy(scheduleBottomSheetContent = null) }
         setSideEffect { CalendarSideEffect.HideScheduleBottomSheet }
         ToastEventBus.sendSuccess(if (isCompleted) "일정이 완료되었습니다." else "일정이 재개되었습니다.")
     }
 
     private fun showScheduleBottomSheet(schedule: ScheduleUiModel?) {
-        val bottomSheetContent =
+        val content =
             when (schedule) {
                 is CourseScheduleUiModel -> CourseScheduleContent(schedule)
                 is CustomScheduleUiModel -> CustomScheduleContent(schedule)
@@ -418,20 +391,12 @@ constructor(
             }
 
         if (loginManager.loginStatus.value is LoginStatus.Login) {
-            setState {
-                copy(
-                    scheduleBottomSheetContent = bottomSheetContent,
-                    isScheduleBottomSheetVisible = true,
-                )
-            }
+            setState { copy(scheduleBottomSheetContent = content) }
+            setSideEffect { CalendarSideEffect.ShowScheduleBottomSheet }
         } else {
-            if (bottomSheetContent is AcademicScheduleContent) {
-                setState {
-                    copy(
-                        scheduleBottomSheetContent = bottomSheetContent,
-                        isScheduleBottomSheetVisible = true,
-                    )
-                }
+            if (content is AcademicScheduleContent) {
+                setState { copy(scheduleBottomSheetContent = content) }
+                setSideEffect { CalendarSideEffect.ShowScheduleBottomSheet }
             } else {
                 setSideEffect { CalendarSideEffect.ShowLoginDialog }
             }

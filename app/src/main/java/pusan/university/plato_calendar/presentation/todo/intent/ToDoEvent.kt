@@ -16,10 +16,8 @@ sealed interface ToDoEvent : UiEvent {
         val schedule: ScheduleUiModel? = null,
     ) : ToDoEvent
 
-    data object HideScheduleBottomSheet : ToDoEvent
-
     data class EditCustomSchedule(
-        val schedule: CustomSchedule,
+        val customSchedule: CustomSchedule,
     ) : ToDoEvent
 
     data class DeleteCustomSchedule(
