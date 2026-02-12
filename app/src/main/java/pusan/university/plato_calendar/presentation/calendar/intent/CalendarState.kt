@@ -5,7 +5,8 @@ import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiMod
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.YearMonth
 import pusan.university.plato_calendar.presentation.common.base.UiState
-import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.ScheduleBottomSheetContent
+import pusan.university.plato_calendar.presentation.common.component.bottomsheet.schedule.content.ScheduleBottomSheetContent
+import pusan.university.plato_calendar.presentation.common.component.dialog.schedule.content.ScheduleDialogContent
 import java.time.LocalDate
 
 data class CalendarState(
@@ -14,6 +15,7 @@ data class CalendarState(
     val currentYearMonth: YearMonth = YearMonth(year = today.year, month = today.monthValue),
     val schedules: List<ScheduleUiModel> = emptyList(),
     val scheduleBottomSheetContent: ScheduleBottomSheetContent? = null,
+    val scheduleDialogContent: ScheduleDialogContent? = null,
 ) : UiState {
     val baseToday: LocalDate = today
     val selectedDateSchedules: List<ScheduleUiModel>

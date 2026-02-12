@@ -31,7 +31,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import pusan.university.plato_calendar.presentation.common.component.TopBar
-import pusan.university.plato_calendar.presentation.common.component.dialog.content.DialogContent
+import pusan.university.plato_calendar.presentation.common.component.dialog.plato.content.PlatoDialogContent
 import pusan.university.plato_calendar.presentation.common.eventbus.DialogEventBus
 import pusan.university.plato_calendar.presentation.common.theme.MediumGray
 import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarTheme
@@ -95,7 +95,7 @@ fun SettingScreen(
                     } else {
                         coroutineScope.launch {
                             DialogEventBus.show(
-                                DialogContent.NotificationPermissionContent(
+                                PlatoDialogContent.NotificationPermissionContent(
                                     onConfirm = { viewModel.setEvent(event) },
                                 ),
                             )
@@ -151,7 +151,7 @@ fun SettingContent(
                                         } else {
                                             coroutineScope.launch {
                                                 DialogEventBus.show(
-                                                    DialogContent.LoginContent(
+                                                    PlatoDialogContent.LoginContent(
                                                         onConfirm = { credentials ->
                                                             onEvent(SettingEvent.Login(credentials))
                                                         },

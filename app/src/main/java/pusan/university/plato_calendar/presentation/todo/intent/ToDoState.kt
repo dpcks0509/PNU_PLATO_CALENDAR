@@ -6,7 +6,8 @@ import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiMod
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pusan.university.plato_calendar.presentation.common.base.UiState
-import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.ScheduleBottomSheetContent
+import pusan.university.plato_calendar.presentation.common.component.bottomsheet.schedule.content.ScheduleBottomSheetContent
+import pusan.university.plato_calendar.presentation.common.component.dialog.schedule.content.ScheduleDialogContent
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
@@ -14,6 +15,7 @@ data class ToDoState(
     val today: LocalDateTime,
     val schedules: List<ScheduleUiModel> = emptyList(),
     val scheduleBottomSheetContent: ScheduleBottomSheetContent? = null,
+    val scheduleDialogContent: ScheduleDialogContent? = null,
 ) : UiState {
     private val validSchedules =
         schedules

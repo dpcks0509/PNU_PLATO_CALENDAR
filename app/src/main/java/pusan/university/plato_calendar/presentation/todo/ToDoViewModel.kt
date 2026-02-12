@@ -18,10 +18,10 @@ import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiMod
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pusan.university.plato_calendar.presentation.common.base.BaseViewModel
-import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.ScheduleBottomSheetContent
-import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.ScheduleBottomSheetContent.AcademicScheduleContent
-import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.ScheduleBottomSheetContent.CourseScheduleContent
-import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.ScheduleBottomSheetContent.CustomScheduleContent
+import pusan.university.plato_calendar.presentation.common.component.bottomsheet.schedule.content.ScheduleBottomSheetContent
+import pusan.university.plato_calendar.presentation.common.component.bottomsheet.schedule.content.ScheduleBottomSheetContent.AcademicScheduleContent
+import pusan.university.plato_calendar.presentation.common.component.bottomsheet.schedule.content.ScheduleBottomSheetContent.CourseScheduleContent
+import pusan.university.plato_calendar.presentation.common.component.bottomsheet.schedule.content.ScheduleBottomSheetContent.CustomScheduleContent
 import pusan.university.plato_calendar.presentation.common.eventbus.ToastEventBus
 import pusan.university.plato_calendar.presentation.common.manager.LoadingManager
 import pusan.university.plato_calendar.presentation.common.manager.LoginManager
@@ -90,6 +90,14 @@ constructor(
 
             is DeleteCustomSchedule -> {
                 deleteCustomSchedule(id = event.id)
+            }
+
+            is ToDoEvent.ShowDialog -> {
+                setState { copy(scheduleDialogContent = event.content) }
+            }
+
+            ToDoEvent.HideDialog -> {
+                setState { copy(scheduleDialogContent = null) }
             }
         }
     }

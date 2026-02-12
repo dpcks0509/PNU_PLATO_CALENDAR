@@ -1,4 +1,4 @@
-package pusan.university.plato_calendar.presentation.common.component.bottomsheet.content
+package pusan.university.plato_calendar.presentation.common.component.bottomsheet.schedule.content
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.PaddingValues

@@ -6,6 +6,7 @@ import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.C
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.YearMonth
 import pusan.university.plato_calendar.presentation.common.base.UiEvent
+import pusan.university.plato_calendar.presentation.common.component.dialog.schedule.content.ScheduleDialogContent
 import java.time.LocalDate
 
 sealed interface CalendarEvent : UiEvent {
@@ -47,4 +48,10 @@ sealed interface CalendarEvent : UiEvent {
     data class ShowScheduleBottomSheetById(
         val scheduleId: Long,
     ) : CalendarEvent
+
+    data class ShowDialog(
+        val content: ScheduleDialogContent,
+    ) : CalendarEvent
+
+    data object HideDialog : CalendarEvent
 }

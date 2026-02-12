@@ -1,4 +1,4 @@
-package pusan.university.plato_calendar.presentation.common.component.dialog.content
+package pusan.university.plato_calendar.presentation.common.component.dialog.schedule.content
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background

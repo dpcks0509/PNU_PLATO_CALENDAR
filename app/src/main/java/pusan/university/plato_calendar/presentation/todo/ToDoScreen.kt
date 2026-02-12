@@ -28,7 +28,8 @@ import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiMod
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pusan.university.plato_calendar.presentation.common.component.PullToRefreshContainer
 import pusan.university.plato_calendar.presentation.common.component.TopBar
-import pusan.university.plato_calendar.presentation.common.component.bottomsheet.ScheduleBottomSheet
+import pusan.university.plato_calendar.presentation.common.component.bottomsheet.schedule.ScheduleBottomSheet
+import pusan.university.plato_calendar.presentation.common.component.dialog.schedule.ScheduleDialog
 import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarTheme
 import pusan.university.plato_calendar.presentation.todo.component.ExpandableToDoSection
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent
@@ -98,10 +99,16 @@ fun ToDoScreen(
             toggleScheduleCompletion = { id, completed ->
                 viewModel.setEvent(TogglePersonalScheduleCompletion(id, completed))
             },
+            onShowDialog = { dialogContent -> viewModel.setEvent(ToDoEvent.ShowDialog(dialogContent)) },
             onDismiss = { coroutineScope.launch { sheetState.hide() } },
             modifier = Modifier.fillMaxWidth(),
         )
     }
+
+    ScheduleDialog(
+        content = state.scheduleDialogContent,
+        onDismiss = { viewModel.setEvent(ToDoEvent.HideDialog) }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -134,7 +141,9 @@ fun ToDoContent(
             TopBar(title = "할일")
 
             Column(
-                modifier = Modifier.fillMaxSize().padding(top = 8.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 ToDoSection.entries.forEach { section ->

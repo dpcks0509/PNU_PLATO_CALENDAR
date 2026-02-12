@@ -1,4 +1,4 @@
-package pusan.university.plato_calendar.presentation.common.component.bottomsheet.content
+package pusan.university.plato_calendar.presentation.common.component.bottomsheet.schedule.content
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -27,7 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -38,14 +38,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.launch
 import pusan.university.plato_calendar.R
-import pusan.university.plato_calendar.domain.entity.Schedule.NewSchedule
+import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
 import pusan.university.plato_calendar.presentation.calendar.model.PickerTarget
-import pusan.university.plato_calendar.presentation.common.component.dialog.content.DialogContent
-import pusan.university.plato_calendar.presentation.common.eventbus.DialogEventBus
+import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
+import pusan.university.plato_calendar.presentation.common.component.dialog.schedule.content.ScheduleDialogContent
 import pusan.university.plato_calendar.presentation.common.extension.formatTimeWithMidnightSpecialCase
 import pusan.university.plato_calendar.presentation.common.extension.noRippleClickable
 import pusan.university.plato_calendar.presentation.common.saver.LocalDateSaver
@@ -54,63 +54,41 @@ import pusan.university.plato_calendar.presentation.common.theme.Black
 import pusan.university.plato_calendar.presentation.common.theme.Gray
 import pusan.university.plato_calendar.presentation.common.theme.LightGray
 import pusan.university.plato_calendar.presentation.common.theme.PrimaryColor
+import pusan.university.plato_calendar.presentation.common.theme.Red
 import pusan.university.plato_calendar.presentation.common.theme.White
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 private const val TITLE = "제목"
-private const val DESCRIPTION = "설명"
+private const val HAS_NO_DESCRIPTION = "설명 없음"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewScheduleContent(
-    selectedDate: LocalDate,
-    makeSchedule: (NewSchedule) -> Unit,
+fun CustomScheduleBottomSheet(
+    schedule: CustomScheduleUiModel,
+    editSchedule: (CustomSchedule) -> Unit,
+    toggleScheduleCompletion: (Long, Boolean) -> Unit,
+    deleteSchedule: () -> Unit,
+    onShowDialog: (ScheduleDialogContent) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val color = PrimaryColor
+    var title by rememberSaveable { mutableStateOf(schedule.title) }
+    var description by rememberSaveable { mutableStateOf(schedule.description.orEmpty()) }
+    var startAt by rememberSaveable(stateSaver = LocalDateTimeSaver) { mutableStateOf(schedule.startAt) }
+    var endAt by rememberSaveable(stateSaver = LocalDateTimeSaver) { mutableStateOf(schedule.endAt) }
 
-    var title by rememberSaveable { mutableStateOf("") }
-    var description by rememberSaveable { mutableStateOf("") }
-
-    var startAt by rememberSaveable(stateSaver = LocalDateTimeSaver) {
-        val today = LocalDateTime.now()
-        val initialStartTime = if (selectedDate == today.toLocalDate()) {
-            today
-        } else {
-            LocalDateTime.of(selectedDate, LocalTime.of(9, 0))
-        }
-        mutableStateOf(initialStartTime)
-    }
-    var endAt by rememberSaveable(stateSaver = LocalDateTimeSaver) {
-        mutableStateOf(startAt.plusHours(1))
-    }
     var timePickerFor by rememberSaveable { mutableStateOf<PickerTarget?>(null) }
-    val coroutineScope = rememberCoroutineScope()
 
     val zoneId = ZoneId.systemDefault()
     val today = LocalDateTime.now().toLocalDate()
-    val currentMonthStart = rememberSaveable(today, saver = LocalDateSaver) {
-        LocalDate.of(
-            today.year,
-            today.monthValue,
-            1
-        )
-    }
-    val minDate = rememberSaveable(today, saver = LocalDateSaver) {
-        minOf(
-            today.minusDays(5),
-            currentMonthStart
-        )
-    }
-    val maxDate =
-        rememberSaveable(today, saver = LocalDateSaver) { today.plusYears(1).minusDays(1) }
+    val currentMonthStart = rememberSaveable(today, saver = LocalDateSaver) { LocalDate.of(today.year, today.monthValue, 1) }
+    val minDate = rememberSaveable(today, saver = LocalDateSaver) { minOf(today.minusDays(5), currentMonthStart) }
+    val maxDate = rememberSaveable(today, saver = LocalDateSaver) { today.plusYears(1).minusDays(1) }
 
     fun initialMillisFor(dateTime: LocalDateTime): Long {
         val date = dateTime.toLocalDate()
@@ -125,20 +103,29 @@ fun NewScheduleContent(
     }
 
     val dateFormatter = DateTimeFormatter.ofPattern("M월 d일 (E)", Locale.KOREAN)
-    val formattedStartDate = rememberSaveable(startAt) { startAt.format(dateFormatter) }
-    val formattedStartTime =
-        rememberSaveable(startAt) { startAt.formatTimeWithMidnightSpecialCase() }
-    val formattedEndDate = rememberSaveable(endAt) { endAt.format(dateFormatter) }
-    val formattedEndTime = rememberSaveable(endAt) { endAt.formatTimeWithMidnightSpecialCase() }
-    val formattedStartYear = rememberSaveable(startAt) { "${startAt.year}년" }
-    val formattedEndYear = rememberSaveable(endAt) { "${endAt.year}년" }
+    val formattedStartDate = remember(startAt) { startAt.format(dateFormatter) }
+    val formattedStartTime = remember(startAt) { startAt.formatTimeWithMidnightSpecialCase() }
+    val formattedEndDate = remember(endAt) { endAt.format(dateFormatter) }
+    val formattedEndTime = remember(endAt) { endAt.formatTimeWithMidnightSpecialCase() }
+    val formattedStartYear = remember(startAt) { "${startAt.year}년" }
+    val formattedEndYear = remember(endAt) { "${endAt.year}년" }
+
+    val hasChanges =
+        remember(title, description, startAt, endAt) {
+            title.isNotEmpty() && (
+                    title != schedule.title ||
+                            description != schedule.description.orEmpty() ||
+                            startAt != schedule.startAt ||
+                            endAt != schedule.endAt
+                    )
+        }
 
     Row(
         modifier =
             Modifier
                 .fillMaxWidth()
                 .height(60.dp)
-                .background(color)
+                .background(schedule.color)
                 .padding(top = 12.dp, bottom = 8.dp, start = 16.dp, end = 24.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -155,7 +142,7 @@ fun NewScheduleContent(
         Spacer(modifier = Modifier.width(8.dp))
 
         Text(
-            text = "일정 생성",
+            text = "개인 일정",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             color = Color.White,
@@ -163,15 +150,17 @@ fun NewScheduleContent(
         )
 
         ActionButton(
-            text = "저장",
-            enabled = title.isNotEmpty(),
+            text = "수정",
+            enabled = hasChanges,
             onClick = {
-                makeSchedule(
-                    NewSchedule(
+                editSchedule(
+                    CustomSchedule(
+                        id = schedule.id,
                         title = title,
                         description = description,
                         startAt = startAt,
                         endAt = endAt,
+                        isCompleted = schedule.isCompleted,
                     ),
                 )
             },
@@ -205,7 +194,7 @@ fun NewScheduleContent(
                     .fillMaxHeight()
                     .padding(vertical = 12.dp)
                     .clip(RoundedCornerShape(8.dp))
-                    .background(color),
+                    .background(schedule.color),
         )
 
         TextField(
@@ -221,7 +210,7 @@ fun NewScheduleContent(
                     text = TITLE,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = color,
+                    color = schedule.color,
                 )
             },
             textStyle =
@@ -237,7 +226,7 @@ fun NewScheduleContent(
                     disabledContainerColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
                     focusedIndicatorColor = Color.Transparent,
-                    cursorColor = color,
+                    cursorColor = schedule.color,
                 ),
             maxLines = 3,
             modifier = Modifier.fillMaxWidth(),
@@ -284,7 +273,7 @@ fun NewScheduleContent(
                 },
                 placeholder = {
                     Text(
-                        text = DESCRIPTION,
+                        text = HAS_NO_DESCRIPTION,
                         fontSize = 16.sp,
                         color = Gray,
                     )
@@ -301,7 +290,7 @@ fun NewScheduleContent(
                         disabledContainerColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
                         focusedIndicatorColor = Color.Transparent,
-                        cursorColor = color,
+                        cursorColor = schedule.color,
                     ),
                 maxLines = 5,
                 modifier = Modifier.weight(1f),
@@ -331,21 +320,19 @@ fun NewScheduleContent(
                         .background(LightGray)
                         .padding(vertical = 8.dp)
                         .noRippleClickable {
-                            coroutineScope.launch {
-                                DialogEventBus.show(
-                                    DialogContent.DatePickerContent(
-                                        initialSelectedDateMillis = initialMillisFor(startAt),
-                                        minDateMillis = minDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
-                                        maxDateMillis = maxDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
-                                        onConfirm = { millis ->
-                                            val pickedDate = Instant.ofEpochMilli(millis).atZone(zoneId).toLocalDate()
-                                            startAt = LocalDateTime.of(pickedDate, startAt.toLocalTime())
-                                            if (endAt.isBefore(startAt)) endAt = startAt.plusHours(1)
-                                            timePickerFor = PickerTarget.START
-                                        },
-                                    ),
-                                )
-                            }
+                            onShowDialog(
+                                ScheduleDialogContent.DatePickerContent(
+                                    initialSelectedDateMillis = initialMillisFor(startAt),
+                                    minDateMillis = minDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
+                                    maxDateMillis = maxDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
+                                    onConfirm = { millis ->
+                                        val pickedDate = Instant.ofEpochMilli(millis).atZone(zoneId).toLocalDate()
+                                        startAt = LocalDateTime.of(pickedDate, startAt.toLocalTime())
+                                        if (endAt.isBefore(startAt)) endAt = startAt.plusHours(1)
+                                        timePickerFor = PickerTarget.START
+                                    },
+                                ),
+                            )
                         },
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
@@ -388,21 +375,19 @@ fun NewScheduleContent(
                         .background(LightGray)
                         .padding(vertical = 8.dp)
                         .noRippleClickable {
-                            coroutineScope.launch {
-                                DialogEventBus.show(
-                                    DialogContent.DatePickerContent(
-                                        initialSelectedDateMillis = initialMillisFor(endAt),
-                                        minDateMillis = minDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
-                                        maxDateMillis = maxDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
-                                        onConfirm = { millis ->
-                                            val pickedDate = Instant.ofEpochMilli(millis).atZone(zoneId).toLocalDate()
-                                            endAt = LocalDateTime.of(pickedDate, endAt.toLocalTime())
-                                            if (endAt.isBefore(startAt)) startAt = endAt.minusHours(1)
-                                            timePickerFor = PickerTarget.END
-                                        },
-                                    ),
-                                )
-                            }
+                            onShowDialog(
+                                ScheduleDialogContent.DatePickerContent(
+                                    initialSelectedDateMillis = initialMillisFor(endAt),
+                                    minDateMillis = minDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
+                                    maxDateMillis = maxDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
+                                    onConfirm = { millis ->
+                                        val pickedDate = Instant.ofEpochMilli(millis).atZone(zoneId).toLocalDate()
+                                        endAt = LocalDateTime.of(pickedDate, endAt.toLocalTime())
+                                        if (endAt.isBefore(startAt)) startAt = endAt.minusHours(1)
+                                        timePickerFor = PickerTarget.END
+                                    },
+                                ),
+                            )
                         },
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
@@ -426,6 +411,54 @@ fun NewScheduleContent(
                 )
             }
         }
+
+        Spacer(modifier = Modifier.height(12.dp))
+    }
+
+    Spacer(modifier = Modifier.height(12.dp))
+
+    Box(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(36.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = if (schedule.isCompleted) "완료 해제" else "완료하기",
+            fontSize = 14.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = if (schedule.isCompleted) Gray else PrimaryColor,
+            textAlign = TextAlign.Center,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .noRippleClickable {
+                        toggleScheduleCompletion(schedule.id, !schedule.isCompleted)
+                    },
+        )
+    }
+
+    Spacer(modifier = Modifier.height(12.dp))
+
+    Box(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(36.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = "삭제하기",
+            fontSize = 14.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = Red,
+            textAlign = TextAlign.Center,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .noRippleClickable { deleteSchedule() },
+        )
     }
 
     Spacer(modifier = Modifier.height(12.dp))
@@ -434,29 +467,26 @@ fun NewScheduleContent(
         val initialDateTime = if (target == PickerTarget.START) startAt else endAt
 
         LaunchedEffect(timePickerFor) {
-            coroutineScope.launch {
-                DialogEventBus.show(
-                    DialogContent.TimePickerContent(
-                        initialHour = initialDateTime.hour,
-                        initialMinute = initialDateTime.minute,
-                        onConfirm = { hour, minute ->
-                            val updated =
-                                initialDateTime
-                                    .withHour(hour)
-                                    .withMinute(minute)
-                            if (target == PickerTarget.START) {
-                                startAt = updated
-                                if (endAt.isBefore(startAt)) endAt = startAt.plusHours(1)
-                            } else {
-                                endAt = updated
-                                if (endAt.isBefore(startAt)) startAt = endAt.minusHours(1)
-                            }
-                        },
-                    ),
-                )
-
-                timePickerFor = null
-            }
+            onShowDialog(
+                ScheduleDialogContent.TimePickerContent(
+                    initialHour = initialDateTime.hour,
+                    initialMinute = initialDateTime.minute,
+                    onConfirm = { hour, minute ->
+                        val updated =
+                            initialDateTime
+                                .withHour(hour)
+                                .withMinute(minute)
+                        if (target == PickerTarget.START) {
+                            startAt = updated
+                            if (endAt.isBefore(startAt)) endAt = startAt.plusHours(1)
+                        } else {
+                            endAt = updated
+                            if (endAt.isBefore(startAt)) startAt = endAt.minusHours(1)
+                        }
+                    },
+                ),
+            )
+            timePickerFor = null
         }
     }
 }

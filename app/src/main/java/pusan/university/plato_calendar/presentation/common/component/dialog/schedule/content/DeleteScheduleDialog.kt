@@ -1,4 +1,4 @@
-package pusan.university.plato_calendar.presentation.common.component.dialog.content
+package pusan.university.plato_calendar.presentation.common.component.dialog.schedule.content
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text

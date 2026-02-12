@@ -36,10 +36,10 @@ import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiMod
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.YearMonth
 import pusan.university.plato_calendar.presentation.common.base.BaseViewModel
-import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.ScheduleBottomSheetContent.AcademicScheduleContent
-import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.ScheduleBottomSheetContent.CourseScheduleContent
-import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.ScheduleBottomSheetContent.CustomScheduleContent
-import pusan.university.plato_calendar.presentation.common.component.bottomsheet.content.ScheduleBottomSheetContent.NewScheduleContent
+import pusan.university.plato_calendar.presentation.common.component.bottomsheet.schedule.content.ScheduleBottomSheetContent.AcademicScheduleContent
+import pusan.university.plato_calendar.presentation.common.component.bottomsheet.schedule.content.ScheduleBottomSheetContent.CourseScheduleContent
+import pusan.university.plato_calendar.presentation.common.component.bottomsheet.schedule.content.ScheduleBottomSheetContent.CustomScheduleContent
+import pusan.university.plato_calendar.presentation.common.component.bottomsheet.schedule.content.ScheduleBottomSheetContent.NewScheduleContent
 import pusan.university.plato_calendar.presentation.common.eventbus.ToastEventBus
 import pusan.university.plato_calendar.presentation.common.manager.LoadingManager
 import pusan.university.plato_calendar.presentation.common.manager.LoginManager
@@ -156,6 +156,14 @@ constructor(
 
             is ShowScheduleBottomSheetById -> {
                 showScheduleBottomSheetById(scheduleId = event.scheduleId)
+            }
+
+            is CalendarEvent.ShowDialog -> {
+                setState { copy(scheduleDialogContent = event.content) }
+            }
+
+            CalendarEvent.HideDialog -> {
+                setState { copy(scheduleDialogContent = null) }
             }
         }
     }

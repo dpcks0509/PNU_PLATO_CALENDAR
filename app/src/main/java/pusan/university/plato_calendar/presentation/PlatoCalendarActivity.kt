@@ -30,9 +30,11 @@ import kotlinx.coroutines.launch
 import pusan.university.plato_calendar.data.local.database.SettingsDataStore
 import pusan.university.plato_calendar.presentation.common.component.AnimatedToast
 import pusan.university.plato_calendar.presentation.common.component.LoadingIndicator
-import pusan.university.plato_calendar.presentation.common.component.dialog.Dialog
-import pusan.university.plato_calendar.presentation.common.component.dialog.DialogState.Companion.rememberDialogState
-import pusan.university.plato_calendar.presentation.common.component.dialog.content.DialogContent
+import pusan.university.plato_calendar.presentation.common.component.dialog.plato.PlatoDialog
+import pusan.university.plato_calendar.presentation.common.component.dialog.plato.PlatoDialogState.Companion.rememberPlatoDialogState
+import pusan.university.plato_calendar.presentation.common.component.dialog.plato.content.PlatoDialogContent
+import pusan.university.plato_calendar.presentation.common.eventbus.DialogEvent
+import pusan.university.plato_calendar.presentation.common.eventbus.DialogEventBus
 import pusan.university.plato_calendar.presentation.common.eventbus.WidgetEvent
 import pusan.university.plato_calendar.presentation.common.eventbus.WidgetEventBus
 import pusan.university.plato_calendar.presentation.common.manager.LoadingManager
@@ -83,7 +85,7 @@ class PlatoCalendarActivity : ComponentActivity() {
         }
 
         setContent {
-            val dialogState = rememberDialogState()
+            val platoDialogState = rememberPlatoDialogState()
             val navController = rememberNavController()
             val isLoading by loadingManager.isLoading.collectAsStateWithLifecycle()
             val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -97,8 +99,8 @@ class PlatoCalendarActivity : ComponentActivity() {
                 }
 
                 if (!isGranted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    dialogState.show(
-                        DialogContent.NotificationPermissionContent {
+                    platoDialogState.show(
+                        PlatoDialogContent.NotificationPermissionContent {
                             val intent =
                                 Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                                     data = Uri.fromParts("package", packageName, null)
@@ -119,7 +121,15 @@ class PlatoCalendarActivity : ComponentActivity() {
                         notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                     }
                 }
+            }
 
+            LaunchedEffect(Unit) {
+                DialogEventBus.events.collect { event ->
+                    when (event) {
+                        is DialogEvent.Show -> platoDialogState.show(event.content)
+                        is DialogEvent.Dismiss -> platoDialogState.hide()
+                    }
+                }
             }
 
             PlatoCalendarTheme {
@@ -144,7 +154,7 @@ class PlatoCalendarActivity : ComponentActivity() {
                         )
                     }
 
-                    Dialog(state = dialogState)
+                    PlatoDialog(state = platoDialogState)
 
                     LoadingIndicator(isLoading = isLoading)
 

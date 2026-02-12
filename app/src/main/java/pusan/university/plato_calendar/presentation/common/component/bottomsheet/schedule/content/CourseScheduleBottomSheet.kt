@@ -1,4 +1,4 @@
-package pusan.university.plato_calendar.presentation.common.component.bottomsheet.content
+package pusan.university.plato_calendar.presentation.common.component.bottomsheet.schedule.content
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -30,26 +31,34 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pusan.university.plato_calendar.R
-import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
+import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
+import pusan.university.plato_calendar.presentation.common.extension.formatTimeWithMidnightSpecialCase
 import pusan.university.plato_calendar.presentation.common.extension.noRippleClickable
 import pusan.university.plato_calendar.presentation.common.theme.Black
 import pusan.university.plato_calendar.presentation.common.theme.Gray
 import pusan.university.plato_calendar.presentation.common.theme.LightGray
+import pusan.university.plato_calendar.presentation.common.theme.PrimaryColor
 import pusan.university.plato_calendar.presentation.common.theme.White
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
+private const val HAS_NO_DESCRIPTION = "설명 없음"
+
 @Composable
-fun AcademicScheduleContent(
-    schedule: AcademicScheduleUiModel,
+fun CourseScheduleBottomSheet(
+    schedule: CourseScheduleUiModel,
+    toggleScheduleCompletion: (Long, Boolean) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val dateFormatter = DateTimeFormatter.ofPattern("M월 d일 (E)", Locale.KOREAN)
     val formattedStartDate = schedule.startAt.format(dateFormatter)
+    val formattedStartTime = schedule.startAt.formatTimeWithMidnightSpecialCase()
     val formattedEndDate = schedule.endAt.format(dateFormatter)
+    val formattedEndTime = schedule.endAt.formatTimeWithMidnightSpecialCase()
     val formattedStartYear = "${schedule.startAt.year}년"
     val formattedEndYear = "${schedule.endAt.year}년"
 
@@ -75,7 +84,7 @@ fun AcademicScheduleContent(
         Spacer(modifier = Modifier.width(8.dp))
 
         Text(
-            text = "학사 일정",
+            text = "수업 일정",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             color = Color.White,
@@ -160,6 +169,81 @@ fun AcademicScheduleContent(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
+                painterResource(R.drawable.ic_info),
+                contentDescription = null,
+                tint = Black,
+                modifier = Modifier.size(24.dp),
+            )
+
+            TextField(
+                value = schedule.courseName,
+                readOnly = true,
+                onValueChange = { },
+                textStyle =
+                    TextStyle(
+                        fontSize = 16.sp,
+                        color = Black,
+                    ),
+                colors =
+                    TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedContainerColor = Color.Transparent,
+                        disabledContainerColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        cursorColor = schedule.color,
+                    ),
+                modifier = Modifier.weight(1f),
+            )
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = Icons.Default.Menu,
+                contentDescription = null,
+                tint = Black,
+                modifier = Modifier.size(24.dp),
+            )
+
+            TextField(
+                value = schedule.description.orEmpty(),
+                readOnly = true,
+                onValueChange = { },
+                placeholder = {
+                    Text(
+                        text = HAS_NO_DESCRIPTION,
+                        fontSize = 16.sp,
+                        color = Gray,
+                    )
+                },
+                textStyle =
+                    TextStyle(
+                        fontSize = 16.sp,
+                        color = Black,
+                    ),
+                colors =
+                    TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedContainerColor = Color.Transparent,
+                        disabledContainerColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        cursorColor = schedule.color,
+                    ),
+                modifier = Modifier.weight(1f),
+            )
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
                 painter = painterResource(R.drawable.ic_calendar),
                 contentDescription = null,
                 tint = Black,
@@ -185,6 +269,12 @@ fun AcademicScheduleContent(
                 )
                 Text(
                     text = formattedStartDate,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Black,
+                )
+                Text(
+                    text = formattedStartTime,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Black,
@@ -223,8 +313,40 @@ fun AcademicScheduleContent(
                     fontWeight = FontWeight.SemiBold,
                     color = Black,
                 )
+                Text(
+                    text = formattedEndTime,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Black,
+                )
             }
         }
+
+        Spacer(modifier = Modifier.height(12.dp))
+    }
+
+    Spacer(modifier = Modifier.height(12.dp))
+
+    Box(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(36.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = if (schedule.isCompleted) "완료 해제" else "완료하기",
+            fontSize = 14.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = if (schedule.isCompleted) Gray else PrimaryColor,
+            textAlign = TextAlign.Center,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .noRippleClickable {
+                        toggleScheduleCompletion(schedule.id, !schedule.isCompleted)
+                    },
+        )
     }
 
     Spacer(modifier = Modifier.height(12.dp))
