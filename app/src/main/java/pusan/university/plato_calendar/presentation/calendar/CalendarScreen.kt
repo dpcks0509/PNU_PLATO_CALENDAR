@@ -136,6 +136,8 @@ fun CalendarScreen(
                     viewModel.setEvent(ShowScheduleBottomSheet())
                 }
             }
+
+            WidgetEventBus.consumeEvent()
         }
     }
 

@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
@@ -43,6 +44,7 @@ import pusan.university.plato_calendar.presentation.common.manager.ScheduleManag
 import pusan.university.plato_calendar.presentation.common.manager.SettingsManager
 import pusan.university.plato_calendar.presentation.common.navigation.PlatoCalendarBottomBar
 import pusan.university.plato_calendar.presentation.common.navigation.PlatoCalendarNavHost
+import pusan.university.plato_calendar.presentation.common.navigation.PlatoCalendarScreen
 import pusan.university.plato_calendar.presentation.common.notification.AlarmScheduler
 import pusan.university.plato_calendar.presentation.common.notification.AlarmScheduler.Companion.EXTRA_NOTIFICATION_ID
 import pusan.university.plato_calendar.presentation.common.notification.AlarmScheduler.Companion.EXTRA_SCHEDULE_ID
@@ -76,6 +78,8 @@ class PlatoCalendarActivity : ComponentActivity() {
     @Inject
     lateinit var settingsDataStore: SettingsDataStore
 
+    private var navController: NavHostController? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -86,7 +90,7 @@ class PlatoCalendarActivity : ComponentActivity() {
 
         setContent {
             val platoDialogState = rememberPlatoDialogState()
-            val navController = rememberNavController()
+            val navController = rememberNavController().also { this.navController = it }
             val isLoading by loadingManager.isLoading.collectAsStateWithLifecycle()
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = navBackStackEntry?.destination?.route
@@ -173,10 +177,13 @@ class PlatoCalendarActivity : ComponentActivity() {
     private fun handleNotificationIntent(intent: Intent) {
         val scheduleId = intent.getLongExtra(EXTRA_SCHEDULE_ID, -1L)
         val notificationId = intent.getIntExtra(EXTRA_NOTIFICATION_ID, -1)
+
         if (notificationId != -1) {
             notificationHelper.cancelNotification(notificationId)
         }
+
         if (scheduleId != -1L) {
+            navigateToCalendarScreen()
             val selectedDate = intent.getStringExtra(OpenScheduleDetailCallback.EXTRA_SELECTED_DATE)
             lifecycleScope.launch {
                 WidgetEventBus.sendEvent(WidgetEvent.OpenSchedule(scheduleId, selectedDate))
@@ -184,9 +191,27 @@ class PlatoCalendarActivity : ComponentActivity() {
         }
 
         if (intent.action == OpenNewScheduleCallback.ACTION_OPEN_NEW_SCHEDULE) {
+            navigateToCalendarScreen()
             val selectedDate = intent.getStringExtra(OpenNewScheduleCallback.EXTRA_SELECTED_DATE)
             lifecycleScope.launch {
                 WidgetEventBus.sendEvent(WidgetEvent.OpenNewSchedule(selectedDate))
+            }
+        }
+    }
+
+    private fun navigateToCalendarScreen() {
+        navController?.let { navController ->
+            val currentRoute = navController.currentBackStackEntry?.destination?.route
+            val calendarRoute = PlatoCalendarScreen.CalendarScreen::class.qualifiedName
+            if (currentRoute != calendarRoute) {
+
+                navController.navigate(PlatoCalendarScreen.CalendarScreen) {
+                    popUpTo(navController.graph.startDestinationId) {
+                        saveState = true
+                    }
+                    launchSingleTop = true
+                    restoreState = true
+                }
             }
         }
     }

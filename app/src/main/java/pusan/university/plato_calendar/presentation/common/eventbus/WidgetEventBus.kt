@@ -1,5 +1,6 @@
 package pusan.university.plato_calendar.presentation.common.eventbus
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -10,6 +11,11 @@ object WidgetEventBus {
 
     suspend fun sendEvent(event: WidgetEvent) {
         _events.emit(event)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun consumeEvent() {
+        _events.resetReplayCache()
     }
 }
 
