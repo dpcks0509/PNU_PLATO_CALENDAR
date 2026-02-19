@@ -49,7 +49,7 @@ fun ExpandableToDoSection(
     toggleCompletion: (Long, Boolean) -> Unit,
     onScheduleClick: (ScheduleUiModel) -> Unit,
 ) {
-    val rotation by animateFloatAsState(if (isExpanded) 180f else 0f, label = "rotation")
+    val rotation by animateFloatAsState(if (isExpanded) 180f else 0f)
 
     Card(
         modifier = Modifier.fillMaxWidth(),
