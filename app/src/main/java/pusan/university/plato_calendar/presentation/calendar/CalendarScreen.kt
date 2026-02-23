@@ -104,13 +104,7 @@ fun CalendarScreen(
 
                 CalendarSideEffect.ShowLoginDialog -> {
                     coroutineScope.launch {
-                        DialogEventBus.show(
-                            PlatoDialogContent.LoginContent(
-                                onConfirm = { credentials ->
-                                    viewModel.setEvent(CalendarEvent.Login(credentials))
-                                },
-                            ),
-                        )
+                        DialogEventBus.show(PlatoDialogContent.LoginContent)
                     }
                 }
             }

@@ -5,7 +5,7 @@ import android.content.Intent
 import androidx.glance.GlanceId
 import androidx.glance.action.ActionParameters
 import androidx.glance.appwidget.action.ActionCallback
-import pusan.university.plato_calendar.presentation.PlatoCalendarActivity
+import pusan.university.plato_calendar.presentation.main.MainActivity
 import pusan.university.plato_calendar.presentation.common.notification.AlarmScheduler
 
 class OpenScheduleDetailCallback : ActionCallback {
@@ -24,7 +24,7 @@ class OpenScheduleDetailCallback : ActionCallback {
         val selectedDate = parameters[selectedDateKey] ?: return
 
         val intent =
-            Intent(context, PlatoCalendarActivity::class.java).apply {
+            Intent(context, MainActivity::class.java).apply {
                 putExtra(AlarmScheduler.EXTRA_SCHEDULE_ID, scheduleId)
                 putExtra(EXTRA_SELECTED_DATE, selectedDate)
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP

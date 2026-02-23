@@ -42,9 +42,7 @@ import dagger.hilt.components.SingletonComponent
 import pusan.university.plato_calendar.R
 import pusan.university.plato_calendar.domain.repository.CourseRepository
 import pusan.university.plato_calendar.domain.repository.ScheduleRepository
-import pusan.university.plato_calendar.presentation.PlatoCalendarActivity
 import pusan.university.plato_calendar.presentation.common.manager.LoginManager
-import pusan.university.plato_calendar.presentation.common.manager.ScheduleManager
 import pusan.university.plato_calendar.presentation.common.manager.SettingsManager
 import pusan.university.plato_calendar.presentation.common.notification.AlarmScheduler
 import pusan.university.plato_calendar.presentation.common.serializer.PersonalScheduleSerializer.deserializePersonalSchedules
@@ -57,6 +55,7 @@ import pusan.university.plato_calendar.presentation.common.theme.PrimaryDark
 import pusan.university.plato_calendar.presentation.common.theme.PrimaryLight
 import pusan.university.plato_calendar.presentation.common.theme.RedDark
 import pusan.university.plato_calendar.presentation.common.theme.RedLight
+import pusan.university.plato_calendar.presentation.main.MainActivity
 import pusan.university.plato_calendar.presentation.widget.callback.NavigateDateCallback
 import pusan.university.plato_calendar.presentation.widget.callback.OpenNewScheduleCallback
 import pusan.university.plato_calendar.presentation.widget.callback.RefreshSchedulesCallback
@@ -81,8 +80,6 @@ object CalendarWidget : GlanceAppWidget() {
         fun courseRepository(): CourseRepository
 
         fun loginManager(): LoginManager
-
-        fun scheduleManager(): ScheduleManager
 
         fun settingsManager(): SettingsManager
 
@@ -117,7 +114,7 @@ object CalendarWidget : GlanceAppWidget() {
                     GlanceModifier
                         .fillMaxSize()
                         .background(ImageProvider(R.drawable.widget_background))
-                        .clickable(actionStartActivity<PlatoCalendarActivity>())
+                        .clickable(actionStartActivity<MainActivity>())
                         .padding(16.dp),
                 verticalAlignment = Alignment.Vertical.Top,
             ) {

@@ -1,10 +1,6 @@
 package pusan.university.plato_calendar.presentation.common.component.dialog.schedule.content
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
-
-@Parcelize
-sealed interface ScheduleDialogContent : Parcelable {
+sealed interface ScheduleDialogContent {
     data class DeleteScheduleContent(
         val scheduleId: Long,
         val onConfirm: () -> Unit,

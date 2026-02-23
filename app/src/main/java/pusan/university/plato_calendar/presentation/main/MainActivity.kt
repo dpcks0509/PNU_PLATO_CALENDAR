@@ -1,4 +1,4 @@
-package pusan.university.plato_calendar.presentation
+package pusan.university.plato_calendar.presentation.main
 
 import android.Manifest
 import android.content.Intent
@@ -12,6 +12,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
@@ -28,40 +29,33 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import pusan.university.plato_calendar.data.local.database.SettingsDataStore
 import pusan.university.plato_calendar.presentation.common.component.AnimatedToast
 import pusan.university.plato_calendar.presentation.common.component.LoadingIndicator
 import pusan.university.plato_calendar.presentation.common.component.dialog.plato.PlatoDialog
-import pusan.university.plato_calendar.presentation.common.component.dialog.plato.PlatoDialogState.Companion.rememberPlatoDialogState
 import pusan.university.plato_calendar.presentation.common.component.dialog.plato.content.PlatoDialogContent
-import pusan.university.plato_calendar.presentation.common.eventbus.DialogEvent
-import pusan.university.plato_calendar.presentation.common.eventbus.DialogEventBus
 import pusan.university.plato_calendar.presentation.common.eventbus.WidgetEvent
 import pusan.university.plato_calendar.presentation.common.eventbus.WidgetEventBus
 import pusan.university.plato_calendar.presentation.common.manager.LoadingManager
 import pusan.university.plato_calendar.presentation.common.manager.LoginManager
-import pusan.university.plato_calendar.presentation.common.manager.ScheduleManager
 import pusan.university.plato_calendar.presentation.common.manager.SettingsManager
 import pusan.university.plato_calendar.presentation.common.navigation.PlatoCalendarBottomBar
 import pusan.university.plato_calendar.presentation.common.navigation.PlatoCalendarNavHost
 import pusan.university.plato_calendar.presentation.common.navigation.PlatoCalendarScreen
-import pusan.university.plato_calendar.presentation.common.notification.AlarmScheduler
 import pusan.university.plato_calendar.presentation.common.notification.AlarmScheduler.Companion.EXTRA_NOTIFICATION_ID
 import pusan.university.plato_calendar.presentation.common.notification.AlarmScheduler.Companion.EXTRA_SCHEDULE_ID
 import pusan.university.plato_calendar.presentation.common.notification.NotificationHelper
 import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarTheme
 import pusan.university.plato_calendar.presentation.common.theme.White
+import pusan.university.plato_calendar.presentation.main.intent.MainEvent
+import pusan.university.plato_calendar.presentation.main.intent.MainSideEffect
 import pusan.university.plato_calendar.presentation.widget.callback.OpenNewScheduleCallback
 import pusan.university.plato_calendar.presentation.widget.callback.OpenScheduleDetailCallback
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class PlatoCalendarActivity : ComponentActivity() {
+class MainActivity : ComponentActivity() {
     @Inject
     lateinit var loginManager: LoginManager
-
-    @Inject
-    lateinit var scheduleManager: ScheduleManager
 
     @Inject
     lateinit var loadingManager: LoadingManager
@@ -70,13 +64,7 @@ class PlatoCalendarActivity : ComponentActivity() {
     lateinit var settingsManager: SettingsManager
 
     @Inject
-    lateinit var alarmScheduler: AlarmScheduler
-
-    @Inject
     lateinit var notificationHelper: NotificationHelper
-
-    @Inject
-    lateinit var settingsDataStore: SettingsDataStore
 
     private var navController: NavHostController? = null
 
@@ -89,7 +77,8 @@ class PlatoCalendarActivity : ComponentActivity() {
         }
 
         setContent {
-            val platoDialogState = rememberPlatoDialogState()
+            val viewModel: MainViewModel by viewModels()
+            val state by viewModel.state.collectAsStateWithLifecycle()
             val navController = rememberNavController().also { this.navController = it }
             val isLoading by loadingManager.isLoading.collectAsStateWithLifecycle()
             val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -103,16 +92,7 @@ class PlatoCalendarActivity : ComponentActivity() {
                 }
 
                 if (!isGranted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    platoDialogState.show(
-                        PlatoDialogContent.NotificationPermissionContent {
-                            val intent =
-                                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                    data = Uri.fromParts("package", packageName, null)
-                                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                }
-                            startActivity(intent)
-                        },
-                    )
+                    viewModel.setEvent(MainEvent.ShowDialog(PlatoDialogContent.NotificationPermissionContent))
                 }
             }
 
@@ -128,10 +108,16 @@ class PlatoCalendarActivity : ComponentActivity() {
             }
 
             LaunchedEffect(Unit) {
-                DialogEventBus.events.collect { event ->
-                    when (event) {
-                        is DialogEvent.Show -> platoDialogState.show(event.content)
-                        is DialogEvent.Dismiss -> platoDialogState.hide()
+                viewModel.sideEffect.collect { sideEffect ->
+                    when (sideEffect) {
+                        MainSideEffect.NavigateToNotificationSettings -> {
+                            val intent =
+                                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                    data = Uri.fromParts("package", packageName, null)
+                                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                }
+                            startActivity(intent)
+                        }
                     }
                 }
             }
@@ -158,7 +144,11 @@ class PlatoCalendarActivity : ComponentActivity() {
                         )
                     }
 
-                    PlatoDialog(state = platoDialogState)
+                    PlatoDialog(
+                        content = state.dialogContent,
+                        state = state,
+                        onEvent = viewModel::setEvent,
+                    )
 
                     LoadingIndicator(isLoading = isLoading)
 

@@ -20,7 +20,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PlatoCalendar">
         <activity
-            android:name="pusan.university.plato_calendar.presentation.PlatoCalendarActivity"
+            android:name="pusan.university.plato_calendar.presentation.main.MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
             android:theme="@style/Theme.PlatoCalendar">

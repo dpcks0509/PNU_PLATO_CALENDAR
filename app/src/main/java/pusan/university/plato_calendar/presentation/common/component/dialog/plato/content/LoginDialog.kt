@@ -24,7 +24,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -38,7 +37,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import kotlinx.coroutines.launch
 import pusan.university.plato_calendar.domain.entity.LoginCredentials
 import pusan.university.plato_calendar.presentation.common.theme.LightGray
 import pusan.university.plato_calendar.presentation.common.theme.MediumGray
@@ -47,13 +45,12 @@ import pusan.university.plato_calendar.presentation.common.theme.White
 
 @Composable
 fun LoginDialog(
+    isLoggingIn: Boolean,
     onDismiss: () -> Unit,
-    onConfirm: suspend (LoginCredentials) -> Unit,
+    onConfirm: (LoginCredentials) -> Unit,
 ) {
-    val coroutineScope = rememberCoroutineScope()
     var userName by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
-    var isLoggingIn by rememberSaveable { mutableStateOf(false) }
     val isButtonEnabled by remember {
         derivedStateOf {
             userName.isNotBlank() && password.isNotBlank() && !isLoggingIn
@@ -127,11 +124,7 @@ fun LoginDialog(
                 Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                     TextButton(
                         onClick = {
-                            coroutineScope.launch {
-                                isLoggingIn = true
-                                onConfirm(LoginCredentials(userName, password))
-                                isLoggingIn = false
-                            }
+                            onConfirm(LoginCredentials(userName, password))
                         },
                         enabled = isButtonEnabled,
                         contentPadding = PaddingValues(vertical = 14.dp),

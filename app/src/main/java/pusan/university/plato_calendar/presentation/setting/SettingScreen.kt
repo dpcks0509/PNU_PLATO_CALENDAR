@@ -94,11 +94,7 @@ fun SettingScreen(
                         viewModel.setEvent(event)
                     } else {
                         coroutineScope.launch {
-                            DialogEventBus.show(
-                                PlatoDialogContent.NotificationPermissionContent(
-                                    onConfirm = { viewModel.setEvent(event) },
-                                ),
-                            )
+                            DialogEventBus.show(PlatoDialogContent.NotificationPermissionContent)
                         }
                     }
                 }
@@ -150,13 +146,7 @@ fun SettingContent(
                                             onEvent(SettingEvent.Logout)
                                         } else {
                                             coroutineScope.launch {
-                                                DialogEventBus.show(
-                                                    PlatoDialogContent.LoginContent(
-                                                        onConfirm = { credentials ->
-                                                            onEvent(SettingEvent.Login(credentials))
-                                                        },
-                                                    ),
-                                                )
+                                                DialogEventBus.show(PlatoDialogContent.LoginContent)
                                             }
                                         }
                                     },
