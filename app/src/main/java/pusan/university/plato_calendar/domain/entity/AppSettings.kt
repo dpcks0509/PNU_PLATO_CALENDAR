@@ -4,6 +4,6 @@ import pusan.university.plato_calendar.presentation.setting.model.NotificationTi
 
 data class AppSettings(
     val notificationsEnabled: Boolean = false,
-    val firstReminderTime: NotificationTime = NotificationTime.ONE_DAY,
-    val secondReminderTime: NotificationTime = NotificationTime.NONE,
+    val firstReminderTime: NotificationTime = NotificationTime.ONE_HOUR,
+    val secondReminderTime: NotificationTime = NotificationTime.ONE_DAY,
 )

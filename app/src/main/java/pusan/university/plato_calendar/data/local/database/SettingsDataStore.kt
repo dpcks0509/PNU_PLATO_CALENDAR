@@ -37,15 +37,15 @@ constructor(
             .map { preferences ->
                 val notificationsEnabled = preferences[KEY_NOTIFICATIONS_ENABLED] ?: false
                 val firstReminderName =
-                    preferences[KEY_FIRST_REMINDER_TIME_NAME] ?: NotificationTime.ONE_DAY.name
+                    preferences[KEY_FIRST_REMINDER_TIME_NAME] ?: NotificationTime.ONE_HOUR.name
                 val secondReminderName =
-                    preferences[KEY_SECOND_REMINDER_TIME_NAME] ?: NotificationTime.NONE.name
+                    preferences[KEY_SECOND_REMINDER_TIME_NAME] ?: NotificationTime.ONE_DAY.name
 
                 val firstReminderTime = runCatching { NotificationTime.valueOf(firstReminderName) }
                     .getOrDefault(NotificationTime.ONE_HOUR)
                 val secondReminderTime =
                     runCatching { NotificationTime.valueOf(secondReminderName) }
-                        .getOrDefault(NotificationTime.NONE)
+                        .getOrDefault(NotificationTime.ONE_DAY)
 
                 AppSettings(
                     notificationsEnabled = notificationsEnabled,
