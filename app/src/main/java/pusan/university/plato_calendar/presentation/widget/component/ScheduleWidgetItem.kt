@@ -31,8 +31,8 @@ import pusan.university.plato_calendar.presentation.common.theme.BlackDark
 import pusan.university.plato_calendar.presentation.common.theme.BlackLight
 import pusan.university.plato_calendar.presentation.common.theme.GrayDark
 import pusan.university.plato_calendar.presentation.common.theme.GrayLight
-import pusan.university.plato_calendar.presentation.widget.CalendarWidget.ScheduleWidgetUiModel
 import pusan.university.plato_calendar.presentation.widget.callback.OpenScheduleDetailCallback
+import pusan.university.plato_calendar.presentation.widget.model.ScheduleWidgetUiModel
 
 @SuppressLint("RestrictedApi")
 @Composable

@@ -32,8 +32,6 @@ import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.width
-import androidx.glance.state.GlanceStateDefinition
-import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
@@ -69,8 +67,8 @@ import java.time.format.TextStyle.FULL
 import java.time.format.TextStyle.SHORT
 import java.util.Locale.KOREAN
 
-@Suppress("RestrictedApi")
 object CalendarWidget : GlanceAppWidget() {
+
     init {
         actionRunCallback<RefreshSchedulesCallback>()
     }
@@ -90,14 +88,6 @@ object CalendarWidget : GlanceAppWidget() {
 
         fun alarmScheduler(): AlarmScheduler
     }
-
-    data class ScheduleWidgetUiModel(
-        val title: String,
-        val deadLine: String,
-        val indicatorDrawable: Int,
-    )
-
-    override val stateDefinition: GlanceStateDefinition<*> = PreferencesGlanceStateDefinition
 
     override suspend fun provideGlance(
         context: Context,
