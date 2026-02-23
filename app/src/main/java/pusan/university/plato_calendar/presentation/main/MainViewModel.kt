@@ -11,6 +11,7 @@ import pusan.university.plato_calendar.presentation.main.intent.MainEvent
 import pusan.university.plato_calendar.presentation.main.intent.MainEvent.ConfirmLogin
 import pusan.university.plato_calendar.presentation.main.intent.MainEvent.ConfirmNotificationPermission
 import pusan.university.plato_calendar.presentation.main.intent.MainEvent.HideDialog
+import pusan.university.plato_calendar.presentation.main.intent.MainEvent.NavigateToCalendar
 import pusan.university.plato_calendar.presentation.main.intent.MainEvent.ShowDialog
 import pusan.university.plato_calendar.presentation.main.intent.MainSideEffect
 import pusan.university.plato_calendar.presentation.main.intent.MainState
@@ -49,6 +50,8 @@ constructor(
                 loginManager.login(event.credentials)
                 setState { copy(isLoggingIn = false, dialogContent = null) }
             }
+
+            NavigateToCalendar -> setSideEffect { MainSideEffect.NavigateToCalendar }
         }
     }
 }

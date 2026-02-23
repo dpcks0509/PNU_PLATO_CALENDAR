@@ -24,7 +24,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
@@ -48,12 +47,15 @@ import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarTh
 import pusan.university.plato_calendar.presentation.common.theme.White
 import pusan.university.plato_calendar.presentation.main.intent.MainEvent
 import pusan.university.plato_calendar.presentation.main.intent.MainSideEffect
+import pusan.university.plato_calendar.presentation.main.intent.MainSideEffect.NavigateToNotificationSettings
 import pusan.university.plato_calendar.presentation.widget.callback.OpenNewScheduleCallback
 import pusan.university.plato_calendar.presentation.widget.callback.OpenScheduleDetailCallback
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    private val viewModel: MainViewModel by viewModels()
+
     @Inject
     lateinit var loginManager: LoginManager
 
@@ -66,8 +68,6 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var notificationHelper: NotificationHelper
 
-    private var navController: NavHostController? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -77,10 +77,9 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            val viewModel: MainViewModel by viewModels()
             val state by viewModel.state.collectAsStateWithLifecycle()
-            val navController = rememberNavController().also { this.navController = it }
             val isLoading by loadingManager.isLoading.collectAsStateWithLifecycle()
+            val navController = rememberNavController()
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = navBackStackEntry?.destination?.route
 
@@ -110,13 +109,23 @@ class MainActivity : ComponentActivity() {
             LaunchedEffect(Unit) {
                 viewModel.sideEffect.collect { sideEffect ->
                     when (sideEffect) {
-                        MainSideEffect.NavigateToNotificationSettings -> {
+                        NavigateToNotificationSettings -> {
                             val intent =
                                 Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                                     data = Uri.fromParts("package", packageName, null)
                                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                 }
                             startActivity(intent)
+                        }
+
+                        MainSideEffect.NavigateToCalendar -> {
+                            navController.navigate(PlatoCalendarScreen.CalendarScreen) {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
                         }
                     }
                 }
@@ -173,7 +182,7 @@ class MainActivity : ComponentActivity() {
         }
 
         if (scheduleId != -1L) {
-            navigateToCalendarScreen()
+            viewModel.setEvent(MainEvent.NavigateToCalendar)
             val selectedDate = intent.getStringExtra(OpenScheduleDetailCallback.EXTRA_SELECTED_DATE)
             lifecycleScope.launch {
                 WidgetEventBus.sendEvent(WidgetEvent.OpenSchedule(scheduleId, selectedDate))
@@ -181,27 +190,10 @@ class MainActivity : ComponentActivity() {
         }
 
         if (intent.action == OpenNewScheduleCallback.ACTION_OPEN_NEW_SCHEDULE) {
-            navigateToCalendarScreen()
+            viewModel.setEvent(MainEvent.NavigateToCalendar)
             val selectedDate = intent.getStringExtra(OpenNewScheduleCallback.EXTRA_SELECTED_DATE)
             lifecycleScope.launch {
                 WidgetEventBus.sendEvent(WidgetEvent.OpenNewSchedule(selectedDate))
-            }
-        }
-    }
-
-    private fun navigateToCalendarScreen() {
-        navController?.let { navController ->
-            val currentRoute = navController.currentBackStackEntry?.destination?.route
-            val calendarRoute = PlatoCalendarScreen.CalendarScreen::class.qualifiedName
-            if (currentRoute != calendarRoute) {
-
-                navController.navigate(PlatoCalendarScreen.CalendarScreen) {
-                    popUpTo(navController.graph.startDestinationId) {
-                        saveState = true
-                    }
-                    launchSingleTop = true
-                    restoreState = true
-                }
             }
         }
     }

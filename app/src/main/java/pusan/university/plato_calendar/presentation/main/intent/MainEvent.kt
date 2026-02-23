@@ -12,4 +12,6 @@ sealed interface MainEvent : UiEvent {
     data object ConfirmNotificationPermission : MainEvent
 
     data class ConfirmLogin(val credentials: LoginCredentials) : MainEvent
+
+    data object NavigateToCalendar : MainEvent
 }

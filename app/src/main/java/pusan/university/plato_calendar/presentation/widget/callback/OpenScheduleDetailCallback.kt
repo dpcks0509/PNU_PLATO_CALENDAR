@@ -5,8 +5,8 @@ import android.content.Intent
 import androidx.glance.GlanceId
 import androidx.glance.action.ActionParameters
 import androidx.glance.appwidget.action.ActionCallback
-import pusan.university.plato_calendar.presentation.main.MainActivity
 import pusan.university.plato_calendar.presentation.common.notification.AlarmScheduler
+import pusan.university.plato_calendar.presentation.main.MainActivity
 
 class OpenScheduleDetailCallback : ActionCallback {
     companion object {
