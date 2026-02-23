@@ -1,5 +1,6 @@
 package pusan.university.plato_calendar.presentation.calendar
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
@@ -57,6 +58,7 @@ constructor(
     private val scheduleManager: ScheduleManager,
     private val loadingManager: LoadingManager,
     private val alarmScheduler: AlarmScheduler,
+    private val savedStateHandle: SavedStateHandle,
 ) : BaseViewModel<CalendarState, CalendarEvent, CalendarSideEffect>(
     initialState =
         CalendarState(
@@ -64,7 +66,11 @@ constructor(
             selectedDate = scheduleManager.today.value.toLocalDate(),
         ),
 ) {
-    private var pendingOpenScheduleId: Long? = null
+    private var pendingOpenScheduleId: Long?
+        get() = savedStateHandle[KEY_PENDING_OPEN_SCHEDULE_ID]
+        set(value) {
+            savedStateHandle[KEY_PENDING_OPEN_SCHEDULE_ID] = value
+        }
 
     init {
         viewModelScope.launch {
@@ -431,5 +437,9 @@ constructor(
                 pendingOpenScheduleId = scheduleId
             }
         }
+    }
+
+    companion object {
+        private const val KEY_PENDING_OPEN_SCHEDULE_ID = "pending_open_schedule_id"
     }
 }
