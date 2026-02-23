@@ -43,6 +43,7 @@ import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEven
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.TogglePersonalScheduleCompletion
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.UpdateCurrentYearMonth
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.UpdateSelectedDate
+import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.UpdateSelectedDateByWidget
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarSideEffect
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarState
 import pusan.university.plato_calendar.presentation.calendar.model.DaySchedule
@@ -117,7 +118,7 @@ fun CalendarScreen(
                 is WidgetEvent.OpenSchedule -> {
                     event.date?.let { dateStr ->
                         val date = LocalDate.parse(dateStr)
-                        viewModel.setEvent(UpdateSelectedDate(date))
+                        viewModel.setEvent(UpdateSelectedDateByWidget(date))
                     }
                     viewModel.setEvent(ShowScheduleBottomSheetById(event.scheduleId))
                 }
@@ -125,7 +126,7 @@ fun CalendarScreen(
                 is WidgetEvent.OpenNewSchedule -> {
                     event.date?.let { dateStr ->
                         val date = LocalDate.parse(dateStr)
-                        viewModel.setEvent(UpdateSelectedDate(date))
+                        viewModel.setEvent(UpdateSelectedDateByWidget(date))
                     }
                     viewModel.setEvent(ShowScheduleBottomSheet())
                 }

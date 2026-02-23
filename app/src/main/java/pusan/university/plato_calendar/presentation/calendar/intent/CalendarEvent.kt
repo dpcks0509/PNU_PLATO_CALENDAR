@@ -32,6 +32,10 @@ sealed interface CalendarEvent : UiEvent {
         val date: LocalDate,
     ) : CalendarEvent
 
+    data class UpdateSelectedDateByWidget(
+        val date: LocalDate,
+    ) : CalendarEvent
+
     data class UpdateCurrentYearMonth(
         val yearMonth: YearMonth,
     ) : CalendarEvent

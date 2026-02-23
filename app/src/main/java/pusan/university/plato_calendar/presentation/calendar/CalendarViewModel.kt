@@ -27,6 +27,7 @@ import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEven
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.TogglePersonalScheduleCompletion
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.UpdateCurrentYearMonth
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.UpdateSelectedDate
+import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.UpdateSelectedDateByWidget
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarSideEffect
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarState
 import pusan.university.plato_calendar.presentation.calendar.model.DaySchedule
@@ -150,6 +151,26 @@ constructor(
             is UpdateSelectedDate -> {
                 scheduleManager.updateSelectedDate(event.date)
                 setState { copy(selectedDate = event.date) }
+            }
+
+            is UpdateSelectedDateByWidget -> {
+                scheduleManager.updateSelectedDate(event.date)
+                val date = event.date
+                val dateYearMonth = YearMonth(year = date.year, month = date.monthValue)
+                val currentYearMonth = state.value.currentYearMonth
+
+                if (dateYearMonth != currentYearMonth) {
+                    val baseToday = scheduleManager.baseToday
+                    val baseTodayYearMonth = YearMonth(year = baseToday.year, month = baseToday.monthValue)
+                    val monthsDiff =
+                        (dateYearMonth.year - baseTodayYearMonth.year) * 12 +
+                                (dateYearMonth.month - baseTodayYearMonth.month)
+
+                    setState { copy(selectedDate = date, currentYearMonth = dateYearMonth) }
+                    setSideEffect { CalendarSideEffect.ScrollToPage(monthsDiff) }
+                } else {
+                    setState { copy(selectedDate = date) }
+                }
             }
 
             is UpdateCurrentYearMonth -> {
