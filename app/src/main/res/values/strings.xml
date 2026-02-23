@@ -4,4 +4,6 @@
     <string name="to_do">할일</string>
     <string name="cafeteria">학식</string>
     <string name="setting">설정</string>
+    <string name="widget_label">캘린더 일정</string>
+    <string name="widget_description">할 일과 예정된 일정을 표시합니다.</string>
 </resources>
