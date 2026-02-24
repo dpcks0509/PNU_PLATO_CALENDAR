@@ -47,6 +47,7 @@ import pusan.university.plato_calendar.presentation.util.manager.LoadingManager
 import pusan.university.plato_calendar.presentation.util.manager.LoginManager
 import pusan.university.plato_calendar.presentation.util.manager.ScheduleManager
 import pusan.university.plato_calendar.presentation.util.notification.AlarmScheduler
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -154,24 +155,7 @@ class CalendarViewModel
                 }
 
                 is UpdateSelectedDateByWidget -> {
-                    scheduleManager.updateSelectedDate(event.date)
-                    val date = event.date
-                    val dateYearMonth = YearMonth(year = date.year, month = date.monthValue)
-                    val currentYearMonth = state.value.currentYearMonth
-
-                    if (dateYearMonth != currentYearMonth) {
-                        val baseToday = scheduleManager.baseToday
-                        val baseTodayYearMonth =
-                            YearMonth(year = baseToday.year, month = baseToday.monthValue)
-                        val monthsDiff =
-                            (dateYearMonth.year - baseTodayYearMonth.year) * 12 +
-                                (dateYearMonth.month - baseTodayYearMonth.month)
-
-                        setState { copy(selectedDate = date, currentYearMonth = dateYearMonth) }
-                        setSideEffect { CalendarSideEffect.ScrollToPage(monthsDiff) }
-                    } else {
-                        setState { copy(selectedDate = date) }
-                    }
+                    navigateToDate(event.date)
                 }
 
                 is UpdateCurrentYearMonth -> {
@@ -276,6 +260,7 @@ class CalendarViewModel
                                         .find { it.id == id }
 
                                 if (targetSchedule != null) {
+                                    navigateToDate(targetSchedule.endAt.toLocalDate())
                                     showScheduleBottomSheet(targetSchedule)
                                     pendingOpenScheduleId = null
                                 }
@@ -290,14 +275,11 @@ class CalendarViewModel
                             scheduleManager.updateSchedules(academicSchedules)
                         }
 
-                        LoginStatus.Uninitialized -> {
-                        }
-
                         LoginStatus.NetworkDisconnected -> {
                             ToastEventBus.sendError(NETWORK_ERROR_MESSAGE)
                         }
 
-                        LoginStatus.LoginInProgress -> {
+                        LoginStatus.Uninitialized, LoginStatus.LoginInProgress -> {
                             Unit
                         }
                     }
@@ -444,7 +426,8 @@ class CalendarViewModel
                             .find { it.id == scheduleId }
 
                     if (schedule != null) {
-                        showScheduleBottomSheet((schedule))
+                        navigateToDate(schedule.endAt.toLocalDate())
+                        showScheduleBottomSheet(schedule)
                         pendingOpenScheduleId = null
                     } else {
                         pendingOpenScheduleId = scheduleId
@@ -454,6 +437,27 @@ class CalendarViewModel
                 LoginStatus.Logout, LoginStatus.Uninitialized, LoginStatus.NetworkDisconnected, LoginStatus.LoginInProgress -> {
                     pendingOpenScheduleId = scheduleId
                 }
+            }
+        }
+
+        private fun navigateToDate(date: LocalDate) {
+            val dateYearMonth = YearMonth(year = date.year, month = date.monthValue)
+            val currentYearMonth = state.value.currentYearMonth
+
+            if (dateYearMonth != currentYearMonth) {
+                val baseToday = scheduleManager.baseToday
+                val baseTodayYearMonth =
+                    YearMonth(year = baseToday.year, month = baseToday.monthValue)
+                val monthsDiff =
+                    (dateYearMonth.year - baseTodayYearMonth.year) * 12 +
+                        (dateYearMonth.month - baseTodayYearMonth.month)
+
+                scheduleManager.updateSelectedDate(date)
+                setState { copy(selectedDate = date, currentYearMonth = dateYearMonth) }
+                setSideEffect { CalendarSideEffect.ScrollToPage(monthsDiff) }
+            } else {
+                scheduleManager.updateSelectedDate(date)
+                setState { copy(selectedDate = date) }
             }
         }
 
