@@ -38,6 +38,6 @@ class NavigateDateCallback : ActionCallback {
             prefs[stringPreferencesKey("selected_date")] = newDate.toString()
         }
 
-        CalendarWidget.update(context, glanceId)
+        CalendarWidget().update(context, glanceId)
     }
 }

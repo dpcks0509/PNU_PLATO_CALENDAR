@@ -46,12 +46,7 @@ fun WebView(
                                         val intent = Intent.parseUri(requestUrl, Intent.URI_INTENT_SCHEME)
                                         context.startActivity(intent)
                                     } catch (_: Exception) {
-                                        val packageName =
-                                            try {
-                                                Intent.parseUri(requestUrl, Intent.URI_INTENT_SCHEME).`package`
-                                            } catch (_: Exception) {
-                                                null
-                                            }
+                                        val packageName =Intent.parseUri(requestUrl, Intent.URI_INTENT_SCHEME).`package`
 
                                         if (!packageName.isNullOrBlank()) {
                                             val marketIntent =

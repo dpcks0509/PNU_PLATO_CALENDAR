@@ -35,25 +35,21 @@ class BootReceiver : BroadcastReceiver() {
         val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
         coroutineScope.launch {
-            try {
-                val settings = settingsManager.appSettings.first()
-                val schedules = scheduleManager.schedules.first()
+            val settings = settingsManager.appSettings.first()
+            val schedules = scheduleManager.schedules.first()
 
-                if (!settings.notificationsEnabled) {
-                    return@launch
-                }
+            if (!settings.notificationsEnabled) return@launch
 
-                val personalSchedules =
-                    schedules.filterIsInstance<PersonalScheduleUiModel>().filter { !it.isCompleted }
+            val personalSchedules =
+                schedules.filterIsInstance<PersonalScheduleUiModel>().filter { !it.isCompleted }
 
-                alarmScheduler.scheduleNotificationsForSchedule(
-                    personalSchedules = personalSchedules,
-                    firstReminderTime = settings.firstReminderTime,
-                    secondReminderTime = settings.secondReminderTime
-                )
-            } finally {
-                pendingResult.finish()
-            }
+            alarmScheduler.scheduleNotificationsForSchedule(
+                personalSchedules = personalSchedules,
+                firstReminderTime = settings.firstReminderTime,
+                secondReminderTime = settings.secondReminderTime,
+            )
+        }.invokeOnCompletion {
+            pendingResult.finish()
         }
     }
 }

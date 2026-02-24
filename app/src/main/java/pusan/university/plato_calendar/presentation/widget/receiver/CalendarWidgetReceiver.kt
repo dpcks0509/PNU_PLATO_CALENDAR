@@ -15,7 +15,7 @@ import pusan.university.plato_calendar.presentation.widget.callback.RefreshSched
 
 class CalendarWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget
-        get() = CalendarWidget
+        get() = CalendarWidget()
 
     private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -26,20 +26,17 @@ class CalendarWidgetReceiver : GlanceAppWidgetReceiver() {
     ) {
         super.onUpdate(context, appWidgetManager, appWidgetIds)
 
-        coroutineScope.launch {
-            appWidgetIds.forEach { appWidgetId ->
-                try {
-                    val glanceId =
-                        GlanceAppWidgetManager(context)
-                            .getGlanceIdBy(appWidgetId)
+        appWidgetIds.forEach { appWidgetId ->
+            coroutineScope.launch {
+                val glanceId =
+                    GlanceAppWidgetManager(context)
+                        .getGlanceIdBy(appWidgetId)
 
-                    RefreshSchedulesCallback().onAction(
-                        context = context,
-                        glanceId = glanceId,
-                        parameters = actionParametersOf(),
-                    )
-                } catch (_: Exception) {
-                }
+                RefreshSchedulesCallback().onAction(
+                    context = context,
+                    glanceId = glanceId,
+                    parameters = actionParametersOf(),
+                )
             }
         }
     }

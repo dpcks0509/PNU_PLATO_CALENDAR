@@ -66,12 +66,7 @@ import java.time.format.TextStyle.FULL
 import java.time.format.TextStyle.SHORT
 import java.util.Locale.KOREAN
 
-object CalendarWidget : GlanceAppWidget() {
-
-    init {
-        actionRunCallback<RefreshSchedulesCallback>()
-    }
-
+class CalendarWidget : GlanceAppWidget() {
     @EntryPoint
     @InstallIn(SingletonComponent::class)
     interface WidgetEntryPoint {

@@ -32,7 +32,7 @@ class RefreshSchedulesCallback : ActionCallback {
         updateAppWidgetState(context, glanceId) { prefs ->
             prefs[booleanPreferencesKey("is_loading")] = true
         }
-        CalendarWidget.update(context, glanceId)
+        CalendarWidget().update(context, glanceId)
 
         val entryPoint =
             EntryPointAccessors.fromApplication(
@@ -119,6 +119,6 @@ class RefreshSchedulesCallback : ActionCallback {
             prefs[booleanPreferencesKey("is_loading")] = false
         }
 
-        CalendarWidget.update(context, glanceId)
+        CalendarWidget().update(context, glanceId)
     }
 }
