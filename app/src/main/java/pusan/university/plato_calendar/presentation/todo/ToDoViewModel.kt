@@ -41,237 +41,247 @@ import pusan.university.plato_calendar.presentation.todo.intent.ToDoSideEffect.S
 
 @HiltViewModel
 class ToDoViewModel
-@Inject
-constructor(
-    private val scheduleManager: ScheduleManager,
-    private val loadingManager: LoadingManager,
-    private val scheduleRepository: ScheduleRepository,
-    private val courseRepository: CourseRepository,
-    private val loginManager: LoginManager,
-) : BaseViewModel<ToDoState, ToDoEvent, ToDoSideEffect>(
-    initialState = ToDoState(today = scheduleManager.today.value),
-) {
-    val today get() = scheduleManager.today
+    @Inject
+    constructor(
+        private val scheduleManager: ScheduleManager,
+        private val loadingManager: LoadingManager,
+        private val scheduleRepository: ScheduleRepository,
+        private val courseRepository: CourseRepository,
+        private val loginManager: LoginManager,
+    ) : BaseViewModel<ToDoState, ToDoEvent, ToDoSideEffect>(
+            initialState = ToDoState(today = scheduleManager.today.value),
+        ) {
+        val today get() = scheduleManager.today
 
-    init {
-        viewModelScope.launch {
-            launch {
-                scheduleManager.today.collect { today ->
-                    setState { copy(today = today) }
+        init {
+            viewModelScope.launch {
+                launch {
+                    scheduleManager.today.collect { today ->
+                        setState { copy(today = today) }
+                    }
                 }
-            }
-            launch {
-                scheduleManager.schedules.collect { schedules ->
-                    setState { copy(schedules = schedules) }
+                launch {
+                    scheduleManager.schedules.collect { schedules ->
+                        setState { copy(schedules = schedules) }
+                    }
                 }
             }
         }
-    }
 
-    override suspend fun handleEvent(event: ToDoEvent) {
-        when (event) {
-            is Refresh -> {
-                refresh()
-            }
+        override suspend fun handleEvent(event: ToDoEvent) {
+            when (event) {
+                is Refresh -> {
+                    refresh()
+                }
 
-            is TogglePersonalScheduleCompletion -> {
-                togglePersonalScheduleCompletion(
-                    id = event.id,
-                    isCompleted = event.isCompleted,
-                )
-            }
+                is TogglePersonalScheduleCompletion -> {
+                    togglePersonalScheduleCompletion(
+                        id = event.id,
+                        isCompleted = event.isCompleted,
+                    )
+                }
 
-            is ShowScheduleBottomSheet -> {
-                showScheduleBottomSheet(schedule = event.schedule)
-            }
+                is ShowScheduleBottomSheet -> {
+                    showScheduleBottomSheet(schedule = event.schedule)
+                }
 
-            is EditCustomSchedule -> {
-                editCustomSchedule(customSchedule = event.customSchedule)
-            }
+                is EditCustomSchedule -> {
+                    editCustomSchedule(customSchedule = event.customSchedule)
+                }
 
-            is DeleteCustomSchedule -> {
-                deleteCustomSchedule(id = event.id)
-            }
+                is DeleteCustomSchedule -> {
+                    deleteCustomSchedule(id = event.id)
+                }
 
-            is ToDoEvent.ShowDialog -> {
-                setState { copy(scheduleDialogContent = event.content) }
-            }
+                is ToDoEvent.ShowDialog -> {
+                    setState { copy(scheduleDialogContent = event.content) }
+                }
 
-            ToDoEvent.HideDialog -> {
-                setState { copy(scheduleDialogContent = null) }
+                ToDoEvent.HideDialog -> {
+                    setState { copy(scheduleDialogContent = null) }
+                }
             }
         }
-    }
 
-    private fun refresh() {
-        scheduleManager.updateToday()
-        getSchedules()
-    }
+        private fun refresh() {
+            scheduleManager.updateToday()
+            getSchedules()
+        }
 
-    private suspend fun getAcademicSchedules(): List<AcademicScheduleUiModel> {
-        return when (val result = scheduleRepository.getAcademicSchedules()) {
-            is ApiResult.Success -> result.data.map(::AcademicScheduleUiModel)
-            is ApiResult.Error -> {
-                if (result.exception !is NoNetworkConnectivityException) {
+        private suspend fun getAcademicSchedules(): List<AcademicScheduleUiModel> =
+            when (val result = scheduleRepository.getAcademicSchedules()) {
+                is ApiResult.Success -> {
+                    result.data.map(::AcademicScheduleUiModel)
+                }
+
+                is ApiResult.Error -> {
+                    if (result.exception !is NoNetworkConnectivityException) {
+                        ToastEventBus.sendError(result.exception.message)
+                    }
+                    emptyList()
+                }
+            }
+
+        private suspend fun getPersonalSchedules(sessKey: String): List<ScheduleUiModel> =
+            when (val result = scheduleRepository.getPersonalSchedules(sessKey = sessKey)) {
+                is ApiResult.Success -> {
+                    result.data.map { domain ->
+                        when (domain) {
+                            is CourseSchedule -> {
+                                val courseName =
+                                    courseRepository.getCourseName(
+                                        domain.courseCode,
+                                    )
+
+                                CourseScheduleUiModel(
+                                    domain = domain,
+                                    courseName = courseName,
+                                )
+                            }
+
+                            is CustomSchedule -> {
+                                CustomScheduleUiModel(domain)
+                            }
+                        }
+                    }
+                }
+
+                is ApiResult.Error -> {
+                    loadingManager.updateLoading(false)
                     ToastEventBus.sendError(result.exception.message)
+                    emptyList()
                 }
-                emptyList()
             }
-        }
-    }
 
-    private suspend fun getPersonalSchedules(sessKey: String): List<ScheduleUiModel> {
-        return when (val result = scheduleRepository.getPersonalSchedules(sessKey = sessKey)) {
-            is ApiResult.Success -> {
-                result.data.map { domain ->
-                    when (domain) {
-                        is CourseSchedule -> {
-                            val courseName =
-                                courseRepository.getCourseName(
-                                    domain.courseCode,
+        private fun getSchedules() {
+            viewModelScope
+                .launch {
+                    when (val loginStatus = loginManager.loginStatus.value) {
+                        is LoginStatus.Login -> {
+                            loadingManager.updateLoading(true)
+
+                            val (academicSchedules, personalSchedules) =
+                                awaitAll(
+                                    async { getAcademicSchedules() },
+                                    async { getPersonalSchedules(loginStatus.loginSession.sessKey) },
                                 )
 
-                            CourseScheduleUiModel(
-                                domain = domain,
-                                courseName = courseName,
-                            )
+                            val schedules = academicSchedules + personalSchedules
+
+                            if (schedules.isNotEmpty()) scheduleManager.updateSchedules(schedules)
                         }
 
-                        is CustomSchedule -> CustomScheduleUiModel(domain)
-                    }
-                }
-            }
-            is ApiResult.Error -> {
-                loadingManager.updateLoading(false)
-                ToastEventBus.sendError(result.exception.message)
-                emptyList()
-            }
-        }
-    }
+                        LoginStatus.Logout -> {
+                            loadingManager.updateLoading(true)
 
-    private fun getSchedules() {
-        viewModelScope.launch {
-            when (val loginStatus = loginManager.loginStatus.value) {
-                is LoginStatus.Login -> {
-                    loadingManager.updateLoading(true)
+                            val academicSchedules = getAcademicSchedules()
 
-                    val (academicSchedules, personalSchedules) =
-                        awaitAll(
-                            async { getAcademicSchedules() },
-                            async { getPersonalSchedules(loginStatus.loginSession.sessKey) },
-                        )
+                            scheduleManager.updateSchedules(academicSchedules)
+                        }
 
-                    val schedules = academicSchedules + personalSchedules
+                        LoginStatus.NetworkDisconnected -> {
+                            ToastEventBus.sendError(NETWORK_ERROR_MESSAGE)
+                        }
 
-                    if (schedules.isNotEmpty()) scheduleManager.updateSchedules(schedules)
-                    loadingManager.updateLoading(false)
-                }
-
-                LoginStatus.Logout -> {
-                    loadingManager.updateLoading(true)
-
-                    val academicSchedules = getAcademicSchedules()
-
-                    scheduleManager.updateSchedules(academicSchedules)
-                    loadingManager.updateLoading(false)
-                }
-
-                LoginStatus.Uninitialized -> {
-                    loadingManager.updateLoading(false)
-                }
-
-                LoginStatus.NetworkDisconnected -> {
-                    ToastEventBus.sendError(NETWORK_ERROR_MESSAGE)
-                    loadingManager.updateLoading(false)
-                }
-
-                LoginStatus.LoginInProgress -> Unit
-            }
-        }
-    }
-
-    private suspend fun togglePersonalScheduleCompletion(
-        id: Long,
-        isCompleted: Boolean,
-    ) {
-        if (isCompleted) {
-            scheduleRepository.markScheduleAsCompleted(id)
-        } else {
-            scheduleRepository.markScheduleAsUncompleted(id)
-        }
-
-        val updatedSchedules =
-            state.value.schedules.map { schedule ->
-                if (schedule is PersonalScheduleUiModel && schedule.id == id) {
-                    when (schedule) {
-                        is CourseScheduleUiModel -> schedule.copy(isCompleted = isCompleted)
-                        is CustomScheduleUiModel -> schedule.copy(isCompleted = isCompleted)
-                    }
-                } else {
-                    schedule
-                }
-            }
-        scheduleManager.updateSchedules(updatedSchedules)
-
-        setState { copy(scheduleBottomSheetContent = null) }
-        setSideEffect { ToDoHideSheet }
-        ToastEventBus.sendSuccess(if (isCompleted) "일정이 완료되었습니다." else "일정이 재개되었습니다.")
-    }
-
-    private fun showScheduleBottomSheet(schedule: ScheduleUiModel?) {
-        val content: ScheduleBottomSheetContent =
-            when (schedule) {
-                is CourseScheduleUiModel -> CourseScheduleContent(schedule)
-                is CustomScheduleUiModel -> CustomScheduleContent(schedule)
-                is AcademicScheduleUiModel -> AcademicScheduleContent(schedule)
-                null -> ScheduleBottomSheetContent.NewScheduleContent
-            }
-
-        setState { copy(scheduleBottomSheetContent = content) }
-        setSideEffect { ToDoShowSheet }
-    }
-
-    private suspend fun editCustomSchedule(customSchedule: CustomSchedule) {
-        when (val result = scheduleRepository.editPersonalSchedule(customSchedule)) {
-            is ApiResult.Success -> {
-                val updatedSchedules =
-                    state.value.schedules.map { schedule ->
-                        if (schedule is CustomScheduleUiModel && schedule.id == customSchedule.id) {
-                            schedule.copy(
-                                title = customSchedule.title,
-                                description = customSchedule.description,
-                                startAt = customSchedule.startAt,
-                                endAt = customSchedule.endAt,
-                                isCompleted = customSchedule.isCompleted,
-                            )
-                        } else {
-                            schedule
+                        LoginStatus.Uninitialized, LoginStatus.LoginInProgress -> {
+                            Unit
                         }
                     }
-                scheduleManager.updateSchedules(updatedSchedules)
-
-                setState { copy(scheduleBottomSheetContent = null) }
-                setSideEffect { ToDoHideSheet }
-                ToastEventBus.sendSuccess("일정이 수정되었습니다.")
-            }
-            is ApiResult.Error -> ToastEventBus.sendError(result.exception.message)
+                }.invokeOnCompletion {
+                    loadingManager.updateLoading(false)
+                }
         }
-    }
 
-    private suspend fun deleteCustomSchedule(id: Long) {
-        when (val result = scheduleRepository.deleteCustomSchedule(id)) {
-            is ApiResult.Success -> {
-                val updatedSchedules =
-                    state.value.schedules.filter { schedule ->
-                        !(schedule is PersonalScheduleUiModel && schedule.id == id)
+        private suspend fun togglePersonalScheduleCompletion(
+            id: Long,
+            isCompleted: Boolean,
+        ) {
+            if (isCompleted) {
+                scheduleRepository.markScheduleAsCompleted(id)
+            } else {
+                scheduleRepository.markScheduleAsUncompleted(id)
+            }
+
+            val updatedSchedules =
+                state.value.schedules.map { schedule ->
+                    if (schedule is PersonalScheduleUiModel && schedule.id == id) {
+                        when (schedule) {
+                            is CourseScheduleUiModel -> schedule.copy(isCompleted = isCompleted)
+                            is CustomScheduleUiModel -> schedule.copy(isCompleted = isCompleted)
+                        }
+                    } else {
+                        schedule
                     }
-                scheduleManager.updateSchedules(updatedSchedules)
+                }
+            scheduleManager.updateSchedules(updatedSchedules)
 
-                setState { copy(scheduleBottomSheetContent = null) }
-                setSideEffect { ToDoHideSheet }
-                ToastEventBus.sendSuccess("일정이 삭제되었습니다.")
+            setState { copy(scheduleBottomSheetContent = null) }
+            setSideEffect { ToDoHideSheet }
+            ToastEventBus.sendSuccess(if (isCompleted) "일정이 완료되었습니다." else "일정이 재개되었습니다.")
+        }
+
+        private fun showScheduleBottomSheet(schedule: ScheduleUiModel?) {
+            val content: ScheduleBottomSheetContent =
+                when (schedule) {
+                    is CourseScheduleUiModel -> CourseScheduleContent(schedule)
+                    is CustomScheduleUiModel -> CustomScheduleContent(schedule)
+                    is AcademicScheduleUiModel -> AcademicScheduleContent(schedule)
+                    null -> ScheduleBottomSheetContent.NewScheduleContent
+                }
+
+            setState { copy(scheduleBottomSheetContent = content) }
+            setSideEffect { ToDoShowSheet }
+        }
+
+        private suspend fun editCustomSchedule(customSchedule: CustomSchedule) {
+            when (val result = scheduleRepository.editPersonalSchedule(customSchedule)) {
+                is ApiResult.Success -> {
+                    val updatedSchedules =
+                        state.value.schedules.map { schedule ->
+                            if (schedule is CustomScheduleUiModel && schedule.id == customSchedule.id) {
+                                schedule.copy(
+                                    title = customSchedule.title,
+                                    description = customSchedule.description,
+                                    startAt = customSchedule.startAt,
+                                    endAt = customSchedule.endAt,
+                                    isCompleted = customSchedule.isCompleted,
+                                )
+                            } else {
+                                schedule
+                            }
+                        }
+                    scheduleManager.updateSchedules(updatedSchedules)
+
+                    setState { copy(scheduleBottomSheetContent = null) }
+                    setSideEffect { ToDoHideSheet }
+                    ToastEventBus.sendSuccess("일정이 수정되었습니다.")
+                }
+
+                is ApiResult.Error -> {
+                    ToastEventBus.sendError(result.exception.message)
+                }
             }
-            is ApiResult.Error -> ToastEventBus.sendError(result.exception.message)
+        }
+
+        private suspend fun deleteCustomSchedule(id: Long) {
+            when (val result = scheduleRepository.deleteCustomSchedule(id)) {
+                is ApiResult.Success -> {
+                    scheduleRepository.markScheduleAsUncompleted(id)
+
+                    val updatedSchedules =
+                        state.value.schedules.filter { schedule ->
+                            !(schedule is PersonalScheduleUiModel && schedule.id == id)
+                        }
+                    scheduleManager.updateSchedules(updatedSchedules)
+
+                    setState { copy(scheduleBottomSheetContent = null) }
+                    setSideEffect { ToDoHideSheet }
+                    ToastEventBus.sendSuccess("일정이 삭제되었습니다.")
+                }
+
+                is ApiResult.Error -> {
+                    ToastEventBus.sendError(result.exception.message)
+                }
+            }
         }
     }
-}

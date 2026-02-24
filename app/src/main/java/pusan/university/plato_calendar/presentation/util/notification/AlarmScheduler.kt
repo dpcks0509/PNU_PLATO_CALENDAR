@@ -9,7 +9,6 @@ import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiMod
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
 import pusan.university.plato_calendar.presentation.setting.model.NotificationTime
 import pusan.university.plato_calendar.presentation.setting.model.NotificationTime.Companion.getReminderTime
-import pusan.university.plato_calendar.presentation.util.manager.ScheduleManager
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.Calendar
@@ -22,12 +21,6 @@ class AlarmScheduler
     constructor(
         @ApplicationContext private val context: Context,
     ) {
-        @Inject
-        lateinit var notificationHelper: NotificationHelper
-
-        @Inject
-        lateinit var scheduleManager: ScheduleManager
-
         private val alarmManager: AlarmManager by lazy { context.getSystemService(AlarmManager::class.java) }
 
         fun scheduleNotificationsForSchedule(

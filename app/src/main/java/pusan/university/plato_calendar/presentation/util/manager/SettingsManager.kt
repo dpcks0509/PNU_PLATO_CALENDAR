@@ -10,25 +10,24 @@ import javax.inject.Singleton
 
 @Singleton
 class SettingsManager
-@Inject
-constructor(
-    private val settingsDataStore: SettingsDataStore,
-) {
-    val appSettings: Flow<AppSettings> = settingsDataStore.settings
+    @Inject
+    constructor(
+        private val settingsDataStore: SettingsDataStore,
+    ) {
+        val appSettings: Flow<AppSettings> = settingsDataStore.settings
 
-    suspend fun setNotificationsEnabled(enabled: Boolean) {
-        settingsDataStore.setNotificationsEnabled(enabled)
-    }
+        suspend fun setNotificationsEnabled(enabled: Boolean) {
+            settingsDataStore.setNotificationsEnabled(enabled)
+        }
 
-    suspend fun setFirstReminderTime(time: NotificationTime) {
-        settingsDataStore.setFirstReminderTime(time)
-    }
+        suspend fun setReminderTime(
+            firstTime: NotificationTime,
+            secondTime: NotificationTime,
+        ) {
+            settingsDataStore.setReminderTime(firstTime, secondTime)
+        }
 
-    suspend fun setSecondReminderTime(time: NotificationTime) {
-        settingsDataStore.setSecondReminderTime(time)
+        suspend fun setThemeMode(mode: ThemeMode) {
+            settingsDataStore.setThemeMode(mode)
+        }
     }
-
-    suspend fun setThemeMode(mode: ThemeMode) {
-        settingsDataStore.setThemeMode(mode)
-    }
-}
