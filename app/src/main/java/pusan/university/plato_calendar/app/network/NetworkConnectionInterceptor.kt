@@ -22,7 +22,7 @@ class NetworkConnectionInterceptor @Inject constructor(
 
     private fun isNetworkAvailable(context: Context): Boolean {
         val connectivityManager =
-            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager?
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager?
                 ?: return false
 
         val activeNetwork = connectivityManager.activeNetwork ?: return false
