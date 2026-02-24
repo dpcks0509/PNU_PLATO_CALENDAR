@@ -18,6 +18,14 @@ import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiMod
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
+import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent
+import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.DeleteCustomSchedule
+import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.EditCustomSchedule
+import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.Refresh
+import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.ShowScheduleBottomSheet
+import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.TogglePersonalScheduleCompletion
+import pusan.university.plato_calendar.presentation.todo.intent.ToDoSideEffect
+import pusan.university.plato_calendar.presentation.todo.intent.ToDoState
 import pusan.university.plato_calendar.presentation.util.base.BaseViewModel
 import pusan.university.plato_calendar.presentation.util.component.bottomsheet.schedule.content.ScheduleBottomSheetContent
 import pusan.university.plato_calendar.presentation.util.component.bottomsheet.schedule.content.ScheduleBottomSheetContent.AcademicScheduleContent
@@ -27,14 +35,6 @@ import pusan.university.plato_calendar.presentation.util.eventbus.ToastEventBus
 import pusan.university.plato_calendar.presentation.util.manager.LoadingManager
 import pusan.university.plato_calendar.presentation.util.manager.LoginManager
 import pusan.university.plato_calendar.presentation.util.manager.ScheduleManager
-import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent
-import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.DeleteCustomSchedule
-import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.EditCustomSchedule
-import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.Refresh
-import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.ShowScheduleBottomSheet
-import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.TogglePersonalScheduleCompletion
-import pusan.university.plato_calendar.presentation.todo.intent.ToDoSideEffect
-import pusan.university.plato_calendar.presentation.todo.intent.ToDoState
 import javax.inject.Inject
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoSideEffect.HideScheduleBottomSheet as ToDoHideSheet
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoSideEffect.ShowScheduleBottomSheet as ToDoShowSheet

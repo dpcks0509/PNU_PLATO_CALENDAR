@@ -26,11 +26,6 @@ import kotlinx.coroutines.launch
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
-import pusan.university.plato_calendar.presentation.util.component.PullToRefreshContainer
-import pusan.university.plato_calendar.presentation.util.component.TopBar
-import pusan.university.plato_calendar.presentation.util.component.bottomsheet.schedule.ScheduleBottomSheet
-import pusan.university.plato_calendar.presentation.util.component.dialog.schedule.ScheduleDialog
-import pusan.university.plato_calendar.presentation.util.theme.PlatoCalendarTheme
 import pusan.university.plato_calendar.presentation.todo.component.ExpandableToDoSection
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.DeleteCustomSchedule
@@ -41,6 +36,11 @@ import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.Toggle
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoSideEffect
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoState
 import pusan.university.plato_calendar.presentation.todo.model.ToDoSection
+import pusan.university.plato_calendar.presentation.util.component.PullToRefreshContainer
+import pusan.university.plato_calendar.presentation.util.component.TopBar
+import pusan.university.plato_calendar.presentation.util.component.bottomsheet.schedule.ScheduleBottomSheet
+import pusan.university.plato_calendar.presentation.util.component.dialog.schedule.ScheduleDialog
+import pusan.university.plato_calendar.presentation.util.theme.PlatoCalendarTheme
 import java.time.LocalDate
 import java.time.LocalDateTime
 

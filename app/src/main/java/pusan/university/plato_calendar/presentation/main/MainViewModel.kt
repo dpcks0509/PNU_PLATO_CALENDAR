@@ -3,10 +3,6 @@ package pusan.university.plato_calendar.presentation.main
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import pusan.university.plato_calendar.presentation.util.base.BaseViewModel
-import pusan.university.plato_calendar.presentation.util.eventbus.DialogEvent
-import pusan.university.plato_calendar.presentation.util.eventbus.DialogEventBus
-import pusan.university.plato_calendar.presentation.util.manager.LoginManager
 import pusan.university.plato_calendar.presentation.main.intent.MainEvent
 import pusan.university.plato_calendar.presentation.main.intent.MainEvent.ConfirmLogin
 import pusan.university.plato_calendar.presentation.main.intent.MainEvent.ConfirmNotificationPermission
@@ -15,6 +11,10 @@ import pusan.university.plato_calendar.presentation.main.intent.MainEvent.Naviga
 import pusan.university.plato_calendar.presentation.main.intent.MainEvent.ShowDialog
 import pusan.university.plato_calendar.presentation.main.intent.MainSideEffect
 import pusan.university.plato_calendar.presentation.main.intent.MainState
+import pusan.university.plato_calendar.presentation.util.base.BaseViewModel
+import pusan.university.plato_calendar.presentation.util.eventbus.DialogEvent
+import pusan.university.plato_calendar.presentation.util.eventbus.DialogEventBus
+import pusan.university.plato_calendar.presentation.util.manager.LoginManager
 import javax.inject.Inject
 
 @HiltViewModel

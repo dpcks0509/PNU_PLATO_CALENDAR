@@ -42,6 +42,7 @@ import dagger.hilt.components.SingletonComponent
 import pusan.university.plato_calendar.R
 import pusan.university.plato_calendar.domain.repository.CourseRepository
 import pusan.university.plato_calendar.domain.repository.ScheduleRepository
+import pusan.university.plato_calendar.presentation.main.MainActivity
 import pusan.university.plato_calendar.presentation.util.manager.LoginManager
 import pusan.university.plato_calendar.presentation.util.manager.SettingsManager
 import pusan.university.plato_calendar.presentation.util.notification.AlarmScheduler
@@ -55,7 +56,6 @@ import pusan.university.plato_calendar.presentation.util.theme.PrimaryDark
 import pusan.university.plato_calendar.presentation.util.theme.PrimaryLight
 import pusan.university.plato_calendar.presentation.util.theme.RedDark
 import pusan.university.plato_calendar.presentation.util.theme.RedLight
-import pusan.university.plato_calendar.presentation.main.MainActivity
 import pusan.university.plato_calendar.presentation.widget.callback.NavigateDateCallback
 import pusan.university.plato_calendar.presentation.widget.callback.OpenNewScheduleCallback
 import pusan.university.plato_calendar.presentation.widget.callback.RefreshSchedulesCallback

@@ -7,9 +7,9 @@ import android.content.Intent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
-import pusan.university.plato_calendar.presentation.util.manager.ScheduleManager
 import pusan.university.plato_calendar.presentation.setting.model.NotificationTime
 import pusan.university.plato_calendar.presentation.setting.model.NotificationTime.Companion.getReminderTime
+import pusan.university.plato_calendar.presentation.util.manager.ScheduleManager
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.Calendar

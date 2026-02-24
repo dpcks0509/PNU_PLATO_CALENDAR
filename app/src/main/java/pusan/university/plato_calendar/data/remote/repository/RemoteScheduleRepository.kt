@@ -4,8 +4,8 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
-import pusan.university.plato_calendar.data.local.database.CompletedScheduleDataStore
 import pusan.university.plato_calendar.app.network.NoNetworkConnectivityException
+import pusan.university.plato_calendar.data.local.database.CompletedScheduleDataStore
 import pusan.university.plato_calendar.data.remote.service.AcademicScheduleService
 import pusan.university.plato_calendar.data.remote.service.PersonalScheduleService
 import pusan.university.plato_calendar.data.request.CreatePersonalScheduleArgs

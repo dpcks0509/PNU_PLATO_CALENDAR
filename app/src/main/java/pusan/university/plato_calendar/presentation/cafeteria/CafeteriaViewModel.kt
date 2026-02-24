@@ -4,8 +4,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import pusan.university.plato_calendar.data.local.database.CafeteriaDataStore
-import pusan.university.plato_calendar.domain.entity.Cafeteria
 import pusan.university.plato_calendar.data.util.ApiResult
+import pusan.university.plato_calendar.domain.entity.Cafeteria
 import pusan.university.plato_calendar.domain.repository.CafeteriaRepository
 import pusan.university.plato_calendar.presentation.cafeteria.intent.CafeteriaEvent
 import pusan.university.plato_calendar.presentation.cafeteria.intent.CafeteriaEvent.NextDay

@@ -1,8 +1,8 @@
 package pusan.university.plato_calendar.presentation.setting.intent
 
-import pusan.university.plato_calendar.presentation.util.base.UiState
 import pusan.university.plato_calendar.presentation.setting.model.NotificationTime
 import pusan.university.plato_calendar.presentation.setting.model.ThemeMode
+import pusan.university.plato_calendar.presentation.util.base.UiState
 
 data class SettingState(
     val userInfo: String? = null,

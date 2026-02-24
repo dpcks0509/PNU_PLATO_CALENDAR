@@ -21,10 +21,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import pusan.university.plato_calendar.presentation.setting.model.ThemeMode
 import pusan.university.plato_calendar.presentation.util.theme.Black
 import pusan.university.plato_calendar.presentation.util.theme.PrimaryColor
 import pusan.university.plato_calendar.presentation.util.theme.VeryLightGray
-import pusan.university.plato_calendar.presentation.setting.model.ThemeMode
 
 @Composable
 fun ThemeSelector(

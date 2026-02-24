@@ -30,11 +30,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel
+import pusan.university.plato_calendar.presentation.todo.model.ToDoSection
 import pusan.university.plato_calendar.presentation.util.extension.noRippleClickable
 import pusan.university.plato_calendar.presentation.util.theme.Gray
 import pusan.university.plato_calendar.presentation.util.theme.PrimaryColor
 import pusan.university.plato_calendar.presentation.util.theme.VeryLightGray
-import pusan.university.plato_calendar.presentation.todo.model.ToDoSection
 import java.time.LocalDateTime
 
 private const val HAS_NO_SCHEDULE = "일정 없음"

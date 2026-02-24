@@ -32,6 +32,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import pusan.university.plato_calendar.domain.entity.AppSettings
+import pusan.university.plato_calendar.presentation.main.intent.MainEvent
+import pusan.university.plato_calendar.presentation.main.intent.MainSideEffect
+import pusan.university.plato_calendar.presentation.main.intent.MainSideEffect.NavigateToNotificationSettings
+import pusan.university.plato_calendar.presentation.setting.model.ThemeMode
 import pusan.university.plato_calendar.presentation.util.component.AnimatedToast
 import pusan.university.plato_calendar.presentation.util.component.LoadingIndicator
 import pusan.university.plato_calendar.presentation.util.component.dialog.plato.PlatoDialog
@@ -49,10 +53,6 @@ import pusan.university.plato_calendar.presentation.util.notification.AlarmSched
 import pusan.university.plato_calendar.presentation.util.notification.NotificationHelper
 import pusan.university.plato_calendar.presentation.util.theme.PlatoCalendarTheme
 import pusan.university.plato_calendar.presentation.util.theme.White
-import pusan.university.plato_calendar.presentation.main.intent.MainEvent
-import pusan.university.plato_calendar.presentation.main.intent.MainSideEffect
-import pusan.university.plato_calendar.presentation.main.intent.MainSideEffect.NavigateToNotificationSettings
-import pusan.university.plato_calendar.presentation.setting.model.ThemeMode
 import pusan.university.plato_calendar.presentation.widget.callback.OpenNewScheduleCallback
 import pusan.university.plato_calendar.presentation.widget.callback.OpenScheduleDetailCallback
 import javax.inject.Inject

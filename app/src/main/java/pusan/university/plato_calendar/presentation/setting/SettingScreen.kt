@@ -30,11 +30,6 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import pusan.university.plato_calendar.presentation.util.component.TopBar
-import pusan.university.plato_calendar.presentation.util.component.dialog.plato.content.PlatoDialogContent
-import pusan.university.plato_calendar.presentation.util.eventbus.DialogEventBus
-import pusan.university.plato_calendar.presentation.util.theme.MediumGray
-import pusan.university.plato_calendar.presentation.util.theme.PlatoCalendarTheme
 import pusan.university.plato_calendar.presentation.setting.component.Account
 import pusan.university.plato_calendar.presentation.setting.component.NotificationToggleItem
 import pusan.university.plato_calendar.presentation.setting.component.ReminderDropdownItem
@@ -58,6 +53,11 @@ import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.Se
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.SECOND_REMINDER
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.THEME
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.USER_SUPPORT
+import pusan.university.plato_calendar.presentation.util.component.TopBar
+import pusan.university.plato_calendar.presentation.util.component.dialog.plato.content.PlatoDialogContent
+import pusan.university.plato_calendar.presentation.util.eventbus.DialogEventBus
+import pusan.university.plato_calendar.presentation.util.theme.MediumGray
+import pusan.university.plato_calendar.presentation.util.theme.PlatoCalendarTheme
 
 @Composable
 fun SettingScreen(
