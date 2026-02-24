@@ -17,7 +17,7 @@ import pusan.university.plato_calendar.presentation.calendar.model.DaySchedule
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.YearMonth
-import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarTheme
+import pusan.university.plato_calendar.presentation.util.theme.PlatoCalendarTheme
 import java.time.LocalDate
 import java.time.LocalDateTime
 

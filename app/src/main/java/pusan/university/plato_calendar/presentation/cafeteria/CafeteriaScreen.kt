@@ -23,9 +23,9 @@ import pusan.university.plato_calendar.presentation.cafeteria.intent.CafeteriaEv
 import pusan.university.plato_calendar.presentation.cafeteria.intent.CafeteriaEvent.Refresh
 import pusan.university.plato_calendar.presentation.cafeteria.intent.CafeteriaEvent.SelectCafeteria
 import pusan.university.plato_calendar.presentation.cafeteria.intent.CafeteriaState
-import pusan.university.plato_calendar.presentation.common.component.PullToRefreshContainer
-import pusan.university.plato_calendar.presentation.common.component.TopBar
-import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarTheme
+import pusan.university.plato_calendar.presentation.util.component.PullToRefreshContainer
+import pusan.university.plato_calendar.presentation.util.component.TopBar
+import pusan.university.plato_calendar.presentation.util.theme.PlatoCalendarTheme
 
 @Composable
 fun CafeteriaScreen(

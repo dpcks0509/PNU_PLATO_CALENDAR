@@ -36,12 +36,12 @@
         </activity>
 
         <receiver
-            android:name="pusan.university.plato_calendar.presentation.common.notification.AlarmReceiver"
+            android:name="pusan.university.plato_calendar.presentation.util.notification.AlarmReceiver"
             android:enabled="true"
             android:exported="false" />
 
         <receiver
-            android:name="pusan.university.plato_calendar.presentation.common.notification.BootReceiver"
+            android:name="pusan.university.plato_calendar.presentation.util.notification.BootReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>

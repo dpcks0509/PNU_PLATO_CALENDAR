@@ -23,8 +23,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import pusan.university.plato_calendar.presentation.common.theme.PrimaryColor
-import pusan.university.plato_calendar.presentation.common.theme.VeryLightGray
+import pusan.university.plato_calendar.presentation.util.theme.PrimaryColor
+import pusan.university.plato_calendar.presentation.util.theme.VeryLightGray
 
 private const val LOGIN_REQUIRED = "로그인이 필요합니다."
 

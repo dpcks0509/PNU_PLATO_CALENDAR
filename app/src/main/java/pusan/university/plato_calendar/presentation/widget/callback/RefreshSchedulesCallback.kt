@@ -18,7 +18,7 @@ import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiMod
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
-import pusan.university.plato_calendar.presentation.common.serializer.PersonalScheduleSerializer
+import pusan.university.plato_calendar.presentation.util.serializer.PersonalScheduleSerializer
 import pusan.university.plato_calendar.presentation.widget.CalendarWidget
 import pusan.university.plato_calendar.presentation.widget.CalendarWidget.WidgetEntryPoint
 import java.time.LocalDate

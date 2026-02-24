@@ -26,10 +26,10 @@ import pusan.university.plato_calendar.domain.entity.CafeteriaWeeklyPlan
 import pusan.university.plato_calendar.domain.entity.DailyCafeteriaPlan
 import pusan.university.plato_calendar.presentation.cafeteria.intent.CafeteriaEvent
 import pusan.university.plato_calendar.presentation.cafeteria.intent.CafeteriaState
-import pusan.university.plato_calendar.presentation.common.theme.Black
-import pusan.university.plato_calendar.presentation.common.theme.Gray
-import pusan.university.plato_calendar.presentation.common.theme.LightGray
-import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarTheme
+import pusan.university.plato_calendar.presentation.util.theme.Black
+import pusan.university.plato_calendar.presentation.util.theme.Gray
+import pusan.university.plato_calendar.presentation.util.theme.LightGray
+import pusan.university.plato_calendar.presentation.util.theme.PlatoCalendarTheme
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle

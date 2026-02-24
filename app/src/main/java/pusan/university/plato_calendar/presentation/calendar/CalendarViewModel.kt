@@ -37,16 +37,16 @@ import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiMod
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.YearMonth
-import pusan.university.plato_calendar.presentation.common.base.BaseViewModel
-import pusan.university.plato_calendar.presentation.common.component.bottomsheet.schedule.content.ScheduleBottomSheetContent.AcademicScheduleContent
-import pusan.university.plato_calendar.presentation.common.component.bottomsheet.schedule.content.ScheduleBottomSheetContent.CourseScheduleContent
-import pusan.university.plato_calendar.presentation.common.component.bottomsheet.schedule.content.ScheduleBottomSheetContent.CustomScheduleContent
-import pusan.university.plato_calendar.presentation.common.component.bottomsheet.schedule.content.ScheduleBottomSheetContent.NewScheduleContent
-import pusan.university.plato_calendar.presentation.common.eventbus.ToastEventBus
-import pusan.university.plato_calendar.presentation.common.manager.LoadingManager
-import pusan.university.plato_calendar.presentation.common.manager.LoginManager
-import pusan.university.plato_calendar.presentation.common.manager.ScheduleManager
-import pusan.university.plato_calendar.presentation.common.notification.AlarmScheduler
+import pusan.university.plato_calendar.presentation.util.base.BaseViewModel
+import pusan.university.plato_calendar.presentation.util.component.bottomsheet.schedule.content.ScheduleBottomSheetContent.AcademicScheduleContent
+import pusan.university.plato_calendar.presentation.util.component.bottomsheet.schedule.content.ScheduleBottomSheetContent.CourseScheduleContent
+import pusan.university.plato_calendar.presentation.util.component.bottomsheet.schedule.content.ScheduleBottomSheetContent.CustomScheduleContent
+import pusan.university.plato_calendar.presentation.util.component.bottomsheet.schedule.content.ScheduleBottomSheetContent.NewScheduleContent
+import pusan.university.plato_calendar.presentation.util.eventbus.ToastEventBus
+import pusan.university.plato_calendar.presentation.util.manager.LoadingManager
+import pusan.university.plato_calendar.presentation.util.manager.LoginManager
+import pusan.university.plato_calendar.presentation.util.manager.ScheduleManager
+import pusan.university.plato_calendar.presentation.util.notification.AlarmScheduler
 import javax.inject.Inject
 
 @HiltViewModel

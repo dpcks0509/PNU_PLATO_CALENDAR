@@ -49,9 +49,9 @@
 -keep @kotlinx.serialization.Serializable class pusan.university.plato_calendar.** { *; }
 
 # Keep all sealed classes and their subclasses (for navigation)
--keep class * extends pusan.university.plato_calendar.presentation.common.navigation.PlatoCalendarScreen { *; }
--keep class pusan.university.plato_calendar.presentation.common.navigation.PlatoCalendarScreen { *; }
--keep class pusan.university.plato_calendar.presentation.common.navigation.PlatoCalendarScreen$* { *; }
+-keep class * extends pusan.university.plato_calendar.presentation.util.navigation.PlatoCalendarScreen { *; }
+-keep class pusan.university.plato_calendar.presentation.util.navigation.PlatoCalendarScreen { *; }
+-keep class pusan.university.plato_calendar.presentation.util.navigation.PlatoCalendarScreen$* { *; }
 
 #===============================================================================
 # Jetpack Compose
@@ -71,7 +71,7 @@
 }
 
 # Keep enum BottomBarItem specifically
--keep enum pusan.university.plato_calendar.presentation.common.navigation.BottomBarItem { *; }
+-keep enum pusan.university.plato_calendar.presentation.util.navigation.BottomBarItem { *; }
 
 # Compose Navigation
 -keep class androidx.navigation.** { *; }

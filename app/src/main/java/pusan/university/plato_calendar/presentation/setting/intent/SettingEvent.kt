@@ -1,7 +1,7 @@
 package pusan.university.plato_calendar.presentation.setting.intent
 
 import pusan.university.plato_calendar.domain.entity.LoginCredentials
-import pusan.university.plato_calendar.presentation.common.base.UiEvent
+import pusan.university.plato_calendar.presentation.util.base.UiEvent
 import pusan.university.plato_calendar.presentation.setting.model.NotificationTime
 import pusan.university.plato_calendar.presentation.setting.model.ThemeMode
 

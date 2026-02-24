@@ -26,9 +26,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pusan.university.plato_calendar.domain.entity.Cafeteria
-import pusan.university.plato_calendar.presentation.common.theme.Black
-import pusan.university.plato_calendar.presentation.common.theme.Gray
-import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarTheme
+import pusan.university.plato_calendar.presentation.util.theme.Black
+import pusan.university.plato_calendar.presentation.util.theme.Gray
+import pusan.university.plato_calendar.presentation.util.theme.PlatoCalendarTheme
 
 @Composable
 fun CafeteriaSelector(

@@ -29,11 +29,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pusan.university.plato_calendar.R
-import pusan.university.plato_calendar.presentation.common.extension.noRippleClickable
-import pusan.university.plato_calendar.presentation.common.theme.Brown
-import pusan.university.plato_calendar.presentation.common.theme.LightYellow
-import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarTheme
-import pusan.university.plato_calendar.presentation.common.theme.Yellow
+import pusan.university.plato_calendar.presentation.util.extension.noRippleClickable
+import pusan.university.plato_calendar.presentation.util.theme.Brown
+import pusan.university.plato_calendar.presentation.util.theme.LightYellow
+import pusan.university.plato_calendar.presentation.util.theme.PlatoCalendarTheme
+import pusan.university.plato_calendar.presentation.util.theme.Yellow
 
 @Composable
 fun Notice(

@@ -50,15 +50,15 @@ import pusan.university.plato_calendar.presentation.calendar.model.DaySchedule
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.YearMonth
-import pusan.university.plato_calendar.presentation.common.component.PullToRefreshContainer
-import pusan.university.plato_calendar.presentation.common.component.bottomsheet.schedule.ScheduleBottomSheet
-import pusan.university.plato_calendar.presentation.common.component.dialog.plato.content.PlatoDialogContent
-import pusan.university.plato_calendar.presentation.common.component.dialog.schedule.ScheduleDialog
-import pusan.university.plato_calendar.presentation.common.eventbus.DialogEventBus
-import pusan.university.plato_calendar.presentation.common.eventbus.WidgetEvent
-import pusan.university.plato_calendar.presentation.common.eventbus.WidgetEventBus
-import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarTheme
-import pusan.university.plato_calendar.presentation.common.theme.PrimaryColor
+import pusan.university.plato_calendar.presentation.util.component.PullToRefreshContainer
+import pusan.university.plato_calendar.presentation.util.component.bottomsheet.schedule.ScheduleBottomSheet
+import pusan.university.plato_calendar.presentation.util.component.dialog.plato.content.PlatoDialogContent
+import pusan.university.plato_calendar.presentation.util.component.dialog.schedule.ScheduleDialog
+import pusan.university.plato_calendar.presentation.util.eventbus.DialogEventBus
+import pusan.university.plato_calendar.presentation.util.eventbus.WidgetEvent
+import pusan.university.plato_calendar.presentation.util.eventbus.WidgetEventBus
+import pusan.university.plato_calendar.presentation.util.theme.PlatoCalendarTheme
+import pusan.university.plato_calendar.presentation.util.theme.PrimaryColor
 import java.time.LocalDate
 import java.time.LocalDateTime
 

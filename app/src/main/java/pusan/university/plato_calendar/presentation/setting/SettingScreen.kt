@@ -30,11 +30,11 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import pusan.university.plato_calendar.presentation.common.component.TopBar
-import pusan.university.plato_calendar.presentation.common.component.dialog.plato.content.PlatoDialogContent
-import pusan.university.plato_calendar.presentation.common.eventbus.DialogEventBus
-import pusan.university.plato_calendar.presentation.common.theme.MediumGray
-import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarTheme
+import pusan.university.plato_calendar.presentation.util.component.TopBar
+import pusan.university.plato_calendar.presentation.util.component.dialog.plato.content.PlatoDialogContent
+import pusan.university.plato_calendar.presentation.util.eventbus.DialogEventBus
+import pusan.university.plato_calendar.presentation.util.theme.MediumGray
+import pusan.university.plato_calendar.presentation.util.theme.PlatoCalendarTheme
 import pusan.university.plato_calendar.presentation.setting.component.Account
 import pusan.university.plato_calendar.presentation.setting.component.NotificationToggleItem
 import pusan.university.plato_calendar.presentation.setting.component.ReminderDropdownItem

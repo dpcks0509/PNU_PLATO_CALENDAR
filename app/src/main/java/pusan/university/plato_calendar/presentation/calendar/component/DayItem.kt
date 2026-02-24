@@ -24,13 +24,13 @@ import androidx.compose.ui.unit.sp
 import pusan.university.plato_calendar.presentation.calendar.model.DaySchedule
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
-import pusan.university.plato_calendar.presentation.common.extension.noRippleClickable
-import pusan.university.plato_calendar.presentation.common.theme.Black
-import pusan.university.plato_calendar.presentation.common.theme.Gray
-import pusan.university.plato_calendar.presentation.common.theme.MediumGray
-import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarTheme
-import pusan.university.plato_calendar.presentation.common.theme.PrimaryColor
-import pusan.university.plato_calendar.presentation.common.theme.Red
+import pusan.university.plato_calendar.presentation.util.extension.noRippleClickable
+import pusan.university.plato_calendar.presentation.util.theme.Black
+import pusan.university.plato_calendar.presentation.util.theme.Gray
+import pusan.university.plato_calendar.presentation.util.theme.MediumGray
+import pusan.university.plato_calendar.presentation.util.theme.PlatoCalendarTheme
+import pusan.university.plato_calendar.presentation.util.theme.PrimaryColor
+import pusan.university.plato_calendar.presentation.util.theme.Red
 import java.time.LocalDate
 import java.time.LocalDateTime
 

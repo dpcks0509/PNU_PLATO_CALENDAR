@@ -15,9 +15,9 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import pusan.university.plato_calendar.presentation.common.theme.PrimaryColor
-import pusan.university.plato_calendar.presentation.common.theme.VeryLightGray
-import pusan.university.plato_calendar.presentation.common.theme.White
+import pusan.university.plato_calendar.presentation.util.theme.PrimaryColor
+import pusan.university.plato_calendar.presentation.util.theme.VeryLightGray
+import pusan.university.plato_calendar.presentation.util.theme.White
 
 @Composable
 fun NotificationToggleItem(

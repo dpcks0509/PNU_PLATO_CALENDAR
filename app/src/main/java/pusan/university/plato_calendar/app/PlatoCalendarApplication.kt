@@ -10,9 +10,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import pusan.university.plato_calendar.BuildConfig
-import pusan.university.plato_calendar.presentation.common.manager.NotificationSyncManager
-import pusan.university.plato_calendar.presentation.common.notification.NotificationHelper.Companion.CHANNEL_ID
-import pusan.university.plato_calendar.presentation.common.notification.NotificationHelper.Companion.CHANNEL_NAME
+import pusan.university.plato_calendar.presentation.util.manager.NotificationSyncManager
+import pusan.university.plato_calendar.presentation.util.notification.NotificationHelper.Companion.CHANNEL_ID
+import pusan.university.plato_calendar.presentation.util.notification.NotificationHelper.Companion.CHANNEL_NAME
 import javax.inject.Inject
 
 @HiltAndroidApp

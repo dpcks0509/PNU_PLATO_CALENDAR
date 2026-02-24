@@ -4,9 +4,9 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import pusan.university.plato_calendar.domain.entity.LoginStatus
-import pusan.university.plato_calendar.presentation.common.base.BaseViewModel
-import pusan.university.plato_calendar.presentation.common.manager.LoginManager
-import pusan.university.plato_calendar.presentation.common.manager.SettingsManager
+import pusan.university.plato_calendar.presentation.util.base.BaseViewModel
+import pusan.university.plato_calendar.presentation.util.manager.LoginManager
+import pusan.university.plato_calendar.presentation.util.manager.SettingsManager
 import pusan.university.plato_calendar.presentation.setting.intent.SettingEvent
 import pusan.university.plato_calendar.presentation.setting.intent.SettingEvent.Login
 import pusan.university.plato_calendar.presentation.setting.intent.SettingSideEffect

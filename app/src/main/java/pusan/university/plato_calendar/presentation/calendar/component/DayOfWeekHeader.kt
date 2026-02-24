@@ -11,7 +11,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pusan.university.plato_calendar.presentation.calendar.model.DayOfWeekUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.DayOfWeekUiModel.Companion.dayOfWeeksEntries
-import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarTheme
+import pusan.university.plato_calendar.presentation.util.theme.PlatoCalendarTheme
 
 @Composable
 fun DayOfWeekHeader(modifier: Modifier = Modifier) {

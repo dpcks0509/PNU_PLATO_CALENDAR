@@ -4,7 +4,7 @@ import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.serialization.json.Json
 import pusan.university.plato_calendar.domain.repository.CourseRepository
-import pusan.university.plato_calendar.presentation.common.extension.formatCourseCode
+import pusan.university.plato_calendar.presentation.util.extension.formatCourseCode
 import javax.inject.Inject
 
 private const val UNKNOWN_COURSE_NAME = "알 수 없는 교과목"

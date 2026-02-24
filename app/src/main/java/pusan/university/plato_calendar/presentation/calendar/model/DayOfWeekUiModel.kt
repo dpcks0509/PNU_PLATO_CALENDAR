@@ -2,8 +2,8 @@ package pusan.university.plato_calendar.presentation.calendar.model
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import pusan.university.plato_calendar.presentation.common.theme.Black
-import pusan.university.plato_calendar.presentation.common.theme.Red
+import pusan.university.plato_calendar.presentation.util.theme.Black
+import pusan.university.plato_calendar.presentation.util.theme.Red
 import java.time.DayOfWeek
 import java.time.format.TextStyle
 import java.util.Locale

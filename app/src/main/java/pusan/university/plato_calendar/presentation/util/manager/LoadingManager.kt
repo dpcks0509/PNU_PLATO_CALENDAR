@@ -1,0 +1,19 @@
+package pusan.university.plato_calendar.presentation.util.manager
+
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import javax.inject.Inject
+import javax.inject.Singleton
+
+@Singleton
+class LoadingManager
+    @Inject
+    constructor() {
+        private val _isLoading = MutableStateFlow(false)
+        val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+        fun updateLoading(isLoading: Boolean) {
+            _isLoading.value = isLoading
+        }
+    }

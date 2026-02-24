@@ -5,8 +5,8 @@ import pusan.university.plato_calendar.domain.entity.Schedule.NewSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.YearMonth
-import pusan.university.plato_calendar.presentation.common.base.UiEvent
-import pusan.university.plato_calendar.presentation.common.component.dialog.schedule.content.ScheduleDialogContent
+import pusan.university.plato_calendar.presentation.util.base.UiEvent
+import pusan.university.plato_calendar.presentation.util.component.dialog.schedule.content.ScheduleDialogContent
 import java.time.LocalDate
 
 sealed interface CalendarEvent : UiEvent {

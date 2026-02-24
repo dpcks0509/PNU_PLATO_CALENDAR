@@ -3,7 +3,7 @@ package pusan.university.plato_calendar.presentation.cafeteria.intent
 import pusan.university.plato_calendar.domain.entity.Cafeteria
 import pusan.university.plato_calendar.domain.entity.CafeteriaWeeklyPlan
 import pusan.university.plato_calendar.domain.entity.DailyCafeteriaPlan
-import pusan.university.plato_calendar.presentation.common.base.UiState
+import pusan.university.plato_calendar.presentation.util.base.UiState
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 

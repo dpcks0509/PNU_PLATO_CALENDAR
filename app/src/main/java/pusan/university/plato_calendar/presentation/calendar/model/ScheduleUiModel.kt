@@ -5,11 +5,11 @@ import androidx.compose.ui.graphics.Color
 import pusan.university.plato_calendar.domain.entity.Schedule.AcademicSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
-import pusan.university.plato_calendar.presentation.common.extension.formatTimeWithMidnightSpecialCase
-import pusan.university.plato_calendar.presentation.common.theme.CalendarFlamingo
-import pusan.university.plato_calendar.presentation.common.theme.CalendarLavender
-import pusan.university.plato_calendar.presentation.common.theme.CalendarSage
-import pusan.university.plato_calendar.presentation.common.theme.MediumGray
+import pusan.university.plato_calendar.presentation.util.extension.formatTimeWithMidnightSpecialCase
+import pusan.university.plato_calendar.presentation.util.theme.CalendarFlamingo
+import pusan.university.plato_calendar.presentation.util.theme.CalendarLavender
+import pusan.university.plato_calendar.presentation.util.theme.CalendarSage
+import pusan.university.plato_calendar.presentation.util.theme.MediumGray
 import java.time.LocalDate
 import java.time.LocalDateTime
 

@@ -26,10 +26,10 @@ import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiMod
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
-import pusan.university.plato_calendar.presentation.common.theme.Black
-import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarTheme
-import pusan.university.plato_calendar.presentation.common.theme.PrimaryColor
-import pusan.university.plato_calendar.presentation.common.theme.Red
+import pusan.university.plato_calendar.presentation.util.theme.Black
+import pusan.university.plato_calendar.presentation.util.theme.PlatoCalendarTheme
+import pusan.university.plato_calendar.presentation.util.theme.PrimaryColor
+import pusan.university.plato_calendar.presentation.util.theme.Red
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.TextStyle

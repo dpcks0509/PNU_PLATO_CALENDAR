@@ -26,11 +26,11 @@ import pusan.university.plato_calendar.domain.entity.CourseMenu
 import pusan.university.plato_calendar.domain.entity.MealInfo
 import pusan.university.plato_calendar.domain.entity.MealType
 import pusan.university.plato_calendar.domain.entity.OperationInfo
-import pusan.university.plato_calendar.presentation.common.theme.Black
-import pusan.university.plato_calendar.presentation.common.theme.Gray
-import pusan.university.plato_calendar.presentation.common.theme.PlatoCalendarTheme
-import pusan.university.plato_calendar.presentation.common.theme.PrimaryColor
-import pusan.university.plato_calendar.presentation.common.theme.WhiteGray
+import pusan.university.plato_calendar.presentation.util.theme.Black
+import pusan.university.plato_calendar.presentation.util.theme.Gray
+import pusan.university.plato_calendar.presentation.util.theme.PlatoCalendarTheme
+import pusan.university.plato_calendar.presentation.util.theme.PrimaryColor
+import pusan.university.plato_calendar.presentation.util.theme.WhiteGray
 
 @Composable
 fun MealCard(

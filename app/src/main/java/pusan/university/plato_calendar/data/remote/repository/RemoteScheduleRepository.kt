@@ -21,8 +21,8 @@ import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CourseSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
 import pusan.university.plato_calendar.domain.repository.ScheduleRepository
-import pusan.university.plato_calendar.presentation.common.extension.formatCourseCode
-import pusan.university.plato_calendar.presentation.common.manager.LoginManager
+import pusan.university.plato_calendar.presentation.util.extension.formatCourseCode
+import pusan.university.plato_calendar.presentation.util.manager.LoginManager
 import java.net.URLEncoder
 import java.time.LocalDate
 import java.time.LocalDateTime

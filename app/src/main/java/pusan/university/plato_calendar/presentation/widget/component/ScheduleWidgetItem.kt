@@ -26,11 +26,11 @@ import pusan.university.plato_calendar.R
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
-import pusan.university.plato_calendar.presentation.common.extension.formatTimeWithMidnightSpecialCase
-import pusan.university.plato_calendar.presentation.common.theme.BlackDark
-import pusan.university.plato_calendar.presentation.common.theme.BlackLight
-import pusan.university.plato_calendar.presentation.common.theme.GrayDark
-import pusan.university.plato_calendar.presentation.common.theme.GrayLight
+import pusan.university.plato_calendar.presentation.util.extension.formatTimeWithMidnightSpecialCase
+import pusan.university.plato_calendar.presentation.util.theme.BlackDark
+import pusan.university.plato_calendar.presentation.util.theme.BlackLight
+import pusan.university.plato_calendar.presentation.util.theme.GrayDark
+import pusan.university.plato_calendar.presentation.util.theme.GrayLight
 import pusan.university.plato_calendar.presentation.widget.callback.OpenScheduleDetailCallback
 import pusan.university.plato_calendar.presentation.widget.model.ScheduleWidgetUiModel
 

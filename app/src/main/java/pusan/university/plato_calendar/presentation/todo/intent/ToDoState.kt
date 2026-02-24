@@ -5,9 +5,9 @@ import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiMod
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
-import pusan.university.plato_calendar.presentation.common.base.UiState
-import pusan.university.plato_calendar.presentation.common.component.bottomsheet.schedule.content.ScheduleBottomSheetContent
-import pusan.university.plato_calendar.presentation.common.component.dialog.schedule.content.ScheduleDialogContent
+import pusan.university.plato_calendar.presentation.util.base.UiState
+import pusan.university.plato_calendar.presentation.util.component.bottomsheet.schedule.content.ScheduleBottomSheetContent
+import pusan.university.plato_calendar.presentation.util.component.dialog.schedule.content.ScheduleDialogContent
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 

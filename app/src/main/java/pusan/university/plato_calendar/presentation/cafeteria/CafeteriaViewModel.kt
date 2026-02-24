@@ -13,10 +13,10 @@ import pusan.university.plato_calendar.presentation.cafeteria.intent.CafeteriaEv
 import pusan.university.plato_calendar.presentation.cafeteria.intent.CafeteriaEvent.SelectCafeteria
 import pusan.university.plato_calendar.presentation.cafeteria.intent.CafeteriaSideEffect
 import pusan.university.plato_calendar.presentation.cafeteria.intent.CafeteriaState
-import pusan.university.plato_calendar.presentation.common.base.BaseViewModel
-import pusan.university.plato_calendar.presentation.common.eventbus.ToastEventBus
-import pusan.university.plato_calendar.presentation.common.manager.LoadingManager
-import pusan.university.plato_calendar.presentation.common.manager.ScheduleManager
+import pusan.university.plato_calendar.presentation.util.base.BaseViewModel
+import pusan.university.plato_calendar.presentation.util.eventbus.ToastEventBus
+import pusan.university.plato_calendar.presentation.util.manager.LoadingManager
+import pusan.university.plato_calendar.presentation.util.manager.ScheduleManager
 import java.time.DayOfWeek
 import javax.inject.Inject
 
