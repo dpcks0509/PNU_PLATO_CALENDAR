@@ -41,11 +41,7 @@ data class CafeteriaState(
     }
     
     private fun parseDateString(dateString: String): LocalDate? {
-        return try {
-            val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
-            LocalDate.parse(dateString, formatter)
-        } catch (_: Exception) {
-            null
-        }
+        val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
+        return runCatching { LocalDate.parse(dateString, formatter) }.getOrNull()
     }
 }

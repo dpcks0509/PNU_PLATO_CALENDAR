@@ -87,23 +87,19 @@ constructor(
     }
 
     private fun encrypt(plainText: String): String {
-        return try {
-            val secretKey = getOrCreateSecretKey()
-            val cipher = Cipher.getInstance(AES_MODE)
-            cipher.init(Cipher.ENCRYPT_MODE, secretKey)
-            val iv = cipher.iv
-            val cipherBytes = cipher.doFinal(plainText.toByteArray(Charsets.UTF_8))
-            val combined = ByteArray(iv.size + cipherBytes.size)
-            System.arraycopy(iv, 0, combined, 0, iv.size)
-            System.arraycopy(cipherBytes, 0, combined, iv.size, cipherBytes.size)
-            Base64.encodeToString(combined, Base64.NO_WRAP)
-        } catch (e: Exception) {
-            plainText
-        }
+        val secretKey = getOrCreateSecretKey()
+        val cipher = Cipher.getInstance(AES_MODE)
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey)
+        val iv = cipher.iv
+        val cipherBytes = cipher.doFinal(plainText.toByteArray(Charsets.UTF_8))
+        val combined = ByteArray(iv.size + cipherBytes.size)
+        System.arraycopy(iv, 0, combined, 0, iv.size)
+        System.arraycopy(cipherBytes, 0, combined, iv.size, cipherBytes.size)
+        return Base64.encodeToString(combined, Base64.NO_WRAP)
     }
 
     private fun decrypt(base64CipherText: String): String? {
-        return try {
+        return runCatching {
             val allBytes = Base64.decode(base64CipherText, Base64.NO_WRAP)
             if (allBytes.size <= 12) return null
             val iv = allBytes.copyOfRange(0, 12)
@@ -114,9 +110,7 @@ constructor(
             cipher.init(Cipher.DECRYPT_MODE, secretKey, spec)
             val plainBytes = cipher.doFinal(cipherBytes)
             String(plainBytes, Charsets.UTF_8)
-        } catch (_: Exception) {
-            null
-        }
+        }.getOrNull()
     }
 
     companion object {
