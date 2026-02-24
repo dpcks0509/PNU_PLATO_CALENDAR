@@ -29,7 +29,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -49,7 +48,7 @@ fun AnimatedToast() {
 
     LaunchedEffect(Unit) {
         ToastEventBus.toastMessage.collect { message ->
-            if(isVisible) {
+            if (isVisible) {
                 isVisible = false
                 delay(300)
             }
@@ -85,7 +84,7 @@ fun AnimatedToast() {
                 clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
                 addFlags(
                     WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
-                        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 )
             }
 
@@ -137,13 +136,10 @@ fun AnimatedToast() {
                             Text(
                                 modifier = Modifier.padding(vertical = 14.dp),
                                 text = message.message,
-                                style =
-                                    TextStyle(
-                                        fontSize = 16.sp,
-                                        fontWeight = FontWeight(400),
-                                        color = Color(0xFFFFFFFF),
-                                        textAlign = TextAlign.Center,
-                                    ),
+                                fontSize = 16.sp,
+                                color = Color.White,
+                                fontWeight = FontWeight.Medium,
+                                textAlign = TextAlign.Center,
                             )
                         }
                     }

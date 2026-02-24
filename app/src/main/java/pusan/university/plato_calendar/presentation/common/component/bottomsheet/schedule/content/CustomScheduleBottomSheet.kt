@@ -20,6 +20,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -36,7 +37,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -213,12 +213,11 @@ fun CustomScheduleBottomSheet(
                     color = schedule.color,
                 )
             },
-            textStyle =
-                TextStyle(
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Black,
-                ),
+            textStyle = MaterialTheme.typography.titleLarge.copy(
+                fontSize = 20.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Black,
+            ),
             colors =
                 TextFieldDefaults.colors(
                     unfocusedContainerColor = Color.Transparent,
@@ -278,11 +277,10 @@ fun CustomScheduleBottomSheet(
                         color = Gray,
                     )
                 },
-                textStyle =
-                    TextStyle(
-                        fontSize = 16.sp,
-                        color = Black,
-                    ),
+                textStyle = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = 16.sp,
+                    color = Black,
+                ),
                 colors =
                     TextFieldDefaults.colors(
                         unfocusedContainerColor = Color.Transparent,
