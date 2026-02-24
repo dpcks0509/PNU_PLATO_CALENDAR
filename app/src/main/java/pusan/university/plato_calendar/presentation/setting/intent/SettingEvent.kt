@@ -3,6 +3,7 @@ package pusan.university.plato_calendar.presentation.setting.intent
 import pusan.university.plato_calendar.domain.entity.LoginCredentials
 import pusan.university.plato_calendar.presentation.common.base.UiEvent
 import pusan.university.plato_calendar.presentation.setting.model.NotificationTime
+import pusan.university.plato_calendar.presentation.setting.model.ThemeMode
 
 sealed interface SettingEvent : UiEvent {
     data class Login(val credentials: LoginCredentials) : SettingEvent
@@ -27,5 +28,9 @@ sealed interface SettingEvent : UiEvent {
 
     data class NavigateToWebView(
         val url: String,
+    ) : SettingEvent
+
+    data class UpdateTheme(
+        val mode: ThemeMode,
     ) : SettingEvent
 }

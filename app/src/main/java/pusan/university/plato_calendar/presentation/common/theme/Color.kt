@@ -1,6 +1,5 @@
 package pusan.university.plato_calendar.presentation.common.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
@@ -19,8 +18,6 @@ val VeryLightGrayDark = Color(0xFF2A2A2A)
 val LightBlueLight = Color(0xFFAAD0F5)
 val LightBlueDark = Color(0xFF1E3A5F)
 
-val VeryLightGray: Color
-    @Composable get() = if (isSystemInDarkTheme()) VeryLightGrayDark else VeryLightGrayLight
 
 val LightGrayLight = Color(0xFFDDDDDD)
 val LightGrayDark = Color(0xFF444444)
@@ -53,49 +50,52 @@ val CalendarLavenderLight = Color(0xFF7986CB)
 val CalendarLavenderDark = Color(0xFF9FA8DA)
 
 val PrimaryColor: Color
-    @Composable get() = if (isSystemInDarkTheme()) PrimaryDark else PrimaryLight
+    @Composable get() = if (LocalDarkTheme.current) PrimaryDark else PrimaryLight
 
 val Black: Color
-    @Composable get() = if (isSystemInDarkTheme()) BlackDark else BlackLight
+    @Composable get() = if (LocalDarkTheme.current) BlackDark else BlackLight
 
 val White: Color
-    @Composable get() = if (isSystemInDarkTheme()) WhiteDark else WhiteLight
+    @Composable get() = if (LocalDarkTheme.current) WhiteDark else WhiteLight
 
 val WhiteGray: Color
-    @Composable get() = if (isSystemInDarkTheme()) VeryLightGrayDark else WhiteLight
+    @Composable get() = if (LocalDarkTheme.current) VeryLightGrayDark else WhiteLight
 
 val LightBlue: Color
-    @Composable get() = if (isSystemInDarkTheme()) LightBlueDark else LightBlueLight
+    @Composable get() = if (LocalDarkTheme.current) LightBlueDark else LightBlueLight
+
+val VeryLightGray: Color
+    @Composable get() = if (LocalDarkTheme.current) VeryLightGrayDark else VeryLightGrayLight
 
 val LightGray: Color
-    @Composable get() = if (isSystemInDarkTheme()) LightGrayDark else LightGrayLight
+    @Composable get() = if (LocalDarkTheme.current) LightGrayDark else LightGrayLight
 
 val MediumGray: Color
-    @Composable get() = if (isSystemInDarkTheme()) MediumGrayDark else MediumGrayLight
+    @Composable get() = if (LocalDarkTheme.current) MediumGrayDark else MediumGrayLight
 
 val Gray: Color
-    @Composable get() = if (isSystemInDarkTheme()) GrayDark else GrayLight
+    @Composable get() = if (LocalDarkTheme.current) GrayDark else GrayLight
 
 val Red: Color
-    @Composable get() = if (isSystemInDarkTheme()) RedDark else RedLight
+    @Composable get() = if (LocalDarkTheme.current) RedDark else RedLight
 
 val LightYellow: Color
-    @Composable get() = if (isSystemInDarkTheme()) LightYellowDark else LightYellowLight
+    @Composable get() = if (LocalDarkTheme.current) LightYellowDark else LightYellowLight
 
 val Yellow: Color
-    @Composable get() = if (isSystemInDarkTheme()) YellowDark else YellowLight
+    @Composable get() = if (LocalDarkTheme.current) YellowDark else YellowLight
 
 val Brown: Color
-    @Composable get() = if (isSystemInDarkTheme()) BrownDark else BrownLight
+    @Composable get() = if (LocalDarkTheme.current) BrownDark else BrownLight
 
 val CalendarFlamingo: Color
     @Composable get() = CalendarFlamingoLight
-//    if (isSystemInDarkTheme()) CalendarFlamingoDark else CalendarFlamingoLight
+//    if (LocalDarkTheme.current) CalendarFlamingoDark else CalendarFlamingoLight
 
 val CalendarSage: Color
     @Composable get() = CalendarSageLight
-//    if (isSystemInDarkTheme()) CalendarSageDark else CalendarSageLight
+//    if (LocalDarkTheme.current) CalendarSageDark else CalendarSageLight
 
 val CalendarLavender: Color
     @Composable get() = CalendarLavenderLight
-//    if (isSystemInDarkTheme()) CalendarLavenderDark else CalendarLavenderLight
+//    if (LocalDarkTheme.current) CalendarLavenderDark else CalendarLavenderLight

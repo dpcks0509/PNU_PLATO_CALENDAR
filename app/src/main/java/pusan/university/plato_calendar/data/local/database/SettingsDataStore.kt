@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import pusan.university.plato_calendar.domain.entity.AppSettings
 import pusan.university.plato_calendar.presentation.setting.model.NotificationTime
+import pusan.university.plato_calendar.presentation.setting.model.ThemeMode
 import java.io.IOException
 import javax.inject.Inject
 
@@ -40,17 +41,22 @@ constructor(
                     preferences[KEY_FIRST_REMINDER_TIME_NAME] ?: NotificationTime.ONE_HOUR.name
                 val secondReminderName =
                     preferences[KEY_SECOND_REMINDER_TIME_NAME] ?: NotificationTime.ONE_DAY.name
+                val themeModeName =
+                    preferences[KEY_THEME_MODE_NAME] ?: ThemeMode.SYSTEM.name
 
                 val firstReminderTime = runCatching { NotificationTime.valueOf(firstReminderName) }
                     .getOrDefault(NotificationTime.ONE_HOUR)
                 val secondReminderTime =
                     runCatching { NotificationTime.valueOf(secondReminderName) }
                         .getOrDefault(NotificationTime.ONE_DAY)
+                val themeMode = runCatching { ThemeMode.valueOf(themeModeName) }
+                    .getOrDefault(ThemeMode.SYSTEM)
 
                 AppSettings(
                     notificationsEnabled = notificationsEnabled,
                     firstReminderTime = firstReminderTime,
                     secondReminderTime = secondReminderTime,
+                    themeMode = themeMode,
                 )
             }
 
@@ -72,11 +78,18 @@ constructor(
         }
     }
 
+    suspend fun setThemeMode(mode: ThemeMode) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_THEME_MODE_NAME] = mode.name
+        }
+    }
+
     companion object {
         private const val SETTINGS_NAME = "app_settings"
         private val KEY_NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
         private val KEY_FIRST_REMINDER_TIME_NAME = stringPreferencesKey("first_reminder_time_name")
         private val KEY_SECOND_REMINDER_TIME_NAME =
             stringPreferencesKey("second_reminder_time_name")
+        private val KEY_THEME_MODE_NAME = stringPreferencesKey("theme_mode_name")
     }
 }

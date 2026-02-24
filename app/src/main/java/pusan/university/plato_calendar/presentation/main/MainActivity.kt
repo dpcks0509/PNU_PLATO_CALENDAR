@@ -14,6 +14,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,12 +23,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import pusan.university.plato_calendar.domain.entity.AppSettings
 import pusan.university.plato_calendar.presentation.common.component.AnimatedToast
 import pusan.university.plato_calendar.presentation.common.component.LoadingIndicator
 import pusan.university.plato_calendar.presentation.common.component.dialog.plato.PlatoDialog
@@ -48,6 +52,7 @@ import pusan.university.plato_calendar.presentation.common.theme.White
 import pusan.university.plato_calendar.presentation.main.intent.MainEvent
 import pusan.university.plato_calendar.presentation.main.intent.MainSideEffect
 import pusan.university.plato_calendar.presentation.main.intent.MainSideEffect.NavigateToNotificationSettings
+import pusan.university.plato_calendar.presentation.setting.model.ThemeMode
 import pusan.university.plato_calendar.presentation.widget.callback.OpenNewScheduleCallback
 import pusan.university.plato_calendar.presentation.widget.callback.OpenScheduleDetailCallback
 import javax.inject.Inject
@@ -69,7 +74,17 @@ class MainActivity : ComponentActivity() {
     lateinit var notificationHelper: NotificationHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+
+        var isThemeLoaded = false
+
+        lifecycleScope.launch {
+            settingsManager.appSettings.first()
+            isThemeLoaded = true
+        }
+
+        splashScreen.setKeepOnScreenCondition { !isThemeLoaded }
 
         setSmartOrientation()
         if (savedInstanceState == null) {
@@ -79,6 +94,17 @@ class MainActivity : ComponentActivity() {
         setContent {
             val state by viewModel.state.collectAsStateWithLifecycle()
             val isLoading by loadingManager.isLoading.collectAsStateWithLifecycle()
+
+            val appSettings by settingsManager.appSettings.collectAsStateWithLifecycle(
+                initialValue = AppSettings()
+            )
+            val isSystemDark = isSystemInDarkTheme()
+            val darkTheme = when (appSettings.themeMode) {
+                ThemeMode.LIGHT -> false
+                ThemeMode.DARK -> true
+                ThemeMode.SYSTEM -> isSystemDark
+            }
+
             val navController = rememberNavController()
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = navBackStackEntry?.destination?.route
@@ -131,7 +157,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            PlatoCalendarTheme {
+            PlatoCalendarTheme(darkTheme = darkTheme) {
                 Box(modifier = Modifier.fillMaxSize()) {
                     Scaffold(
                         bottomBar = {

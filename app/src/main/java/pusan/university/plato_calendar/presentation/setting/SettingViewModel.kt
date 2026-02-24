@@ -41,6 +41,7 @@ constructor(
                         notificationsEnabled = appSettings.notificationsEnabled,
                         firstReminderTime = appSettings.firstReminderTime,
                         secondReminderTime = appSettings.secondReminderTime,
+                        themeMode = appSettings.themeMode,
                     )
                 }
             }
@@ -99,6 +100,10 @@ constructor(
 
             is SettingEvent.NavigateToWebView -> {
                 setSideEffect { SettingSideEffect.NavigateToWebView(event.url) }
+            }
+
+            is SettingEvent.UpdateTheme -> {
+                settingsManager.setThemeMode(event.mode)
             }
         }
     }

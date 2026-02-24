@@ -2,6 +2,7 @@ package pusan.university.plato_calendar.presentation.setting.intent
 
 import pusan.university.plato_calendar.presentation.common.base.UiState
 import pusan.university.plato_calendar.presentation.setting.model.NotificationTime
+import pusan.university.plato_calendar.presentation.setting.model.ThemeMode
 
 data class SettingState(
     val userInfo: String? = null,
@@ -10,4 +11,5 @@ data class SettingState(
     val secondReminderTime: NotificationTime = NotificationTime.NONE,
     val shouldPromptNotificationPermission: Boolean = false,
     val hasNotificationPermission: Boolean = false,
+    val themeMode: ThemeMode = ThemeMode.SYSTEM,
 ) : UiState

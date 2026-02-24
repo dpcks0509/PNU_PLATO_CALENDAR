@@ -40,12 +40,14 @@ import pusan.university.plato_calendar.presentation.setting.component.Notificati
 import pusan.university.plato_calendar.presentation.setting.component.ReminderDropdownItem
 import pusan.university.plato_calendar.presentation.setting.component.SettingItem
 import pusan.university.plato_calendar.presentation.setting.component.SettingSection
+import pusan.university.plato_calendar.presentation.setting.component.ThemeSelector
 import pusan.university.plato_calendar.presentation.setting.intent.SettingEvent
 import pusan.university.plato_calendar.presentation.setting.intent.SettingEvent.NavigateToWebView
 import pusan.university.plato_calendar.presentation.setting.intent.SettingEvent.UpdateFirstReminderTime
 import pusan.university.plato_calendar.presentation.setting.intent.SettingEvent.UpdateNotificationPermission
 import pusan.university.plato_calendar.presentation.setting.intent.SettingEvent.UpdateNotificationsEnabled
 import pusan.university.plato_calendar.presentation.setting.intent.SettingEvent.UpdateSecondReminderTime
+import pusan.university.plato_calendar.presentation.setting.intent.SettingEvent.UpdateTheme
 import pusan.university.plato_calendar.presentation.setting.intent.SettingSideEffect
 import pusan.university.plato_calendar.presentation.setting.intent.SettingState
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu
@@ -54,7 +56,7 @@ import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.NO
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.FIRST_REMINDER
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.NOTIFICATIONS_ENABLED
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.SECOND_REMINDER
-import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.USAGE_GUIDE
+import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.THEME
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.USER_SUPPORT
 
 @Composable
@@ -211,7 +213,16 @@ fun SettingContent(
                                 }
                             }
 
-                            USER_SUPPORT, USAGE_GUIDE -> {
+                            THEME -> {
+                                ThemeSelector(
+                                    selectedTheme = state.themeMode,
+                                    onThemeSelected = { mode ->
+                                        onEvent(UpdateTheme(mode))
+                                    },
+                                )
+                            }
+
+                            USER_SUPPORT -> {
                                 menu.items.forEachIndexed { index, content ->
                                     SettingItem(
                                         content = content,
