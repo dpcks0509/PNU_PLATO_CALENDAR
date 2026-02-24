@@ -94,7 +94,7 @@ fun ScheduleWidgetItem(schedule: PersonalScheduleUiModel) {
                 text = scheduleWidgetItem.title,
                 style =
                     TextStyle(
-                        fontSize = 15.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
                         color = ColorProvider(day = BlackLight, night = BlackDark)
                     ),
@@ -107,7 +107,7 @@ fun ScheduleWidgetItem(schedule: PersonalScheduleUiModel) {
                 text = scheduleWidgetItem.deadLine,
                 style =
                     TextStyle(
-                        fontSize = 13.sp,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Normal,
                         color = ColorProvider(day = GrayLight, night = GrayDark),
                     ),
