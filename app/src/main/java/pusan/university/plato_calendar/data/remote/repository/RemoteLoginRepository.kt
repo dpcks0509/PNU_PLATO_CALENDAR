@@ -1,8 +1,12 @@
 package pusan.university.plato_calendar.data.remote.repository
 
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import pusan.university.plato_calendar.app.network.NoNetworkConnectivityException
 import pusan.university.plato_calendar.data.local.database.LoginCredentialsDataStore
 import pusan.university.plato_calendar.data.remote.service.LoginService
+import pusan.university.plato_calendar.data.util.ApiResponse
+import pusan.university.plato_calendar.data.util.ApiResult
+import pusan.university.plato_calendar.data.util.handleApiResponse
 import pusan.university.plato_calendar.domain.entity.LoginCredentials
 import pusan.university.plato_calendar.domain.entity.LoginSession
 import pusan.university.plato_calendar.domain.repository.LoginRepository
@@ -14,101 +18,88 @@ constructor(
     private val loginService: LoginService,
     private val loginCredentialsDataStore: LoginCredentialsDataStore,
 ) : LoginRepository {
-    override suspend fun login(credentials: LoginCredentials): Result<LoginSession> {
-        return try {
-            val response =
-                loginService.login(
-                    userName = credentials.userName,
-                    password = credentials.password,
-                )
-
-            if (response.code() == REDIRECT_CODE) {
-                val redirectLocation =
-                    response.headers()["Location"]
-                        ?: return Result.failure(Exception(LOGIN_FAILED_ERROR))
-                val redirectUrl = redirectLocation.toHttpUrlOrNull()
-
-                when (redirectUrl?.queryParameter("errorcode")) {
-                    "1" -> return Result.failure(Exception(COOKIES_DISABLED_ERROR))
-                    "2" -> return Result.failure(Exception(INVALID_USERNAME_FORMAT_ERROR))
-                    "3" -> {
-                        loginCredentialsDataStore.deleteLoginCredentials()
-                        return Result.failure(Exception(INVALID_CREDENTIALS_ERROR))
-                    }
-
-                    "4" -> return Result.failure(Exception(SESSION_EXPIRED_ERROR))
-                    "5" -> return Result.failure(Exception(ACCOUNT_LOCKED_ERROR))
-                    null -> Unit
-                    else -> return Result.failure(Exception(LOGIN_FAILED_ERROR))
-                }
-
-                val userId =
-                    redirectUrl?.queryParameter("testsession")
-                        ?: return Result.failure(Exception(LOGIN_FAILED_ERROR))
-
-                val redirectResponse = loginService.redirect()
-
-                if (redirectResponse.isSuccessful) {
-                    val redirectResponseBody =
-                        redirectResponse.body()?.string() ?: return Result.failure(
-                            Exception(LOGIN_FAILED_ERROR),
-                        )
-
-                    val sessKey =
-                        Regex(
-                            pattern = """M\.cfg\s*=\s*\{[\s\S]*?"sesskey"\s*:\s*"([^"]+)""",
-                        ).find(redirectResponseBody)?.groupValues?.getOrNull(1)
-                            ?: return Result.failure(Exception(LOGIN_FAILED_ERROR))
-
-                    val fullName =
-                        Regex(
-                            pattern = """class="fullname"[^>]*title="([^"]+)""",
-                        ).find(redirectResponseBody)?.groupValues?.getOrNull(1)
-                            ?: return Result.failure(Exception(LOGIN_FAILED_ERROR))
-
-                    return Result.success(
-                        LoginSession(
-                            userName = credentials.userName,
-                            fullName = fullName,
-                            userId = userId,
-                            sessKey = sessKey,
-                        ),
-                    )
-                }
-            }
-
-            Result.failure(Exception(LOGIN_FAILED_ERROR))
-        } catch (e: Exception) {
-            Result.failure(e)
+    override suspend fun login(credentials: LoginCredentials): ApiResult<LoginSession> {
+        val loginResponse = handleApiResponse {
+            loginService.login(
+                userName = credentials.userName,
+                password = credentials.password,
+            )
         }
+
+        if (loginResponse is ApiResponse.NetworkException) return ApiResult.Error(NoNetworkConnectivityException())
+        if (loginResponse !is ApiResponse.HttpError || loginResponse.code != REDIRECT_CODE) {
+            return ApiResult.Error(Exception(LOGIN_FAILED_ERROR))
+        }
+
+        val redirectLocation = loginResponse.headers["Location"]
+            ?: return ApiResult.Error(Exception(LOGIN_FAILED_ERROR))
+        val redirectUrl = redirectLocation.toHttpUrlOrNull()
+
+        when (redirectUrl?.queryParameter("errorcode")) {
+            "1" -> return ApiResult.Error(Exception(COOKIES_DISABLED_ERROR))
+            "2" -> return ApiResult.Error(Exception(INVALID_USERNAME_FORMAT_ERROR))
+            "3" -> {
+                loginCredentialsDataStore.deleteLoginCredentials()
+                return ApiResult.Error(Exception(INVALID_CREDENTIALS_ERROR))
+            }
+            "4" -> return ApiResult.Error(Exception(SESSION_EXPIRED_ERROR))
+            "5" -> return ApiResult.Error(Exception(ACCOUNT_LOCKED_ERROR))
+            null -> Unit
+            else -> return ApiResult.Error(Exception(LOGIN_FAILED_ERROR))
+        }
+
+        val userId = redirectUrl?.queryParameter("testsession")
+            ?: return ApiResult.Error(Exception(LOGIN_FAILED_ERROR))
+
+        val redirectResponse = handleApiResponse { loginService.redirect() }
+        if (redirectResponse is ApiResponse.NetworkException) return ApiResult.Error(NoNetworkConnectivityException())
+        if (redirectResponse !is ApiResponse.Success) return ApiResult.Error(Exception(LOGIN_FAILED_ERROR))
+
+        val redirectResponseBody = redirectResponse.data?.string()
+            ?: return ApiResult.Error(Exception(LOGIN_FAILED_ERROR))
+
+        val sessKey =
+            Regex(
+                pattern = """M\.cfg\s*=\s*\{[\s\S]*?"sesskey"\s*:\s*"([^"]+)""",
+            ).find(redirectResponseBody)?.groupValues?.getOrNull(1)
+                ?: return ApiResult.Error(Exception(LOGIN_FAILED_ERROR))
+
+        val fullName =
+            Regex(
+                pattern = """class="fullname"[^>]*title="([^"]+)""",
+            ).find(redirectResponseBody)?.groupValues?.getOrNull(1)
+                ?: return ApiResult.Error(Exception(LOGIN_FAILED_ERROR))
+
+        return ApiResult.Success(
+            LoginSession(
+                userName = credentials.userName,
+                fullName = fullName,
+                userId = userId,
+                sessKey = sessKey,
+            )
+        )
     }
 
-    override suspend fun logout(sessKey: String): Result<Unit> {
-        return try {
-            val response = loginService.logout(sessKey = sessKey)
+    override suspend fun logout(sessKey: String): ApiResult<Unit> {
+        val logoutResponse = handleApiResponse { loginService.logout(sessKey = sessKey) }
 
-            if (response.code() == REDIRECT_CODE) {
-                val redirectLocation =
-                    response.headers()["Location"]
-                        ?: return Result.failure(Exception(LOGOUT_FAILED_ERROR))
-                val redirectUrl = redirectLocation.toHttpUrlOrNull()
+        if (logoutResponse is ApiResponse.NetworkException) return ApiResult.Error(NoNetworkConnectivityException())
+        if (logoutResponse is ApiResponse.HttpError && logoutResponse.code == REDIRECT_CODE) {
+            val redirectLocation = logoutResponse.headers["Location"]
+                ?: return ApiResult.Error(Exception(LOGOUT_FAILED_ERROR))
+            val redirectUrl = redirectLocation.toHttpUrlOrNull()
 
-                when (redirectUrl?.queryParameter("errorcode")) {
-                    null -> Unit
-                    else -> return Result.failure(Exception(LOGOUT_FAILED_ERROR))
-                }
+            when (redirectUrl?.queryParameter("errorcode")) {
+                null -> Unit
+                else -> return ApiResult.Error(Exception(LOGOUT_FAILED_ERROR))
             }
-
-            val redirectResponse = loginService.redirect()
-
-            if (redirectResponse.isSuccessful) {
-                Result.success(Unit)
-            } else {
-                Result.failure(Exception(LOGOUT_FAILED_ERROR))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
         }
+
+        val redirectResponse = handleApiResponse { loginService.redirect() }
+        if (redirectResponse is ApiResponse.NetworkException) return ApiResult.Error(NoNetworkConnectivityException())
+        if (redirectResponse !is ApiResponse.Success) return ApiResult.Error(Exception(LOGOUT_FAILED_ERROR))
+
+        return ApiResult.Success(Unit)
     }
 
     companion object {

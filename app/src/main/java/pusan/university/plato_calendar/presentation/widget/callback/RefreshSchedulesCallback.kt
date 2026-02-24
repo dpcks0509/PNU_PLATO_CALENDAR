@@ -11,6 +11,7 @@ import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import pusan.university.plato_calendar.data.util.ApiResult
 import pusan.university.plato_calendar.domain.entity.LoginStatus
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CourseSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
@@ -47,32 +48,28 @@ class RefreshSchedulesCallback : ActionCallback {
         val alarmScheduler = entryPoint.alarmScheduler()
 
         suspend fun getPersonalSchedules(sessKey: String): List<PersonalScheduleUiModel> {
-            scheduleRepository
-                .getPersonalSchedules(sessKey = sessKey)
-                .onSuccess {
-                    val personalSchedules =
-                        it.map { domain ->
-                            when (domain) {
-                                is CourseSchedule -> {
-                                    val courseName =
-                                        courseRepository.getCourseName(
-                                            domain.courseCode,
-                                        )
-
-                                    CourseScheduleUiModel(
-                                        domain = domain,
-                                        courseName = courseName,
+            return when (val result = scheduleRepository.getPersonalSchedules(sessKey = sessKey)) {
+                is ApiResult.Success -> {
+                    result.data.map { domain ->
+                        when (domain) {
+                            is CourseSchedule -> {
+                                val courseName =
+                                    courseRepository.getCourseName(
+                                        domain.courseCode,
                                     )
-                                }
 
-                                is CustomSchedule -> CustomScheduleUiModel(domain)
+                                CourseScheduleUiModel(
+                                    domain = domain,
+                                    courseName = courseName,
+                                )
                             }
+
+                            is CustomSchedule -> CustomScheduleUiModel(domain)
                         }
-
-                    return personalSchedules
+                    }
                 }
-
-            return emptyList()
+                is ApiResult.Error -> emptyList()
+            }
         }
 
         suspend fun syncAlarms(schedules: List<ScheduleUiModel>) {

@@ -5,6 +5,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import pusan.university.plato_calendar.data.local.database.CompletedScheduleDataStore
+import pusan.university.plato_calendar.app.network.NoNetworkConnectivityException
 import pusan.university.plato_calendar.data.remote.service.AcademicScheduleService
 import pusan.university.plato_calendar.data.remote.service.PersonalScheduleService
 import pusan.university.plato_calendar.data.request.CreatePersonalScheduleArgs
@@ -14,6 +15,9 @@ import pusan.university.plato_calendar.data.request.DeletePersonalScheduleEvent
 import pusan.university.plato_calendar.data.request.DeletePersonalScheduleRequest
 import pusan.university.plato_calendar.data.request.UpdatePersonalScheduleArgs
 import pusan.university.plato_calendar.data.request.UpdatePersonalScheduleRequest
+import pusan.university.plato_calendar.data.util.ApiResponse
+import pusan.university.plato_calendar.data.util.ApiResult
+import pusan.university.plato_calendar.data.util.handleApiResponse
 import pusan.university.plato_calendar.domain.entity.LoginStatus
 import pusan.university.plato_calendar.domain.entity.Schedule.AcademicSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.NewSchedule
@@ -37,28 +41,25 @@ class RemoteScheduleRepository
         private val completedScheduleDataStore: CompletedScheduleDataStore,
         private val loginManager: LoginManager,
     ) : ScheduleRepository {
-        override suspend fun getAcademicSchedules(): Result<List<AcademicSchedule>> {
-            return try {
-                val response = academicScheduleService.readAcademicSchedules()
-
-                if (response.isSuccessful) {
-                    val responseBody = response.body()?.string()
+        override suspend fun getAcademicSchedules(): ApiResult<List<AcademicSchedule>> {
+            return when (val response = handleApiResponse { academicScheduleService.readAcademicSchedules() }) {
+                is ApiResponse.Success -> {
+                    val responseBody = response.data?.string()
                     if (responseBody.isNullOrBlank()) {
-                        return Result.failure(Exception(GET_SCHEDULES_FAILED_ERROR))
+                        ApiResult.Error(Exception(GET_SCHEDULES_FAILED_ERROR))
+                    } else {
+                        ApiResult.Success(responseBody.parseHtmlToAcademicSchedules())
                     }
-
-                    val academicSchedules = responseBody.parseHtmlToAcademicSchedules()
-                    Result.success(academicSchedules)
-                } else {
-                    Result.failure(Exception(GET_SCHEDULES_FAILED_ERROR))
                 }
-            } catch (e: Exception) {
-                Result.failure(e)
+                is ApiResponse.NetworkException -> ApiResult.Error(NoNetworkConnectivityException())
+                is ApiResponse.HttpError -> {
+                    ApiResult.Error(Exception(GET_SCHEDULES_FAILED_ERROR))
+                }
             }
         }
 
-        override suspend fun getPersonalSchedules(sessKey: String): Result<List<PersonalSchedule>> =
-            try {
+        override suspend fun getPersonalSchedules(sessKey: String): ApiResult<List<PersonalSchedule>> {
+            return try {
                 coroutineScope {
                     val (currentMonthSchedules, yearSchedules) =
                         awaitAll(
@@ -68,150 +69,113 @@ class RemoteScheduleRepository
 
                     val completedIds = completedScheduleDataStore.completedScheduleIds.first()
 
-                    val personalSchedules =
+                    val mappedSchedules =
                         (currentMonthSchedules + yearSchedules)
-                            .distinctBy { schedule -> schedule.id }
+                            .distinctBy { it.id }
                             .map { schedule ->
                                 when (schedule) {
-                                    is CourseSchedule -> {
-                                        schedule.copy(
-                                            isCompleted =
-                                                completedIds.contains(
-                                                    schedule.id,
-                                                ),
-                                        )
-                                    }
-
-                                    is CustomSchedule -> {
-                                        schedule.copy(
-                                            isCompleted =
-                                                completedIds.contains(
-                                                    schedule.id,
-                                                ),
-                                        )
-                                    }
+                                    is CourseSchedule -> schedule.copy(isCompleted = completedIds.contains(schedule.id))
+                                    is CustomSchedule -> schedule.copy(isCompleted = completedIds.contains(schedule.id))
                                 }
                             }
-
-                    Result.success(personalSchedules)
+                    ApiResult.Success(mappedSchedules)
                 }
             } catch (e: Exception) {
-                Result.failure(e)
-            }
-
-        override suspend fun makeCustomSchedule(newSchedule: NewSchedule): Result<Long> {
-            return try {
-                val loginStatus = loginManager.loginStatus.value
-
-                if (loginStatus is LoginStatus.Login) {
-                    val sessKey = loginStatus.loginSession.sessKey
-
-                    val body =
-                        buildCreatePersonalScheduleRequest(
-                            userId = loginStatus.loginSession.userId,
-                            sessKey = sessKey,
-                            newSchedule = newSchedule,
-                        )
-
-                    val response =
-                        personalScheduleService.createCustomSchedule(
-                            sessKey = sessKey,
-                            request = body,
-                        )
-
-                    if (response.isSuccessful) {
-                        val responseBody =
-                            response.body()?.firstOrNull() ?: return Result.failure(
-                                Exception(CREATE_SCHEDULE_FAILED_ERROR),
-                            )
-                        if (responseBody.error) {
-                            return Result.failure(Exception(CREATE_SCHEDULE_FAILED_ERROR))
-                        }
-                        val id =
-                            responseBody.data?.event?.id ?: return Result.failure(
-                                Exception(CREATE_SCHEDULE_FAILED_ERROR),
-                            )
-
-                        return Result.success(id)
-                    }
-                }
-
-                Result.failure(Exception(CREATE_SCHEDULE_FAILED_ERROR))
-            } catch (e: Exception) {
-                Result.failure(e)
+                ApiResult.Error(e)
             }
         }
 
-        override suspend fun editPersonalSchedule(personalSchedule: PersonalSchedule): Result<Unit> {
-            return try {
-                val loginStatus = loginManager.loginStatus.value
+        override suspend fun makeCustomSchedule(newSchedule: NewSchedule): ApiResult<Long> {
+            val loginStatus = loginManager.loginStatus.value
+            if (loginStatus !is LoginStatus.Login) return ApiResult.Error(Exception(CREATE_SCHEDULE_FAILED_ERROR))
 
-                if (loginStatus is LoginStatus.Login) {
-                    val sessKey = loginStatus.loginSession.sessKey
+            val sessKey = loginStatus.loginSession.sessKey
+            val request = buildCreatePersonalScheduleRequest(
+                userId = loginStatus.loginSession.userId,
+                sessKey = sessKey,
+                newSchedule = newSchedule,
+            )
 
-                    val response =
-                        personalScheduleService.updatePersonalSchedule(
-                            sessKey = sessKey,
-                            request =
-                                buildUpdatePersonalScheduleRequest(
-                                    id = personalSchedule.id,
-                                    userId = loginStatus.loginSession.userId,
-                                    sessKey = sessKey,
-                                    name = personalSchedule.title,
-                                    startDateTime = personalSchedule.startAt,
-                                    endDateTime = personalSchedule.endAt,
-                                    description = personalSchedule.description.orEmpty(),
-                                ),
-                        )
-
-                    if (response.isSuccessful) {
-                        val responseBody =
-                            response.body()?.firstOrNull() ?: return Result.failure(
-                                Exception(UPDATE_SCHEDULE_FAILED_ERROR),
-                            )
-                        if (responseBody.error) {
-                            return Result.failure(Exception(UPDATE_SCHEDULE_FAILED_ERROR))
-                        }
-
-                        return Result.success(Unit)
+            return when (
+                val response = handleApiResponse {
+                    personalScheduleService.createCustomSchedule(sessKey = sessKey, request = request)
+                }
+            ) {
+                is ApiResponse.Success -> {
+                    val responseBody = response.data?.firstOrNull()
+                    if (responseBody == null || responseBody.error) {
+                        ApiResult.Error(Exception(CREATE_SCHEDULE_FAILED_ERROR))
+                    } else {
+                        val id = responseBody.data?.event?.id
+                        if (id != null) ApiResult.Success(id) else ApiResult.Error(Exception(CREATE_SCHEDULE_FAILED_ERROR))
                     }
                 }
-
-                Result.failure(Exception(UPDATE_SCHEDULE_FAILED_ERROR))
-            } catch (e: Exception) {
-                Result.failure(e)
+                is ApiResponse.NetworkException -> ApiResult.Error(NoNetworkConnectivityException())
+                is ApiResponse.HttpError -> {
+                    ApiResult.Error(Exception(CREATE_SCHEDULE_FAILED_ERROR))
+                }
             }
         }
 
-        override suspend fun deleteCustomSchedule(id: Long): Result<Unit> {
-            return try {
-                val loginStatus = loginManager.loginStatus.value
+        override suspend fun editPersonalSchedule(personalSchedule: PersonalSchedule): ApiResult<Unit> {
+            val loginStatus = loginManager.loginStatus.value
+            if (loginStatus !is LoginStatus.Login) return ApiResult.Error(Exception(UPDATE_SCHEDULE_FAILED_ERROR))
 
-                if (loginStatus is LoginStatus.Login) {
-                    val sessKey = loginStatus.loginSession.sessKey
+            val sessKey = loginStatus.loginSession.sessKey
+            val request = buildUpdatePersonalScheduleRequest(
+                id = personalSchedule.id,
+                userId = loginStatus.loginSession.userId,
+                sessKey = sessKey,
+                name = personalSchedule.title,
+                startDateTime = personalSchedule.startAt,
+                endDateTime = personalSchedule.endAt,
+                description = personalSchedule.description.orEmpty(),
+            )
 
-                    val response =
-                        personalScheduleService.deleteCustomSchedule(
-                            sessKey = sessKey,
-                            request = buildDeletePersonalScheduleRequest(eventId = id),
-                        )
-
-                    if (response.isSuccessful) {
-                        val responseBody =
-                            response.body()?.firstOrNull() ?: return Result.failure(
-                                Exception(DELETE_SCHEDULE_FAILED_ERROR),
-                            )
-                        if (responseBody.error) {
-                            return Result.failure(Exception(DELETE_SCHEDULE_FAILED_ERROR))
-                        }
-
-                        return Result.success(Unit)
+            return when (
+                val response = handleApiResponse {
+                    personalScheduleService.updatePersonalSchedule(sessKey = sessKey, request = request)
+                }
+            ) {
+                is ApiResponse.Success -> {
+                    val responseBody = response.data?.firstOrNull()
+                    if (responseBody == null || responseBody.error) {
+                        ApiResult.Error(Exception(UPDATE_SCHEDULE_FAILED_ERROR))
+                    } else {
+                        ApiResult.Success(Unit)
                     }
                 }
+                is ApiResponse.NetworkException -> ApiResult.Error(NoNetworkConnectivityException())
+                is ApiResponse.HttpError -> {
+                    ApiResult.Error(Exception(UPDATE_SCHEDULE_FAILED_ERROR))
+                }
+            }
+        }
 
-                Result.failure(Exception(DELETE_SCHEDULE_FAILED_ERROR))
-            } catch (e: Exception) {
-                Result.failure(e)
+        override suspend fun deleteCustomSchedule(id: Long): ApiResult<Unit> {
+            val loginStatus = loginManager.loginStatus.value
+            if (loginStatus !is LoginStatus.Login) return ApiResult.Error(Exception(DELETE_SCHEDULE_FAILED_ERROR))
+
+            val sessKey = loginStatus.loginSession.sessKey
+            val request = buildDeletePersonalScheduleRequest(eventId = id)
+
+            return when (
+                val response = handleApiResponse {
+                    personalScheduleService.deleteCustomSchedule(sessKey = sessKey, request = request)
+                }
+            ) {
+                is ApiResponse.Success -> {
+                    val responseBody = response.data?.firstOrNull()
+                    if (responseBody == null || responseBody.error) {
+                        ApiResult.Error(Exception(DELETE_SCHEDULE_FAILED_ERROR))
+                    } else {
+                        ApiResult.Success(Unit)
+                    }
+                }
+                is ApiResponse.NetworkException -> ApiResult.Error(NoNetworkConnectivityException())
+                is ApiResponse.HttpError -> {
+                    ApiResult.Error(Exception(DELETE_SCHEDULE_FAILED_ERROR))
+                }
             }
         }
 
@@ -224,32 +188,30 @@ class RemoteScheduleRepository
         }
 
         private suspend fun getCurrentMonthPersonalSchedules(sessKey: String): List<PersonalSchedule> {
-            val currentMonthResponse =
-                personalScheduleService.readCurrentMonthPersonalSchedules(sessKey = sessKey)
-            return if (currentMonthResponse.isSuccessful) {
-                val currentMonthResponseBody = currentMonthResponse.body()?.string()
-                if (currentMonthResponseBody.isNullOrBlank()) {
-                    emptyList()
-                } else {
-                    currentMonthResponseBody.parseIcsToPersonalSchedules()
+            return when (
+                val response = handleApiResponse {
+                    personalScheduleService.readCurrentMonthPersonalSchedules(sessKey = sessKey)
                 }
-            } else {
-                emptyList()
+            ) {
+                is ApiResponse.Success -> {
+                    val bodyString = response.data?.string()
+                    if (bodyString.isNullOrBlank()) emptyList() else bodyString.parseIcsToPersonalSchedules()
+                }
+                else -> emptyList()
             }
         }
 
         private suspend fun getYearPersonalSchedules(sessKey: String): List<PersonalSchedule> {
-            val yearResponse =
-                personalScheduleService.readYearPersonalSchedules(sessKey = sessKey)
-            return if (yearResponse.isSuccessful) {
-                val yearResponseBody = yearResponse.body()?.string()
-                if (yearResponseBody.isNullOrBlank()) {
-                    emptyList()
-                } else {
-                    yearResponseBody.parseIcsToPersonalSchedules()
+            return when (
+                val response = handleApiResponse {
+                    personalScheduleService.readYearPersonalSchedules(sessKey = sessKey)
                 }
-            } else {
-                emptyList()
+            ) {
+                is ApiResponse.Success -> {
+                    val bodyString = response.data?.string()
+                    if (bodyString.isNullOrBlank()) emptyList() else bodyString.parseIcsToPersonalSchedules()
+                }
+                else -> emptyList()
             }
         }
 

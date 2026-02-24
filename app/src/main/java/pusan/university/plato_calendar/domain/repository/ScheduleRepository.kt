@@ -1,19 +1,20 @@
 package pusan.university.plato_calendar.domain.repository
 
+import pusan.university.plato_calendar.data.util.ApiResult
 import pusan.university.plato_calendar.domain.entity.Schedule.AcademicSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.NewSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule
 
 interface ScheduleRepository {
-    suspend fun getAcademicSchedules(): Result<List<AcademicSchedule>>
+    suspend fun getAcademicSchedules(): ApiResult<List<AcademicSchedule>>
 
-    suspend fun getPersonalSchedules(sessKey: String): Result<List<PersonalSchedule>>
+    suspend fun getPersonalSchedules(sessKey: String): ApiResult<List<PersonalSchedule>>
 
-    suspend fun makeCustomSchedule(newSchedule: NewSchedule): Result<Long>
+    suspend fun makeCustomSchedule(newSchedule: NewSchedule): ApiResult<Long>
 
-    suspend fun editPersonalSchedule(personalSchedule: PersonalSchedule): Result<Unit>
+    suspend fun editPersonalSchedule(personalSchedule: PersonalSchedule): ApiResult<Unit>
 
-    suspend fun deleteCustomSchedule(id: Long): Result<Unit>
+    suspend fun deleteCustomSchedule(id: Long): ApiResult<Unit>
 
     suspend fun markScheduleAsCompleted(id: Long)
 

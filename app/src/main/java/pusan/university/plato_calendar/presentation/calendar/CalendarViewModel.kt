@@ -3,12 +3,12 @@ package pusan.university.plato_calendar.presentation.calendar
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import pusan.university.plato_calendar.app.network.NoNetworkConnectivityException
 import pusan.university.plato_calendar.app.network.NoNetworkConnectivityException.Companion.NETWORK_ERROR_MESSAGE
+import pusan.university.plato_calendar.data.util.ApiResult
 import pusan.university.plato_calendar.domain.entity.LoginStatus
 import pusan.university.plato_calendar.domain.entity.Schedule.NewSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CourseSchedule
@@ -204,62 +204,44 @@ constructor(
         scheduleManager.getMonthSchedule(yearMonth)
 
     private suspend fun getAcademicSchedules(): List<AcademicScheduleUiModel> {
-        scheduleRepository
-            .getAcademicSchedules()
-            .onSuccess {
-                val academicSchedules =
-                    it
-                        .map(::AcademicScheduleUiModel)
-                        .toSet()
-                        .toList()
-
-                return academicSchedules
-            }.onFailure { throwable ->
-                if (throwable !is NoNetworkConnectivityException && throwable !is CancellationException) {
-                    ToastEventBus.sendError(
-                        throwable.message,
-                    )
+        return when (val result = scheduleRepository.getAcademicSchedules()) {
+            is ApiResult.Success -> result.data.map(::AcademicScheduleUiModel).toSet().toList()
+            is ApiResult.Error -> {
+                if (result.exception !is NoNetworkConnectivityException) {
+                    ToastEventBus.sendError(result.exception.message)
                 }
+                emptyList()
             }
-
-        return emptyList()
+        }
     }
 
     private suspend fun getPersonalSchedules(sessKey: String): List<ScheduleUiModel> {
-        scheduleRepository
-            .getPersonalSchedules(sessKey = sessKey)
-            .onSuccess {
-                val personalSchedules =
-                    it.map { domain ->
-                        when (domain) {
-                            is CourseSchedule -> {
-                                val courseName =
-                                    courseRepository.getCourseName(
-                                        domain.courseCode,
-                                    )
-
-                                CourseScheduleUiModel(
-                                    domain = domain,
-                                    courseName = courseName,
+        return when (val result = scheduleRepository.getPersonalSchedules(sessKey = sessKey)) {
+            is ApiResult.Success -> {
+                result.data.map { domain ->
+                    when (domain) {
+                        is CourseSchedule -> {
+                            val courseName =
+                                courseRepository.getCourseName(
+                                    domain.courseCode,
                                 )
-                            }
 
-                            is CustomSchedule -> {
-                                CustomScheduleUiModel(domain)
-                            }
+                            CourseScheduleUiModel(
+                                domain = domain,
+                                courseName = courseName,
+                            )
                         }
+
+                        is CustomSchedule -> CustomScheduleUiModel(domain)
                     }
-
-                return personalSchedules
-            }.onFailure { throwable ->
-                loadingManager.updateLoading(false)
-
-                if (throwable !is CancellationException) {
-                    ToastEventBus.sendError(throwable.message)
                 }
             }
-
-        return emptyList()
+            is ApiResult.Error -> {
+                loadingManager.updateLoading(false)
+                ToastEventBus.sendError(result.exception.message)
+                emptyList()
+            }
+        }
     }
 
     private fun getSchedules() {
@@ -316,12 +298,11 @@ constructor(
     }
 
     private suspend fun makeCustomSchedule(newSchedule: NewSchedule) {
-        scheduleRepository
-            .makeCustomSchedule(newSchedule)
-            .onSuccess { id ->
+        when (val result = scheduleRepository.makeCustomSchedule(newSchedule)) {
+            is ApiResult.Success -> {
                 val customSchedule =
                     CustomScheduleUiModel(
-                        id = id,
+                        id = result.data,
                         title = newSchedule.title,
                         description = newSchedule.description,
                         startAt = newSchedule.startAt,
@@ -334,15 +315,14 @@ constructor(
                 setState { copy(scheduleBottomSheetContent = null) }
                 setSideEffect { CalendarSideEffect.HideScheduleBottomSheet }
                 ToastEventBus.sendSuccess("일정이 생성되었습니다.")
-            }.onFailure { throwable ->
-                ToastEventBus.sendError(throwable.message)
             }
+            is ApiResult.Error -> ToastEventBus.sendError(result.exception.message)
+        }
     }
 
     private suspend fun editCustomSchedule(customSchedule: CustomSchedule) {
-        scheduleRepository
-            .editPersonalSchedule(customSchedule)
-            .onSuccess {
+        when (val result = scheduleRepository.editPersonalSchedule(customSchedule)) {
+            is ApiResult.Success -> {
                 val updatedSchedules =
                     state.value.schedules.map { schedule ->
                         if (schedule is CustomScheduleUiModel && schedule.id == customSchedule.id) {
@@ -362,15 +342,14 @@ constructor(
                 setState { copy(scheduleBottomSheetContent = null) }
                 setSideEffect { CalendarSideEffect.HideScheduleBottomSheet }
                 ToastEventBus.sendSuccess("일정이 수정되었습니다.")
-            }.onFailure { throwable ->
-                ToastEventBus.sendError(throwable.message)
             }
+            is ApiResult.Error -> ToastEventBus.sendError(result.exception.message)
+        }
     }
 
     private suspend fun deleteCustomSchedule(id: Long) {
-        scheduleRepository
-            .deleteCustomSchedule(id)
-            .onSuccess {
+        when (val result = scheduleRepository.deleteCustomSchedule(id)) {
+            is ApiResult.Success -> {
                 scheduleRepository.markScheduleAsUncompleted(id)
 
                 val updatedSchedules =
@@ -383,9 +362,9 @@ constructor(
                 setState { copy(scheduleBottomSheetContent = null) }
                 setSideEffect { CalendarSideEffect.HideScheduleBottomSheet }
                 ToastEventBus.sendSuccess("일정이 삭제되었습니다.")
-            }.onFailure { throwable ->
-                ToastEventBus.sendError(throwable.message)
             }
+            is ApiResult.Error -> ToastEventBus.sendError(result.exception.message)
+        }
     }
 
     private suspend fun togglePersonalScheduleCompletion(

@@ -1,6 +1,10 @@
 package pusan.university.plato_calendar.data.remote.repository
 
+import pusan.university.plato_calendar.app.network.NoNetworkConnectivityException
 import pusan.university.plato_calendar.data.remote.service.CafeteriaService
+import pusan.university.plato_calendar.data.util.ApiResponse
+import pusan.university.plato_calendar.data.util.ApiResult
+import pusan.university.plato_calendar.data.util.handleApiResponse
 import pusan.university.plato_calendar.domain.entity.Cafeteria
 import pusan.university.plato_calendar.domain.entity.CafeteriaWeeklyPlan
 import pusan.university.plato_calendar.domain.entity.CourseMenu
@@ -18,35 +22,34 @@ class RemoteCafeteriaRepository
 constructor(
     private val cafeteriaService: CafeteriaService,
 ) : CafeteriaRepository {
-    override suspend fun getCafeteriaWeeklyPlan(cafeteria: Cafeteria): Result<CafeteriaWeeklyPlan> {
-        return try {
-            val response =
+    override suspend fun getCafeteriaWeeklyPlan(cafeteria: Cafeteria): ApiResult<CafeteriaWeeklyPlan> {
+        return when (
+            val response = handleApiResponse {
                 cafeteriaService.getCafeteriaWeeklyPlan(
                     campus = cafeteria.campus.name,
                     buildingCode = cafeteria.buildingCode,
                     restaurantCode = cafeteria.restaurantCode,
                 )
-
-            if (response.isSuccessful) {
-                val responseBody = response.body()?.string()
-                if (responseBody.isNullOrBlank()) {
-                    return Result.failure(Exception(GET_CAFETERIA_MENUS_FAILED_ERROR))
-                }
-
-                val parseHtmlToWeeklyPlans = responseBody.parseHtmlToWeeklyPlans()
-                val notice = responseBody.parseNotice()
-                Result.success(
-                    CafeteriaWeeklyPlan(
-                        cafeteria = cafeteria,
-                        notice = notice,
-                        weeklyPlans = parseHtmlToWeeklyPlans,
-                    ),
-                )
-            } else {
-                Result.failure(Exception(GET_CAFETERIA_MENUS_FAILED_ERROR))
             }
-        } catch (e: Exception) {
-            Result.failure(e)
+        ) {
+            is ApiResponse.Success -> {
+                val responseBody = response.data?.string()
+                if (responseBody.isNullOrBlank()) {
+                    ApiResult.Error(Exception(GET_CAFETERIA_MENUS_FAILED_ERROR))
+                } else {
+                    ApiResult.Success(
+                        CafeteriaWeeklyPlan(
+                            cafeteria = cafeteria,
+                            notice = responseBody.parseNotice(),
+                            weeklyPlans = responseBody.parseHtmlToWeeklyPlans(),
+                        )
+                    )
+                }
+            }
+            is ApiResponse.NetworkException -> ApiResult.Error(NoNetworkConnectivityException())
+            is ApiResponse.HttpError -> {
+                ApiResult.Error(Exception(GET_CAFETERIA_MENUS_FAILED_ERROR))
+            }
         }
     }
 

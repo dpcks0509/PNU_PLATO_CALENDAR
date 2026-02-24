@@ -7,3 +7,4 @@ class NoNetworkConnectivityException : IOException(NETWORK_ERROR_MESSAGE) {
         const val NETWORK_ERROR_MESSAGE = "네트워크 연결을 확인해 주세요."
     }
 }
+

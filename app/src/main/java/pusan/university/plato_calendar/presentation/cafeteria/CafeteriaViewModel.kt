@@ -5,6 +5,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import pusan.university.plato_calendar.data.local.database.CafeteriaDataStore
 import pusan.university.plato_calendar.domain.entity.Cafeteria
+import pusan.university.plato_calendar.data.util.ApiResult
 import pusan.university.plato_calendar.domain.repository.CafeteriaRepository
 import pusan.university.plato_calendar.presentation.cafeteria.intent.CafeteriaEvent
 import pusan.university.plato_calendar.presentation.cafeteria.intent.CafeteriaEvent.NextDay
@@ -100,21 +101,20 @@ constructor(
 
             loadingManager.updateLoading(true)
 
-            cafeteriaRepository
-                .getCafeteriaWeeklyPlan(cafeteria = cafeteria)
-                .onSuccess { weeklyPlan ->
+            when (val result = cafeteriaRepository.getCafeteriaWeeklyPlan(cafeteria = cafeteria)) {
+                is ApiResult.Success -> {
                     setState {
                         val newPlans = if (refresh) {
-                            mapOf(cafeteria to weeklyPlan)
+                            mapOf(cafeteria to result.data)
                         } else {
-                            cafeteriaWeeklyPlans + (cafeteria to weeklyPlan)
+                            cafeteriaWeeklyPlans + (cafeteria to result.data)
                         }
 
                         copy(cafeteriaWeeklyPlans = newPlans)
                     }
-                }.onFailure { throwable ->
-                    ToastEventBus.sendError(throwable.message)
                 }
+                is ApiResult.Error -> ToastEventBus.sendError(result.exception.message)
+            }
 
             loadingManager.updateLoading(false)
         }

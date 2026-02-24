@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import pusan.university.plato_calendar.app.network.NoNetworkConnectivityException
 import pusan.university.plato_calendar.data.local.database.LoginCredentialsDataStore
+import pusan.university.plato_calendar.data.util.ApiResult
 import pusan.university.plato_calendar.domain.entity.LoginCredentials
 import pusan.university.plato_calendar.domain.entity.LoginStatus
 import pusan.university.plato_calendar.domain.repository.LoginRepository
@@ -32,18 +33,19 @@ constructor(
         val loginCredentials = loginCredentialsDataStore.loginCredentials.firstOrNull()
 
         if (loginCredentials != null) {
-            loginRepository
-                .login(loginCredentials)
-                .onSuccess { loginSession ->
-                    _loginStatus.update { LoginStatus.Login(loginSession) }
-                }.onFailure { throwable ->
-                    if (throwable is NoNetworkConnectivityException) {
+            when (val result = loginRepository.login(loginCredentials)) {
+                is ApiResult.Success -> {
+                    _loginStatus.update { LoginStatus.Login(result.data) }
+                }
+                is ApiResult.Error -> {
+                    if (result.exception is NoNetworkConnectivityException) {
                         _loginStatus.update { LoginStatus.NetworkDisconnected }
                     } else {
                         _loginStatus.update { LoginStatus.Logout }
-                        ToastEventBus.sendError(throwable.message)
+                        ToastEventBus.sendError(result.exception.message)
                     }
                 }
+            }
         } else {
             _loginStatus.update { LoginStatus.Logout }
         }
@@ -51,16 +53,14 @@ constructor(
 
     suspend fun login(credentials: LoginCredentials) {
         if (loginStatus.value !is LoginStatus.Login) {
-            loginRepository
-                .login(credentials)
-                .onSuccess { loginSession ->
-                    _loginStatus.update { LoginStatus.Login(loginSession) }
+            when (val result = loginRepository.login(credentials)) {
+                is ApiResult.Success -> {
+                    _loginStatus.update { LoginStatus.Login(result.data) }
                     loginCredentialsDataStore.saveLoginCredentials(credentials)
-
                     ToastEventBus.sendSuccess("로그인에 성공했습니다.")
-                }.onFailure { throwable ->
-                    ToastEventBus.sendError(throwable.message)
                 }
+                is ApiResult.Error -> ToastEventBus.sendError(result.exception.message)
+            }
         }
     }
 
@@ -68,16 +68,14 @@ constructor(
         val loginStatus = loginStatus.value
 
         if (loginStatus is LoginStatus.Login) {
-            loginRepository
-                .logout(sessKey = loginStatus.loginSession.sessKey)
-                .onSuccess {
+            when (val result = loginRepository.logout(sessKey = loginStatus.loginSession.sessKey)) {
+                is ApiResult.Success -> {
                     _loginStatus.update { LoginStatus.Logout }
                     loginCredentialsDataStore.deleteLoginCredentials()
-
                     ToastEventBus.sendSuccess("로그아웃에 성공했습니다.")
-                }.onFailure { throwable ->
-                    ToastEventBus.sendError(throwable.message)
                 }
+                is ApiResult.Error -> ToastEventBus.sendError(result.exception.message)
+            }
         }
     }
 }
