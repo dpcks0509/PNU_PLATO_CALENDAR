@@ -22,6 +22,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -109,24 +112,40 @@ class MainActivity : ComponentActivity() {
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = navBackStackEntry?.destination?.route
 
+            var hasRequestedPermission by rememberSaveable { mutableStateOf(false) }
+
             val notificationPermissionLauncher = rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.RequestPermission()
             ) { isGranted ->
+                if (!isGranted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    viewModel.setEvent(MainEvent.ShowDialog(PlatoDialogContent.NotificationPermissionContent))
+                }
+
                 lifecycleScope.launch {
                     settingsManager.setNotificationsEnabled(isGranted)
                 }
+            }
 
-                if (!isGranted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    viewModel.setEvent(MainEvent.ShowDialog(PlatoDialogContent.NotificationPermissionContent))
+            val notificationSettingsLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.StartActivityForResult()
+            ) {
+                val isGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+                } else {
+                    true
+                }
+
+                lifecycleScope.launch {
+                    settingsManager.setNotificationsEnabled(isGranted)
                 }
             }
 
             LaunchedEffect(Unit) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    if (
-                        checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) !=
-                        PackageManager.PERMISSION_GRANTED
-                    ) {
+                    val hasPermission = checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+
+                    if (!hasPermission && !hasRequestedPermission) {
+                        hasRequestedPermission = true
                         notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                     }
                 }
@@ -139,9 +158,8 @@ class MainActivity : ComponentActivity() {
                             val intent =
                                 Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                                     data = Uri.fromParts("package", packageName, null)
-                                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                 }
-                            startActivity(intent)
+                            notificationSettingsLauncher.launch(intent)
                         }
 
                         MainSideEffect.NavigateToCalendar -> {

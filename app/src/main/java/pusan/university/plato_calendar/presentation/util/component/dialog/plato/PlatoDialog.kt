@@ -15,8 +15,8 @@ fun PlatoDialog(
     state: MainState,
     onEvent: (MainEvent) -> Unit,
 ) {
-    content?.let {
-        when (it) {
+    content?.let { content ->
+        when (content) {
             NotificationPermissionContent -> {
                 NotificationPermissionDialog(
                     onDismiss = { onEvent(MainEvent.HideDialog) },
