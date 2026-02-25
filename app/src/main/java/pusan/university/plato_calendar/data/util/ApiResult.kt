@@ -19,13 +19,13 @@ fun <T, R> ApiResponse<T>.toApiResult(
             transform(data)
         }
 
-        is ApiResponse.Failure.NetworkException -> {
-            ApiResult.Error(exception)
-        }
-
         is ApiResponse.Failure.HttpException -> {
             val finalMessage = message?.takeIf { it.isNotBlank() } ?: errorMessage
             ApiResult.Error(ApiException(code, finalMessage))
+        }
+
+        is ApiResponse.Failure.NetworkException -> {
+            ApiResult.Error(exception)
         }
 
         is ApiResponse.Failure.UnknownException -> {
