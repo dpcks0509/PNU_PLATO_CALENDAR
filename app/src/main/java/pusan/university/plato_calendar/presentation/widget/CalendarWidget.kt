@@ -40,8 +40,8 @@ import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import pusan.university.plato_calendar.R
-import pusan.university.plato_calendar.domain.repository.CourseRepository
-import pusan.university.plato_calendar.domain.repository.ScheduleRepository
+import pusan.university.plato_calendar.domain.usecase.course.GetCourseNameUseCase
+import pusan.university.plato_calendar.domain.usecase.schedule.GetPersonalSchedulesUseCase
 import pusan.university.plato_calendar.presentation.main.MainActivity
 import pusan.university.plato_calendar.presentation.util.manager.LoginManager
 import pusan.university.plato_calendar.presentation.util.manager.SettingsManager
@@ -70,15 +70,11 @@ class CalendarWidget : GlanceAppWidget() {
     @EntryPoint
     @InstallIn(SingletonComponent::class)
     interface WidgetEntryPoint {
-        fun scheduleRepository(): ScheduleRepository
-
-        fun courseRepository(): CourseRepository
-
         fun loginManager(): LoginManager
-
         fun settingsManager(): SettingsManager
-
         fun alarmScheduler(): AlarmScheduler
+        fun getPersonalSchedulesUseCase(): GetPersonalSchedulesUseCase
+        fun getCourseNameUseCase(): GetCourseNameUseCase
     }
 
     override suspend fun provideGlance(

@@ -1,13 +1,13 @@
 package pusan.university.plato_calendar.data.remote.repository
 
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
-import pusan.university.plato_calendar.data.local.database.LoginCredentialsDataStore
 import pusan.university.plato_calendar.data.remote.service.LoginService
 import pusan.university.plato_calendar.data.util.ApiResponse
 import pusan.university.plato_calendar.data.util.ApiResult
 import pusan.university.plato_calendar.data.util.handleApiResponse
 import pusan.university.plato_calendar.domain.entity.LoginCredentials
 import pusan.university.plato_calendar.domain.entity.LoginSession
+import pusan.university.plato_calendar.domain.exception.InvalidCredentialsException
 import pusan.university.plato_calendar.domain.repository.LoginRepository
 import javax.inject.Inject
 
@@ -15,7 +15,6 @@ class RemoteLoginRepository
     @Inject
     constructor(
         private val loginService: LoginService,
-        private val loginCredentialsDataStore: LoginCredentialsDataStore,
     ) : LoginRepository {
         override suspend fun login(credentials: LoginCredentials): ApiResult<LoginSession> {
             val response =
@@ -47,8 +46,7 @@ class RemoteLoginRepository
                 }
 
                 "3" -> {
-                    loginCredentialsDataStore.deleteLoginCredentials()
-                    return ApiResult.Error(Exception(INVALID_CREDENTIALS_ERROR))
+                    return ApiResult.Error(InvalidCredentialsException())
                 }
 
                 "4" -> {
@@ -166,7 +164,6 @@ class RemoteLoginRepository
             private const val COOKIES_DISABLED_ERROR = "현재, 브라우저의 쿠키가 작동하지 않습니다."
             private const val INVALID_USERNAME_FORMAT_ERROR =
                 "사용자 아이디: 이이디에는 영어소문자, 숫자, 밑줄( _ ), 하이폰( - ), 마침표( . ) 또는 @ 기호만을 쓸 수 있습니다."
-            private const val INVALID_CREDENTIALS_ERROR = "아이디 또는 패스워드가 잘못 입력되었습니다."
             private const val SESSION_EXPIRED_ERROR = "세션이 종료 되었습니다. 다시 로그인 하십시오."
             private const val ACCOUNT_LOCKED_ERROR =
                 "로그인 시도 5회 실패로 인해 계정이 일시적으로 잠겼습니다.\n" +

@@ -2,9 +2,6 @@ package pusan.university.plato_calendar.data.remote.repository
 
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.first
-import pusan.university.plato_calendar.data.local.database.CompletedScheduleDataStore
 import pusan.university.plato_calendar.data.remote.service.AcademicScheduleService
 import pusan.university.plato_calendar.data.remote.service.PersonalScheduleService
 import pusan.university.plato_calendar.data.util.ApiResult
@@ -19,8 +16,6 @@ import pusan.university.plato_calendar.domain.entity.LoginStatus
 import pusan.university.plato_calendar.domain.entity.Schedule.AcademicSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.NewSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule
-import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CourseSchedule
-import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
 import pusan.university.plato_calendar.domain.repository.ScheduleRepository
 import pusan.university.plato_calendar.presentation.util.manager.LoginManager
 import javax.inject.Inject
@@ -30,7 +25,6 @@ class RemoteScheduleRepository
     constructor(
         private val personalScheduleService: PersonalScheduleService,
         private val academicScheduleService: AcademicScheduleService,
-        private val completedScheduleDataStore: CompletedScheduleDataStore,
         private val loginManager: LoginManager,
     ) : ScheduleRepository {
         override suspend fun getAcademicSchedules(): ApiResult<List<AcademicSchedule>> {
@@ -57,33 +51,10 @@ class RemoteScheduleRepository
                 if (currentMonthResult !is ApiResult.Success) return@coroutineScope currentMonthResult
                 if (yearResult !is ApiResult.Success) return@coroutineScope yearResult
 
-                val currentMonthSchedules = currentMonthResult.data
-                val yearSchedules = yearResult.data
+                val schedules =
+                    (currentMonthResult.data + yearResult.data).distinctBy { it.id }
 
-                val completedIds =
-                    completedScheduleDataStore.completedScheduleIds
-                        .catch { emit(emptySet()) }
-                        .first()
-
-                val mappedSchedules =
-                    (currentMonthSchedules + yearSchedules)
-                        .distinctBy { it.id }
-                        .map { schedule ->
-                            when (schedule) {
-                                is CourseSchedule -> {
-                                    schedule.copy(
-                                        isCompleted = completedIds.contains(schedule.id),
-                                    )
-                                }
-
-                                is CustomSchedule -> {
-                                    schedule.copy(
-                                        isCompleted = completedIds.contains(schedule.id),
-                                    )
-                                }
-                            }
-                        }
-                ApiResult.Success(mappedSchedules)
+                ApiResult.Success(schedules)
             }
 
         override suspend fun makeCustomSchedule(newSchedule: NewSchedule): ApiResult<Long> {
@@ -181,14 +152,6 @@ class RemoteScheduleRepository
                     ApiResult.Success(Unit)
                 }
             }
-        }
-
-        override suspend fun markScheduleAsCompleted(id: Long) {
-            completedScheduleDataStore.addCompletedSchedule(id)
-        }
-
-        override suspend fun markScheduleAsUncompleted(id: Long) {
-            completedScheduleDataStore.removeCompletedSchedule(id)
         }
 
         private suspend fun getCurrentMonthPersonalSchedules(sessKey: String): ApiResult<List<PersonalSchedule>> {

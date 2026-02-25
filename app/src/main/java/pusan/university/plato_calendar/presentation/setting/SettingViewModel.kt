@@ -141,6 +141,6 @@ class SettingViewModel
             firstTime: NotificationTime,
             secondTime: NotificationTime,
         ) {
-            settingsManager.setReminderTime(firstTime, secondTime)
+            settingsManager.setReminderTimes(firstTime, secondTime)
         }
     }

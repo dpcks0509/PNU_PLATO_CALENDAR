@@ -41,22 +41,20 @@ class RefreshSchedulesCallback : ActionCallback {
                 WidgetEntryPoint::class.java,
             )
 
-        val scheduleRepository = entryPoint.scheduleRepository()
-        val courseRepository = entryPoint.courseRepository()
         val loginManager = entryPoint.loginManager()
         val settingsManager = entryPoint.settingsManager()
         val alarmScheduler = entryPoint.alarmScheduler()
+        val getPersonalSchedulesUseCase = entryPoint.getPersonalSchedulesUseCase()
+        val getCourseNameUseCase = entryPoint.getCourseNameUseCase()
 
         suspend fun getPersonalSchedules(sessKey: String): List<PersonalScheduleUiModel> {
-            return when (val result = scheduleRepository.getPersonalSchedules(sessKey = sessKey)) {
+            return when (val result = getPersonalSchedulesUseCase(sessKey)) {
                 is ApiResult.Success -> {
                     result.data.map { domain ->
                         when (domain) {
                             is CourseSchedule -> {
                                 val courseName =
-                                    courseRepository.getCourseName(
-                                        domain.courseCode,
-                                    )
+                                    getCourseNameUseCase(domain.courseCode)
 
                                 CourseScheduleUiModel(
                                     domain = domain,
