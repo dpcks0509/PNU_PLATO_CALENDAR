@@ -1,5 +1,6 @@
 package pusan.university.plato_calendar.presentation.util.component
 
+import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -19,6 +20,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -37,6 +39,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import pusan.university.plato_calendar.R
 import pusan.university.plato_calendar.presentation.util.eventbus.ToastEventBus
 import pusan.university.plato_calendar.presentation.util.eventbus.ToastMessage
@@ -47,7 +50,7 @@ fun AnimatedToast() {
     var isVisible by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        ToastEventBus.toastMessage.collect { message ->
+        ToastEventBus.toastMessage.collectLatest { message ->
             if (isVisible) {
                 isVisible = false
                 delay(300)
@@ -55,37 +58,34 @@ fun AnimatedToast() {
 
             currentMessage = message
             isVisible = true
-        }
-    }
 
-    LaunchedEffect(isVisible) {
-        if (isVisible) {
             delay(3000)
+
             isVisible = false
             delay(300)
+
             currentMessage = null
         }
     }
 
     currentMessage?.let { message ->
         Dialog(
-            onDismissRequest = { },
-            properties =
-                DialogProperties(
-                    usePlatformDefaultWidth = false,
-                    dismissOnClickOutside = false,
-                    dismissOnBackPress = false,
-                ),
+            onDismissRequest = {},
+            properties = DialogProperties(
+                dismissOnBackPress = false,
+                dismissOnClickOutside = false,
+                usePlatformDefaultWidth = false,
+            ),
         ) {
-            val parentView = LocalView.current.parent
-            val dialogWindowProvider = parentView as? DialogWindowProvider
-            dialogWindowProvider?.window?.apply {
-                setDimAmount(0f)
-                clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
-                addFlags(
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
-                            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                )
+            val dialogWindow = (LocalView.current.parent as? DialogWindowProvider)?.window
+
+            SideEffect {
+                dialogWindow?.apply {
+                    clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+                    addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
+                    addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+                    setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+                }
             }
 
             Box(
