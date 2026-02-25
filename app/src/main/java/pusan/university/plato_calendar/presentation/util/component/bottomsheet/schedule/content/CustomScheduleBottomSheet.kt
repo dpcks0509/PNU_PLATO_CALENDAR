@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -79,8 +78,7 @@ fun CustomScheduleBottomSheet(
 ) {
     var title by rememberSaveable { mutableStateOf(schedule.title) }
     var description by rememberSaveable { mutableStateOf(schedule.description.orEmpty()) }
-    var startAt by rememberSaveable(stateSaver = LocalDateTimeSaver) { mutableStateOf(schedule.startAt) }
-    var endAt by rememberSaveable(stateSaver = LocalDateTimeSaver) { mutableStateOf(schedule.endAt) }
+    var time by rememberSaveable(stateSaver = LocalDateTimeSaver) { mutableStateOf(schedule.endAt) }
 
     var timePickerFor by rememberSaveable { mutableStateOf<PickerTarget?>(null) }
 
@@ -103,20 +101,16 @@ fun CustomScheduleBottomSheet(
     }
 
     val dateFormatter = DateTimeFormatter.ofPattern("M월 d일 (E)", Locale.KOREAN)
-    val formattedStartDate = remember(startAt) { startAt.format(dateFormatter) }
-    val formattedStartTime = remember(startAt) { startAt.formatTimeWithMidnightSpecialCase() }
-    val formattedEndDate = remember(endAt) { endAt.format(dateFormatter) }
-    val formattedEndTime = remember(endAt) { endAt.formatTimeWithMidnightSpecialCase() }
-    val formattedStartYear = remember(startAt) { "${startAt.year}년" }
-    val formattedEndYear = remember(endAt) { "${endAt.year}년" }
+    val formattedEndDate = remember(time) { time.format(dateFormatter) }
+    val formattedEndTime = remember(time) { time.formatTimeWithMidnightSpecialCase() }
+    val formattedEndYear = remember(time) { "${time.year}년" }
 
     val hasChanges =
-        remember(title, description, startAt, endAt) {
+        remember(title, description, time) {
             title.isNotEmpty() && (
                     title != schedule.title ||
                             description != schedule.description.orEmpty() ||
-                            startAt != schedule.startAt ||
-                            endAt != schedule.endAt
+                            time != schedule.endAt
                     )
         }
 
@@ -158,8 +152,8 @@ fun CustomScheduleBottomSheet(
                         id = schedule.id,
                         title = title,
                         description = description,
-                        startAt = startAt,
-                        endAt = endAt,
+                        startAt = time,
+                        endAt = time,
                         isCompleted = schedule.isCompleted,
                     ),
                 )
@@ -308,7 +302,7 @@ fun CustomScheduleBottomSheet(
                 modifier = Modifier.size(24.dp),
             )
 
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(16.dp))
 
             Column(
                 modifier =
@@ -320,68 +314,12 @@ fun CustomScheduleBottomSheet(
                         .noRippleClickable {
                             onShowDialog(
                                 ScheduleDialogContent.DatePickerContent(
-                                    initialSelectedDateMillis = initialMillisFor(startAt),
+                                    initialSelectedDateMillis = initialMillisFor(time),
                                     minDateMillis = minDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
                                     maxDateMillis = maxDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
                                     onConfirm = { millis ->
                                         val pickedDate = Instant.ofEpochMilli(millis).atZone(zoneId).toLocalDate()
-                                        startAt = LocalDateTime.of(pickedDate, startAt.toLocalTime())
-                                        if (endAt.isBefore(startAt)) endAt = startAt.plusHours(1)
-                                        timePickerFor = PickerTarget.START
-                                    },
-                                ),
-                            )
-                        },
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-            ) {
-                Text(
-                    text = formattedStartYear,
-                    fontSize = 14.sp,
-                    color = Gray,
-                )
-                Text(
-                    text = formattedStartDate,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Black,
-                )
-                Text(
-                    text = formattedStartTime,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Black,
-                )
-            }
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = null,
-                tint = Black,
-                modifier = Modifier.size(24.dp),
-            )
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Column(
-                modifier =
-                    Modifier
-                        .weight(1f)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(LightGray)
-                        .padding(vertical = 8.dp)
-                        .noRippleClickable {
-                            onShowDialog(
-                                ScheduleDialogContent.DatePickerContent(
-                                    initialSelectedDateMillis = initialMillisFor(endAt),
-                                    minDateMillis = minDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
-                                    maxDateMillis = maxDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
-                                    onConfirm = { millis ->
-                                        val pickedDate = Instant.ofEpochMilli(millis).atZone(zoneId).toLocalDate()
-                                        endAt = LocalDateTime.of(pickedDate, endAt.toLocalTime())
-                                        if (endAt.isBefore(startAt)) startAt = endAt.minusHours(1)
+                                        time = LocalDateTime.of(pickedDate, time.toLocalTime())
                                         timePickerFor = PickerTarget.END
                                     },
                                 ),
@@ -408,9 +346,9 @@ fun CustomScheduleBottomSheet(
                     color = Black,
                 )
             }
-        }
 
-        Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.width(16.dp))
+        }
     }
 
     Spacer(modifier = Modifier.height(12.dp))
@@ -461,29 +399,18 @@ fun CustomScheduleBottomSheet(
 
     Spacer(modifier = Modifier.height(12.dp))
 
-    timePickerFor?.let { target ->
-        val initialDateTime = if (target == PickerTarget.START) startAt else endAt
-
+    timePickerFor?.let {
         LaunchedEffect(timePickerFor) {
             onShowDialog(
                 ScheduleDialogContent.TimePickerContent(
-                    initialHour = initialDateTime.hour,
-                    initialMinute = initialDateTime.minute,
+                    initialHour = time.hour,
+                    initialMinute = time.minute,
                     onConfirm = { hour, minute ->
-                        val updated =
-                            initialDateTime
-                                .withHour(hour)
-                                .withMinute(minute)
-                        if (target == PickerTarget.START) {
-                            startAt = updated
-                            if (endAt.isBefore(startAt)) endAt = startAt.plusHours(1)
-                        } else {
-                            endAt = updated
-                            if (endAt.isBefore(startAt)) startAt = endAt.minusHours(1)
-                        }
+                        time = time.withHour(hour).withMinute(minute)
                     },
                 ),
             )
+
             timePickerFor = null
         }
     }
