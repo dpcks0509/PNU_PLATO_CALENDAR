@@ -3,6 +3,7 @@ package pusan.university.plato_calendar.presentation.main
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import pusan.university.plato_calendar.domain.entity.LoginStatus
 import pusan.university.plato_calendar.presentation.main.intent.MainEvent
 import pusan.university.plato_calendar.presentation.main.intent.MainEvent.ConfirmLogin
 import pusan.university.plato_calendar.presentation.main.intent.MainEvent.ConfirmNotificationPermission
@@ -47,8 +48,14 @@ constructor(
 
             is ConfirmLogin -> {
                 setState { copy(isLoggingIn = true) }
+
                 loginManager.login(event.credentials)
-                setState { copy(isLoggingIn = false, dialogContent = null) }
+
+                if (loginManager.loginStatus.value is LoginStatus.Login) {
+                    setState { copy(isLoggingIn = false, dialogContent = null) }
+                } else {
+                    setState { copy(isLoggingIn = false) }
+                }
             }
 
             NavigateToCalendar -> setSideEffect { MainSideEffect.NavigateToCalendar }
