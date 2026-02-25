@@ -15,43 +15,37 @@ import java.io.IOException
 import javax.inject.Inject
 
 class CafeteriaDataStore
-    @Inject
-    constructor(
-        private val context: Context,
-    ) {
-        private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = SELECTED_CAFETERIA)
+@Inject
+constructor(
+    private val context: Context,
+) {
+    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = SELECTED_CAFETERIA)
 
-        val selectedCafeteria: Flow<Cafeteria> =
-            context
-                .dataStore
-                .data
-                .catch { exception ->
-                    if (exception is IOException) {
-                        emit(emptyPreferences())
-                    } else {
-                        throw exception
-                    }
-                }.map { preferences ->
-                    val cafeteriaName = preferences[KEY_SELECTED_CAFETERIA_NAME]
-                    cafeteriaName?.let {
-                        runCatching { Cafeteria.valueOf(it) }.getOrNull()
-                    } ?: Cafeteria.GEUMJEONG_STUDENT
+    val selectedCafeteria: Flow<Cafeteria> =
+        context
+            .dataStore
+            .data
+            .catch { exception ->
+                if (exception is IOException) {
+                    emit(emptyPreferences())
+                } else {
+                    throw exception
                 }
-
-        suspend fun setSelectedCafeteria(cafeteria: Cafeteria) {
-            context.dataStore.edit { prefs ->
-                prefs[KEY_SELECTED_CAFETERIA_NAME] = cafeteria.name
+            }.map { preferences ->
+                val cafeteriaName = preferences[KEY_SELECTED_CAFETERIA_NAME]
+                cafeteriaName?.let {
+                    runCatching { Cafeteria.valueOf(it) }.getOrNull()
+                } ?: Cafeteria.GEUMJEONG_STUDENT
             }
-        }
 
-        suspend fun clearSelectedCafeteria() {
-            context.dataStore.edit { prefs ->
-                prefs.remove(KEY_SELECTED_CAFETERIA_NAME)
-            }
-        }
-
-        companion object {
-            private const val SELECTED_CAFETERIA = "selected_cafeteria"
-            private val KEY_SELECTED_CAFETERIA_NAME = stringPreferencesKey("selected_cafeteria_name")
+    suspend fun setSelectedCafeteria(cafeteria: Cafeteria) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_SELECTED_CAFETERIA_NAME] = cafeteria.name
         }
     }
+
+    companion object {
+        private const val SELECTED_CAFETERIA = "selected_cafeteria"
+        private val KEY_SELECTED_CAFETERIA_NAME = stringPreferencesKey("selected_cafeteria_name")
+    }
+}
