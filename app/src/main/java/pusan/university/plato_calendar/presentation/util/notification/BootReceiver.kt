@@ -16,7 +16,6 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class BootReceiver : BroadcastReceiver() {
-
     @Inject
     lateinit var alarmScheduler: AlarmScheduler
 
@@ -26,30 +25,34 @@ class BootReceiver : BroadcastReceiver() {
     @Inject
     lateinit var settingsManager: SettingsManager
 
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(
+        context: Context,
+        intent: Intent,
+    ) {
         if (intent.action != Intent.ACTION_BOOT_COMPLETED) {
             return
         }
 
         val pendingResult = goAsync()
-        val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+        val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-        coroutineScope.launch {
-            val settings = settingsManager.appSettings.first()
-            val schedules = scheduleManager.schedules.first()
+        coroutineScope
+            .launch {
+                val settings = settingsManager.appSettings.first()
+                val schedules = scheduleManager.schedules.first()
 
-            if (!settings.notificationsEnabled) return@launch
+                if (!settings.notificationsEnabled) return@launch
 
-            val personalSchedules =
-                schedules.filterIsInstance<PersonalScheduleUiModel>().filter { !it.isCompleted }
+                val personalSchedules =
+                    schedules.filterIsInstance<PersonalScheduleUiModel>().filter { !it.isCompleted }
 
-            alarmScheduler.scheduleNotificationsForSchedule(
-                personalSchedules = personalSchedules,
-                firstReminderTime = settings.firstReminderTime,
-                secondReminderTime = settings.secondReminderTime,
-            )
-        }.invokeOnCompletion {
-            pendingResult.finish()
-        }
+                alarmScheduler.scheduleNotificationsForSchedule(
+                    personalSchedules = personalSchedules,
+                    firstReminderTime = settings.firstReminderTime,
+                    secondReminderTime = settings.secondReminderTime,
+                )
+            }.invokeOnCompletion {
+                pendingResult.finish()
+            }
     }
 }
