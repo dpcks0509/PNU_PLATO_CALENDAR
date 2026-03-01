@@ -1,6 +1,7 @@
 package pusan.university.plato_calendar.presentation.util.manager
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import pusan.university.plato_calendar.domain.entity.AppSettings
 import pusan.university.plato_calendar.domain.usecase.settings.GetAppSettingsUseCase
 import pusan.university.plato_calendar.domain.usecase.settings.SetNotificationsEnabledUseCase
@@ -21,6 +22,13 @@ class SettingsManager
         private val setThemeModeUseCase: SetThemeModeUseCase,
     ) {
         val appSettings: Flow<AppSettings> = getAppSettingsUseCase()
+
+        var initialSettings: AppSettings = AppSettings()
+            private set
+
+        suspend fun loadInitialSettings() {
+            initialSettings = appSettings.first()
+        }
 
         suspend fun setNotificationsEnabled(enabled: Boolean) {
             setNotificationsEnabledUseCase(enabled)

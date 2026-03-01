@@ -32,9 +32,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import pusan.university.plato_calendar.domain.entity.AppSettings
 import pusan.university.plato_calendar.presentation.main.intent.MainEvent
 import pusan.university.plato_calendar.presentation.main.intent.MainSideEffect
 import pusan.university.plato_calendar.presentation.main.intent.MainSideEffect.NavigateToNotificationSettings
@@ -83,7 +81,7 @@ class MainActivity : ComponentActivity() {
         var isThemeLoaded = false
 
         lifecycleScope.launch {
-            settingsManager.appSettings.first()
+            settingsManager.loadInitialSettings()
             isThemeLoaded = true
         }
 
@@ -99,14 +97,14 @@ class MainActivity : ComponentActivity() {
             val isLoading by loadingManager.isLoading.collectAsStateWithLifecycle()
 
             val appSettings by settingsManager.appSettings.collectAsStateWithLifecycle(
-                initialValue = AppSettings()
+                initialValue = settingsManager.initialSettings,
             )
-            val isSystemDark = isSystemInDarkTheme()
-            val darkTheme = when (appSettings.themeMode) {
-                ThemeMode.LIGHT -> false
-                ThemeMode.DARK -> true
-                ThemeMode.SYSTEM -> isSystemDark
-            }
+            val darkTheme =
+                when (appSettings.themeMode) {
+                    ThemeMode.LIGHT -> false
+                    ThemeMode.DARK -> true
+                    ThemeMode.SYSTEM -> isSystemInDarkTheme()
+                }
 
             val navController = rememberNavController()
             val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -114,35 +112,39 @@ class MainActivity : ComponentActivity() {
 
             var hasRequestedPermission by rememberSaveable { mutableStateOf(false) }
 
-            val notificationPermissionLauncher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.RequestPermission()
-            ) { isGranted ->
-                if (!isGranted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    viewModel.setEvent(MainEvent.ShowDialog(PlatoDialogContent.NotificationPermissionContent))
+            val notificationPermissionLauncher =
+                rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.RequestPermission(),
+                ) { isGranted ->
+                    if (!isGranted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        viewModel.setEvent(MainEvent.ShowDialog(PlatoDialogContent.NotificationPermissionContent))
+                    }
+
+                    lifecycleScope.launch {
+                        settingsManager.setNotificationsEnabled(isGranted)
+                    }
                 }
 
-                lifecycleScope.launch {
-                    settingsManager.setNotificationsEnabled(isGranted)
-                }
-            }
+            val notificationSettingsLauncher =
+                rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.StartActivityForResult(),
+                ) {
+                    val isGranted =
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+                        } else {
+                            true
+                        }
 
-            val notificationSettingsLauncher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.StartActivityForResult()
-            ) {
-                val isGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
-                } else {
-                    true
+                    lifecycleScope.launch {
+                        settingsManager.setNotificationsEnabled(isGranted)
+                    }
                 }
-
-                lifecycleScope.launch {
-                    settingsManager.setNotificationsEnabled(isGranted)
-                }
-            }
 
             LaunchedEffect(Unit) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    val hasPermission = checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+                    val hasPermission =
+                        checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
 
                     if (!hasPermission && !hasRequestedPermission) {
                         hasRequestedPermission = true
@@ -252,10 +254,11 @@ class MainActivity : ComponentActivity() {
     private fun setSmartOrientation() {
         val screenWidthDp = resources.configuration.smallestScreenWidthDp
 
-        requestedOrientation = if (screenWidthDp >= 600) {
-            ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-        } else {
-            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        }
+        requestedOrientation =
+            if (screenWidthDp >= 600) {
+                ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            } else {
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            }
     }
 }

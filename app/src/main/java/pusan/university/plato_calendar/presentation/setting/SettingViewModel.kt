@@ -20,7 +20,16 @@ class SettingViewModel
     constructor(
         private val loginManager: LoginManager,
         private val settingsManager: SettingsManager,
-    ) : BaseViewModel<SettingState, SettingEvent, SettingSideEffect>(SettingState()) {
+    ) : BaseViewModel<SettingState, SettingEvent, SettingSideEffect>(
+            settingsManager.initialSettings.run {
+                SettingState(
+                    notificationsEnabled = notificationsEnabled,
+                    firstReminderTime = firstReminderTime,
+                    secondReminderTime = secondReminderTime,
+                    themeMode = themeMode,
+                )
+            },
+        ) {
         init {
             viewModelScope.launch {
                 loginManager.loginStatus.collect { loginStatus ->
