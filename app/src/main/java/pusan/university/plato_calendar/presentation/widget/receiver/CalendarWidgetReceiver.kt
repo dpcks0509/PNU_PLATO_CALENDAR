@@ -6,6 +6,7 @@ import androidx.glance.action.actionParametersOf
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
+import com.google.firebase.analytics.FirebaseAnalytics
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,6 +23,8 @@ class CalendarWidgetReceiver : GlanceAppWidgetReceiver() {
 
     override fun onEnabled(context: Context) {
         super.onEnabled(context)
+
+        FirebaseAnalytics.getInstance(context).logEvent("widget_added", null)
         coroutineScope.launch {
             getSettingsManager(context).setAutoUpdateSchedule(true)
         }
@@ -33,6 +36,7 @@ class CalendarWidgetReceiver : GlanceAppWidgetReceiver() {
     ) {
         super.onDeleted(context, appWidgetIds)
 
+        FirebaseAnalytics.getInstance(context).logEvent("widget_deleted", null)
         coroutineScope.launch {
             getSettingsManager(context).setAutoUpdateSchedule(false)
         }

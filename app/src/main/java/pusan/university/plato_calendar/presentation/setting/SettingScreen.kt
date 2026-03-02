@@ -61,9 +61,9 @@ import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.TH
 import pusan.university.plato_calendar.presentation.util.component.TopBar
 import pusan.university.plato_calendar.presentation.util.component.dialog.plato.content.PlatoDialogContent
 import pusan.university.plato_calendar.presentation.util.eventbus.DialogEventBus
-import pusan.university.plato_calendar.presentation.widget.receiver.CalendarWidgetReceiver
 import pusan.university.plato_calendar.presentation.util.theme.MediumGray
 import pusan.university.plato_calendar.presentation.util.theme.PlatoCalendarTheme
+import pusan.university.plato_calendar.presentation.widget.receiver.CalendarWidgetReceiver
 
 @Composable
 fun SettingScreen(
