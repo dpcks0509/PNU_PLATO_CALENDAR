@@ -5,19 +5,26 @@ import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.Se
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.COLOR
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.CONTACT_US
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.FIRST_REMINDER
+import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.PUSAN_NATIONAL_UNIVERSITY
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.SECOND_REMINDER
+import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.SMART_EDUCATION_PLATFORM
+import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.STUDENT_SUPPORT_SYSTEM
 
 enum class SettingMenu(
     val title: String,
     val items: List<SettingContent>,
 ) {
-    ACCOUNT("계정", listOf(ACCOUNT_INFO)),
+    ACCOUNT(title = "계정", items = listOf(ACCOUNT_INFO)),
     NOTIFICATIONS(
-        "알림",
-        listOf(SettingContent.NOTIFICATIONS_ENABLED, FIRST_REMINDER, SECOND_REMINDER),
+        title = "알림",
+        items = listOf(SettingContent.NOTIFICATIONS_ENABLED, FIRST_REMINDER, SECOND_REMINDER),
     ),
-    THEME("테마", listOf(COLOR)),
-    STUDENT_SUPPORT("학생지원", listOf(ANNOUNCEMENTS, CONTACT_US)),
+    THEME(title = "테마", items = listOf(COLOR)),
+    SHORT_CUT(
+        title = "바로가기",
+        items = listOf(PUSAN_NATIONAL_UNIVERSITY, STUDENT_SUPPORT_SYSTEM, SMART_EDUCATION_PLATFORM),
+    ),
+    STUDENT_SUPPORT(title = "학생지원", items = listOf(ANNOUNCEMENTS, CONTACT_US)),
     ;
 
     enum class SettingContent(
@@ -30,6 +37,18 @@ enum class SettingMenu(
         FIRST_REMINDER(label = "알림"),
         SECOND_REMINDER(label = "두 번째 알림"),
         COLOR,
+        PUSAN_NATIONAL_UNIVERSITY(
+            label = "부산대학교",
+            url = "https://www.pusan.ac.kr/kor/Main.do",
+        ),
+        STUDENT_SUPPORT_SYSTEM(
+            label = "학생지원시스템",
+            url = "https://onestop.pusan.ac.kr",
+        ),
+        SMART_EDUCATION_PLATFORM(
+            label = "스마트 교육 플랫폼 (PLATO)",
+            url = "https://plato.pusan.ac.kr",
+        ),
         ANNOUNCEMENTS(
             label = "공지사항",
             url = "https://glaze-mustang-7cf.notion.site/28057846cad680089524ea45cb9afce1",
