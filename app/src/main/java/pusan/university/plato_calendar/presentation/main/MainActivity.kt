@@ -13,6 +13,9 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
@@ -29,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
@@ -108,7 +112,17 @@ class MainActivity : ComponentActivity() {
 
             val navController = rememberNavController()
             val navBackStackEntry by navController.currentBackStackEntryAsState()
-            val currentRoute = navBackStackEntry?.destination?.route
+            val topLevelRoutes =
+                listOf(
+                    PlatoCalendarScreen.CalendarScreen::class,
+                    PlatoCalendarScreen.ToDoScreen::class,
+                    PlatoCalendarScreen.CafeteriaScreen::class,
+                    PlatoCalendarScreen.SettingScreen::class,
+                )
+            val isBottomBarVisible =
+                topLevelRoutes.any { routeClass ->
+                    navBackStackEntry?.destination?.hasRoute(routeClass) == true
+                }
 
             var hasRequestedPermission by rememberSaveable { mutableStateOf(false) }
 
@@ -180,13 +194,16 @@ class MainActivity : ComponentActivity() {
             PlatoCalendarTheme(darkTheme = darkTheme) {
                 Box(modifier = Modifier.fillMaxSize()) {
                     Scaffold(
+                        contentWindowInsets = WindowInsets(0, 0, 0, 0),
                         bottomBar = {
-                            val isWebView = currentRoute?.contains("WebView") == true
-                            if (!isWebView) {
+                            AnimatedVisibility(
+                                visible = isBottomBarVisible,
+                                enter = slideInVertically(initialOffsetY = { it }),
+                                exit = slideOutVertically(targetOffsetY = { it }),
+                            ) {
                                 PlatoCalendarBottomBar(navController = navController)
                             }
                         },
-                        contentWindowInsets = WindowInsets(0, 0, 0, 0),
                         modifier = Modifier.fillMaxSize(),
                     ) { paddingValues ->
                         PlatoCalendarNavHost(
