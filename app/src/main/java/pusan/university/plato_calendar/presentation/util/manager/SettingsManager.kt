@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import pusan.university.plato_calendar.domain.entity.AppSettings
 import pusan.university.plato_calendar.domain.usecase.settings.GetAppSettingsUseCase
+import pusan.university.plato_calendar.domain.usecase.settings.SetAutoUpdateScheduleUseCase
 import pusan.university.plato_calendar.domain.usecase.settings.SetNotificationsEnabledUseCase
 import pusan.university.plato_calendar.domain.usecase.settings.SetReminderTimeUseCase
 import pusan.university.plato_calendar.domain.usecase.settings.SetThemeModeUseCase
@@ -17,6 +18,7 @@ class SettingsManager
     @Inject
     constructor(
         getAppSettingsUseCase: GetAppSettingsUseCase,
+        private val setAutoUpdateScheduleUseCase: SetAutoUpdateScheduleUseCase,
         private val setNotificationsEnabledUseCase: SetNotificationsEnabledUseCase,
         private val setReminderTimeUseCase: SetReminderTimeUseCase,
         private val setThemeModeUseCase: SetThemeModeUseCase,
@@ -28,6 +30,10 @@ class SettingsManager
 
         suspend fun loadInitialSettings() {
             initialSettings = appSettings.first()
+        }
+
+        suspend fun setAutoUpdateSchedule(enabled: Boolean) {
+            setAutoUpdateScheduleUseCase(enabled)
         }
 
         suspend fun setNotificationsEnabled(enabled: Boolean) {

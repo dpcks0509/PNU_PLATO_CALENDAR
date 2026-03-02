@@ -15,6 +15,10 @@ class LocalAppSettingsRepository
     ) : AppSettingsRepository {
         override fun getAppSettings(): Flow<AppSettings> = settingsDataStore.settings
 
+        override suspend fun setAutoUpdateSchedule(enabled: Boolean) {
+            settingsDataStore.setAutoUpdateSchedule(enabled)
+        }
+
         override suspend fun setNotificationsEnabled(enabled: Boolean) {
             settingsDataStore.setNotificationsEnabled(enabled)
         }

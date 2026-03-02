@@ -10,6 +10,10 @@ sealed interface SettingEvent : UiEvent {
 
     data object Logout : SettingEvent
 
+    data class UpdateAutoUpdateSchedule(
+        val enabled: Boolean,
+    ) : SettingEvent
+
     data class UpdateNotificationsEnabled(
         val enabled: Boolean,
     ) : SettingEvent

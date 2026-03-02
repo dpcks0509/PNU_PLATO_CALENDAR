@@ -8,6 +8,10 @@ import pusan.university.plato_calendar.presentation.util.component.dialog.plato.
 import pusan.university.plato_calendar.presentation.util.component.dialog.plato.content.PlatoDialogContent
 import pusan.university.plato_calendar.presentation.util.component.dialog.plato.content.PlatoDialogContent.LoginContent
 import pusan.university.plato_calendar.presentation.util.component.dialog.plato.content.PlatoDialogContent.NotificationPermissionContent
+import pusan.university.plato_calendar.presentation.util.component.dialog.plato.content.PlatoDialogContent.WidgetRemovalRequiredContent
+import pusan.university.plato_calendar.presentation.util.component.dialog.plato.content.PlatoDialogContent.WidgetRequiredContent
+import pusan.university.plato_calendar.presentation.util.component.dialog.plato.content.WidgetRemovalRequiredDialog
+import pusan.university.plato_calendar.presentation.util.component.dialog.plato.content.WidgetRequiredDialog
 
 @Composable
 fun PlatoDialog(
@@ -31,6 +35,18 @@ fun PlatoDialog(
                     onConfirm = { credentials ->
                         onEvent(MainEvent.ConfirmLogin(credentials))
                     },
+                )
+            }
+
+            WidgetRequiredContent -> {
+                WidgetRequiredDialog(
+                    onDismiss = { onEvent(MainEvent.HideDialog) },
+                )
+            }
+
+            WidgetRemovalRequiredContent -> {
+                WidgetRemovalRequiredDialog(
+                    onDismiss = { onEvent(MainEvent.HideDialog) },
                 )
             }
         }

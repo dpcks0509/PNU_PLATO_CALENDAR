@@ -20,11 +20,11 @@ import pusan.university.plato_calendar.presentation.util.theme.VeryLightGray
 import pusan.university.plato_calendar.presentation.util.theme.White
 
 @Composable
-fun NotificationToggleItem(
+fun ToggleSwitch(
     label: String,
     checked: Boolean,
     enabled: Boolean = true,
-    onCheckedChange: (Boolean) -> Unit
+    onCheckedChange: (Boolean) -> Unit,
 ) {
     Row(
         modifier =

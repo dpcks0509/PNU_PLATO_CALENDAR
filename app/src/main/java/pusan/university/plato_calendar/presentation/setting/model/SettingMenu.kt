@@ -2,9 +2,11 @@ package pusan.university.plato_calendar.presentation.setting.model
 
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.ACCOUNT_INFO
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.ANNOUNCEMENTS
+import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.AUTO_UPDATE_SCHEDULE
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.COLOR
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.CONTACT_US
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.FIRST_REMINDER
+import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.NOTIFICATIONS_ENABLED
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.PUSAN_NATIONAL_UNIVERSITY
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.SECOND_REMINDER
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.SMART_EDUCATION_PLATFORM
@@ -17,7 +19,13 @@ enum class SettingMenu(
     ACCOUNT(title = "계정", items = listOf(ACCOUNT_INFO)),
     NOTIFICATIONS(
         title = "알림",
-        items = listOf(SettingContent.NOTIFICATIONS_ENABLED, FIRST_REMINDER, SECOND_REMINDER),
+        items =
+            listOf(
+                AUTO_UPDATE_SCHEDULE,
+                NOTIFICATIONS_ENABLED,
+                FIRST_REMINDER,
+                SECOND_REMINDER,
+            ),
     ),
     THEME(title = "테마", items = listOf(COLOR)),
     SHORT_CUT(
@@ -33,6 +41,7 @@ enum class SettingMenu(
         val url: String? = null,
     ) {
         ACCOUNT_INFO,
+        AUTO_UPDATE_SCHEDULE(label = "일정 자동 업데이트"),
         NOTIFICATIONS_ENABLED(label = "알림 허용하기"),
         FIRST_REMINDER(label = "알림"),
         SECOND_REMINDER(label = "두 번째 알림"),

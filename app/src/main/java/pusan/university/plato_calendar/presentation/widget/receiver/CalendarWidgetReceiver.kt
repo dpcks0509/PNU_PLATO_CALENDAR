@@ -6,6 +6,7 @@ import androidx.glance.action.actionParametersOf
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
+import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -18,6 +19,31 @@ class CalendarWidgetReceiver : GlanceAppWidgetReceiver() {
         get() = CalendarWidget()
 
     private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    override fun onEnabled(context: Context) {
+        super.onEnabled(context)
+        coroutineScope.launch {
+            getSettingsManager(context).setAutoUpdateSchedule(true)
+        }
+    }
+
+    override fun onDeleted(
+        context: Context,
+        appWidgetIds: IntArray,
+    ) {
+        super.onDeleted(context, appWidgetIds)
+
+        coroutineScope.launch {
+            getSettingsManager(context).setAutoUpdateSchedule(false)
+        }
+    }
+
+    private fun getSettingsManager(context: Context) =
+        EntryPointAccessors
+            .fromApplication(
+                context.applicationContext,
+                CalendarWidget.WidgetEntryPoint::class.java,
+            ).settingsManager()
 
     override fun onUpdate(
         context: Context,

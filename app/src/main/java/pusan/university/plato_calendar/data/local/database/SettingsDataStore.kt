@@ -35,6 +35,7 @@ class SettingsDataStore
                         throw exception
                     }
                 }.map { preferences ->
+                    val autoUpdateSchedule = preferences[KEY_AUTO_UPDATE_SCHEDULE] ?: false
                     val notificationsEnabled = preferences[KEY_NOTIFICATIONS_ENABLED] ?: false
                     val firstReminderName =
                         preferences[KEY_FIRST_REMINDER_TIME_NAME] ?: NotificationTime.ONE_HOUR.name
@@ -54,12 +55,19 @@ class SettingsDataStore
                             .getOrDefault(ThemeMode.SYSTEM)
 
                     AppSettings(
+                        autoUpdateSchedule = autoUpdateSchedule,
                         notificationsEnabled = notificationsEnabled,
                         firstReminderTime = firstReminderTime,
                         secondReminderTime = secondReminderTime,
                         themeMode = themeMode,
                     )
                 }
+
+        suspend fun setAutoUpdateSchedule(enabled: Boolean) {
+            context.dataStore.edit { prefs ->
+                prefs[KEY_AUTO_UPDATE_SCHEDULE] = enabled
+            }
+        }
 
         suspend fun setNotificationsEnabled(enabled: Boolean) {
             context.dataStore.edit { prefs ->
@@ -85,6 +93,7 @@ class SettingsDataStore
 
         companion object {
             private const val SETTINGS_NAME = "app_settings"
+            private val KEY_AUTO_UPDATE_SCHEDULE = booleanPreferencesKey("auto_update_schedule")
             private val KEY_NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
             private val KEY_FIRST_REMINDER_TIME_NAME = stringPreferencesKey("first_reminder_time_name")
             private val KEY_SECOND_REMINDER_TIME_NAME =

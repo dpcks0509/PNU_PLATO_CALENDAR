@@ -1,6 +1,8 @@
 package pusan.university.plato_calendar.presentation.setting
 
 import android.Manifest
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
@@ -31,13 +33,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import pusan.university.plato_calendar.presentation.setting.component.Account
-import pusan.university.plato_calendar.presentation.setting.component.NotificationToggleItem
 import pusan.university.plato_calendar.presentation.setting.component.ReminderDropdownItem
 import pusan.university.plato_calendar.presentation.setting.component.SettingItem
 import pusan.university.plato_calendar.presentation.setting.component.SettingSection
 import pusan.university.plato_calendar.presentation.setting.component.ThemeSelector
+import pusan.university.plato_calendar.presentation.setting.component.ToggleSwitch
 import pusan.university.plato_calendar.presentation.setting.intent.SettingEvent
 import pusan.university.plato_calendar.presentation.setting.intent.SettingEvent.NavigateToWebView
+import pusan.university.plato_calendar.presentation.setting.intent.SettingEvent.UpdateAutoUpdateSchedule
 import pusan.university.plato_calendar.presentation.setting.intent.SettingEvent.UpdateFirstReminderTime
 import pusan.university.plato_calendar.presentation.setting.intent.SettingEvent.UpdateNotificationPermission
 import pusan.university.plato_calendar.presentation.setting.intent.SettingEvent.UpdateNotificationsEnabled
@@ -50,6 +53,7 @@ import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.AC
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.NOTIFICATIONS
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SHORT_CUT
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.STUDENT_SUPPORT
+import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.AUTO_UPDATE_SCHEDULE
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.FIRST_REMINDER
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.NOTIFICATIONS_ENABLED
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.SECOND_REMINDER
@@ -57,6 +61,7 @@ import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.TH
 import pusan.university.plato_calendar.presentation.util.component.TopBar
 import pusan.university.plato_calendar.presentation.util.component.dialog.plato.content.PlatoDialogContent
 import pusan.university.plato_calendar.presentation.util.eventbus.DialogEventBus
+import pusan.university.plato_calendar.presentation.widget.receiver.CalendarWidgetReceiver
 import pusan.university.plato_calendar.presentation.util.theme.MediumGray
 import pusan.university.plato_calendar.presentation.util.theme.PlatoCalendarTheme
 
@@ -89,6 +94,26 @@ fun SettingScreen(
 
     val handleSettingEvent: (SettingEvent) -> Unit = { event ->
         when (event) {
+            is UpdateAutoUpdateSchedule -> {
+                if (event.enabled) {
+                    if (isWidgetAdded(context)) {
+                        viewModel.setEvent(event)
+                    } else {
+                        coroutineScope.launch {
+                            DialogEventBus.show(PlatoDialogContent.WidgetRequiredContent)
+                        }
+                    }
+                } else {
+                    if (isWidgetAdded(context)) {
+                        coroutineScope.launch {
+                            DialogEventBus.show(PlatoDialogContent.WidgetRemovalRequiredContent)
+                        }
+                    } else {
+                        viewModel.setEvent(event)
+                    }
+                }
+            }
+
             is UpdateNotificationsEnabled -> {
                 if (!event.enabled) {
                     viewModel.setEvent(event)
@@ -159,8 +184,20 @@ fun SettingContent(
                             NOTIFICATIONS -> {
                                 menu.items.forEachIndexed { index, content ->
                                     when {
+                                        content == AUTO_UPDATE_SCHEDULE -> {
+                                            ToggleSwitch(
+                                                label = content.label.orEmpty(),
+                                                checked = state.autoUpdateSchedule,
+                                                onCheckedChange = { enabled ->
+                                                    onEvent(
+                                                        UpdateAutoUpdateSchedule(enabled),
+                                                    )
+                                                },
+                                            )
+                                        }
+
                                         content == NOTIFICATIONS_ENABLED -> {
-                                            NotificationToggleItem(
+                                            ToggleSwitch(
                                                 label = content.label.orEmpty(),
                                                 checked = state.notificationsEnabled,
                                                 onCheckedChange = { enabled ->
@@ -258,6 +295,12 @@ fun SettingContent(
             }
         }
     }
+}
+
+private fun isWidgetAdded(context: Context): Boolean {
+    val appWidgetManager = AppWidgetManager.getInstance(context)
+    val widgetProvider = ComponentName(context, CalendarWidgetReceiver::class.java)
+    return appWidgetManager.getAppWidgetIds(widgetProvider).isNotEmpty()
 }
 
 private fun checkNotificationPermission(context: Context): Boolean =

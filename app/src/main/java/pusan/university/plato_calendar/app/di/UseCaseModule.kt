@@ -28,6 +28,7 @@ import pusan.university.plato_calendar.domain.usecase.schedule.MakeCustomSchedul
 import pusan.university.plato_calendar.domain.usecase.schedule.MarkScheduleAsCompletedUseCase
 import pusan.university.plato_calendar.domain.usecase.schedule.MarkScheduleAsUncompletedUseCase
 import pusan.university.plato_calendar.domain.usecase.settings.GetAppSettingsUseCase
+import pusan.university.plato_calendar.domain.usecase.settings.SetAutoUpdateScheduleUseCase
 import pusan.university.plato_calendar.domain.usecase.settings.SetNotificationsEnabledUseCase
 import pusan.university.plato_calendar.domain.usecase.settings.SetReminderTimeUseCase
 import pusan.university.plato_calendar.domain.usecase.settings.SetThemeModeUseCase
@@ -74,6 +75,11 @@ object UseCaseModule {
     @Singleton
     fun provideGetAppSettingsUseCase(appSettingsRepository: AppSettingsRepository): GetAppSettingsUseCase =
         GetAppSettingsUseCase(appSettingsRepository)
+
+    @Provides
+    @Singleton
+    fun provideSetAutoUpdateScheduleUseCase(appSettingsRepository: AppSettingsRepository): SetAutoUpdateScheduleUseCase =
+        SetAutoUpdateScheduleUseCase(appSettingsRepository)
 
     @Provides
     @Singleton

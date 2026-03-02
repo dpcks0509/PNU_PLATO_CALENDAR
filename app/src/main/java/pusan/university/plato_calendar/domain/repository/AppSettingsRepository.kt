@@ -8,6 +8,8 @@ import pusan.university.plato_calendar.presentation.setting.model.ThemeMode
 interface AppSettingsRepository {
     fun getAppSettings(): Flow<AppSettings>
 
+    suspend fun setAutoUpdateSchedule(enabled: Boolean)
+
     suspend fun setNotificationsEnabled(enabled: Boolean)
 
     suspend fun setReminderTime(

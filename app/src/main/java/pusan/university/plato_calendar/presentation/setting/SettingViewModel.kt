@@ -23,6 +23,7 @@ class SettingViewModel
     ) : BaseViewModel<SettingState, SettingEvent, SettingSideEffect>(
             settingsManager.initialSettings.run {
                 SettingState(
+                    autoUpdateSchedule = autoUpdateSchedule,
                     notificationsEnabled = notificationsEnabled,
                     firstReminderTime = firstReminderTime,
                     secondReminderTime = secondReminderTime,
@@ -49,6 +50,7 @@ class SettingViewModel
                 settingsManager.appSettings.collect { appSettings ->
                     setState {
                         copy(
+                            autoUpdateSchedule = appSettings.autoUpdateSchedule,
                             notificationsEnabled = appSettings.notificationsEnabled,
                             firstReminderTime = appSettings.firstReminderTime,
                             secondReminderTime = appSettings.secondReminderTime,
@@ -67,6 +69,10 @@ class SettingViewModel
 
                 SettingEvent.Logout -> {
                     loginManager.logout()
+                }
+
+                is SettingEvent.UpdateAutoUpdateSchedule -> {
+                    settingsManager.setAutoUpdateSchedule(enabled = event.enabled)
                 }
 
                 is SettingEvent.UpdateNotificationsEnabled -> {
