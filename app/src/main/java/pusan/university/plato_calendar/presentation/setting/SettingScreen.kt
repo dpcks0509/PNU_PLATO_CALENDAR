@@ -48,11 +48,11 @@ import pusan.university.plato_calendar.presentation.setting.intent.SettingState
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.ACCOUNT
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.NOTIFICATIONS
+import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.STUDENT_SUPPORT
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.FIRST_REMINDER
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.NOTIFICATIONS_ENABLED
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.SECOND_REMINDER
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.THEME
-import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.USER_SUPPORT
 import pusan.university.plato_calendar.presentation.util.component.TopBar
 import pusan.university.plato_calendar.presentation.util.component.dialog.plato.content.PlatoDialogContent
 import pusan.university.plato_calendar.presentation.util.eventbus.DialogEventBus
@@ -160,7 +160,7 @@ fun SettingContent(
                                     when {
                                         content == NOTIFICATIONS_ENABLED -> {
                                             NotificationToggleItem(
-                                                label = content.getLabel(),
+                                                label = content.label.orEmpty(),
                                                 checked = state.notificationsEnabled,
                                                 onCheckedChange = { enabled ->
                                                     onEvent(
@@ -172,7 +172,7 @@ fun SettingContent(
 
                                         content == FIRST_REMINDER -> {
                                             ReminderDropdownItem(
-                                                label = content.getLabel(),
+                                                label = content.label.orEmpty(),
                                                 selectedLabel = state.firstReminderTime.label,
                                                 enabled = state.hasNotificationPermission,
                                                 onSelect = { option ->
@@ -187,7 +187,7 @@ fun SettingContent(
 
                                         content == SECOND_REMINDER -> {
                                             ReminderDropdownItem(
-                                                label = content.getLabel(),
+                                                label = content.label.orEmpty(),
                                                 selectedLabel = state.secondReminderTime.label,
                                                 onSelect = { option ->
                                                     onEvent(
@@ -222,10 +222,11 @@ fun SettingContent(
                                 )
                             }
 
-                            USER_SUPPORT -> {
+                            STUDENT_SUPPORT -> {
                                 menu.items.forEachIndexed { index, content ->
                                     SettingItem(
-                                        content = content,
+                                        text = content.label.orEmpty(),
+                                        url = content.url,
                                         navigateToWebView = { navigateUrl ->
                                             onEvent(
                                                 NavigateToWebView(

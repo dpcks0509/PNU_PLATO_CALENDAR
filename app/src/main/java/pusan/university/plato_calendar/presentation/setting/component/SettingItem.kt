@@ -16,17 +16,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import pusan.university.plato_calendar.presentation.setting.model.SettingMenu
 import pusan.university.plato_calendar.presentation.util.theme.Gray
 import pusan.university.plato_calendar.presentation.util.theme.VeryLightGray
 
 @Composable
 fun SettingItem(
-    content: SettingMenu.SettingContent,
+    text: String,
+    url: String?,
     navigateToWebView: (String) -> Unit,
 ) {
-    val text = content.getLabel()
-    val url = content.getUrl()
     Row(
         modifier =
             Modifier
