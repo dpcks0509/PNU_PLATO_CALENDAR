@@ -86,7 +86,7 @@ internal fun String.parseHtmlToAcademicSchedules(): List<AcademicSchedule> {
 }
 
 private fun buildScheduleFromFields(fields: Map<String, String>): PersonalSchedule {
-    val courseCode = fields["CATEGORIES"]?.split("_")[2].formatCourseCode()
+    val courseCode = fields["CATEGORIES"]?.split("_")?.getOrNull(2)?.formatCourseCode()
 
     val description = fields["DESCRIPTION"]?.processIcsDescription()
 
