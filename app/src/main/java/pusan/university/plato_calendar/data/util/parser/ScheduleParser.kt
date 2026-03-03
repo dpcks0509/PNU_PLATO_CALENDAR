@@ -1,5 +1,6 @@
 package pusan.university.plato_calendar.data.util.parser
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import pusan.university.plato_calendar.domain.entity.Schedule.AcademicSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CourseSchedule
@@ -86,6 +87,15 @@ internal fun String.parseHtmlToAcademicSchedules(): List<AcademicSchedule> {
 }
 
 private fun buildScheduleFromFields(fields: Map<String, String>): PersonalSchedule {
+    // 에러 원인 파악 후 제거
+    if ((fields["CATEGORIES"]?.split("_")?.size ?: 0) <= 1) {
+        FirebaseCrashlytics.getInstance().apply {
+            setCustomKey("categories_value", fields["CATEGORIES"].toString())
+            log("CATEGORIES field has unexpected format: ${fields["CATEGORIES"]}")
+            recordException(IllegalStateException("schedule_categories_error: ${fields["CATEGORIES"]}"))
+        }
+    }
+
     val courseCode = fields["CATEGORIES"]?.split("_")?.getOrNull(2)?.formatCourseCode()
 
     val description = fields["DESCRIPTION"]?.processIcsDescription()
