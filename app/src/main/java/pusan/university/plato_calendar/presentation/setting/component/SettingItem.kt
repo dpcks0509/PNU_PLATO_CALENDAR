@@ -23,7 +23,7 @@ import pusan.university.plato_calendar.presentation.util.theme.VeryLightGray
 fun SettingItem(
     text: String,
     url: String?,
-    navigateToWebView: (String) -> Unit,
+    navigateToWeb: (String) -> Unit,
 ) {
     Row(
         modifier =
@@ -31,7 +31,7 @@ fun SettingItem(
                 .fillMaxWidth()
                 .height(48.dp)
                 .background(VeryLightGray)
-                .then(if (url != null) Modifier.clickable { navigateToWebView(url) } else Modifier)
+                .then(if (url != null) Modifier.clickable { navigateToWeb(url) } else Modifier)
                 .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

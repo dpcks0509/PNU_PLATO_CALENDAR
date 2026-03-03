@@ -30,10 +30,6 @@ sealed interface SettingEvent : UiEvent {
         val granted: Boolean,
     ) : SettingEvent
 
-    data class NavigateToWebView(
-        val url: String,
-    ) : SettingEvent
-
     data class UpdateTheme(
         val mode: ThemeMode,
     ) : SettingEvent

@@ -16,146 +16,142 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingViewModel
-    @Inject
-    constructor(
-        private val loginManager: LoginManager,
-        private val settingsManager: SettingsManager,
-    ) : BaseViewModel<SettingState, SettingEvent, SettingSideEffect>(
-            settingsManager.initialSettings.run {
-                SettingState(
-                    autoUpdateSchedule = autoUpdateSchedule,
-                    notificationsEnabled = notificationsEnabled,
-                    firstReminderTime = firstReminderTime,
-                    secondReminderTime = secondReminderTime,
-                    themeMode = themeMode,
-                )
-            },
-        ) {
-        init {
-            viewModelScope.launch {
-                loginManager.loginStatus.collect { loginStatus ->
-                    when (loginStatus) {
-                        is LoginStatus.Login -> {
-                            setState { copy(userInfo = loginStatus.loginSession.userInfo) }
-                        }
-
-                        else -> {
-                            setState { copy(userInfo = null) }
-                        }
+@Inject
+constructor(
+    private val loginManager: LoginManager,
+    private val settingsManager: SettingsManager,
+) : BaseViewModel<SettingState, SettingEvent, SettingSideEffect>(
+    settingsManager.initialSettings.run {
+        SettingState(
+            autoUpdateSchedule = autoUpdateSchedule,
+            notificationsEnabled = notificationsEnabled,
+            firstReminderTime = firstReminderTime,
+            secondReminderTime = secondReminderTime,
+            themeMode = themeMode,
+        )
+    },
+) {
+    init {
+        viewModelScope.launch {
+            loginManager.loginStatus.collect { loginStatus ->
+                when (loginStatus) {
+                    is LoginStatus.Login -> {
+                        setState { copy(userInfo = loginStatus.loginSession.userInfo) }
                     }
-                }
-            }
 
-            viewModelScope.launch {
-                settingsManager.appSettings.collect { appSettings ->
-                    setState {
-                        copy(
-                            autoUpdateSchedule = appSettings.autoUpdateSchedule,
-                            notificationsEnabled = appSettings.notificationsEnabled,
-                            firstReminderTime = appSettings.firstReminderTime,
-                            secondReminderTime = appSettings.secondReminderTime,
-                            themeMode = appSettings.themeMode,
-                        )
+                    else -> {
+                        setState { copy(userInfo = null) }
                     }
                 }
             }
         }
 
-        override suspend fun handleEvent(event: SettingEvent) {
-            when (event) {
-                is Login -> {
-                    loginManager.login(credentials = event.credentials)
-                }
-
-                SettingEvent.Logout -> {
-                    loginManager.logout()
-                }
-
-                is SettingEvent.UpdateAutoUpdateSchedule -> {
-                    settingsManager.setAutoUpdateSchedule(enabled = event.enabled)
-                }
-
-                is SettingEvent.UpdateNotificationsEnabled -> {
-                    settingsManager.setNotificationsEnabled(enabled = event.enabled)
-                }
-
-                is SettingEvent.UpdateFirstReminderTime -> {
-                    val currentSecondReminderTime = state.value.secondReminderTime
-                    val desiredFirstReminderTime = event.time
-
-                    val (normalizedFirstReminderTime, normalizedSecondReminderTime) =
-                        normalizeReminderTimes(
-                            firstReminderCandidate = desiredFirstReminderTime,
-                            secondReminderCandidate = currentSecondReminderTime,
-                        )
-
-                    updateReminderTimes(
-                        firstTime = normalizedFirstReminderTime,
-                        secondTime = normalizedSecondReminderTime,
+        viewModelScope.launch {
+            settingsManager.appSettings.collect { appSettings ->
+                setState {
+                    copy(
+                        autoUpdateSchedule = appSettings.autoUpdateSchedule,
+                        notificationsEnabled = appSettings.notificationsEnabled,
+                        firstReminderTime = appSettings.firstReminderTime,
+                        secondReminderTime = appSettings.secondReminderTime,
+                        themeMode = appSettings.themeMode,
                     )
                 }
-
-                is SettingEvent.UpdateSecondReminderTime -> {
-                    val currentFirstReminderTime = state.value.firstReminderTime
-                    val desiredSecondReminderTime = event.time
-
-                    val (normalizedFirstReminderTime, normalizedSecondReminderTime) =
-                        normalizeReminderTimes(
-                            firstReminderCandidate = currentFirstReminderTime,
-                            secondReminderCandidate = desiredSecondReminderTime,
-                        )
-
-                    updateReminderTimes(
-                        firstTime = normalizedFirstReminderTime,
-                        secondTime = normalizedSecondReminderTime,
-                    )
-                }
-
-                is SettingEvent.UpdateNotificationPermission -> {
-                    setState { copy(hasNotificationPermission = event.granted) }
-                }
-
-                is SettingEvent.NavigateToWebView -> {
-                    setSideEffect { SettingSideEffect.NavigateToWebView(event.url) }
-                }
-
-                is SettingEvent.UpdateTheme -> {
-                    settingsManager.setThemeMode(event.mode)
-                }
             }
-        }
-
-        private fun normalizeReminderTimes(
-            firstReminderCandidate: NotificationTime,
-            secondReminderCandidate: NotificationTime,
-        ): Pair<NotificationTime, NotificationTime> {
-            if (firstReminderCandidate == NotificationTime.NONE && secondReminderCandidate == NotificationTime.NONE) {
-                return NotificationTime.NONE to NotificationTime.NONE
-            }
-
-            if (firstReminderCandidate == NotificationTime.NONE) {
-                return secondReminderCandidate to NotificationTime.NONE
-            }
-
-            if (secondReminderCandidate == NotificationTime.NONE) {
-                return firstReminderCandidate to NotificationTime.NONE
-            }
-
-            if (firstReminderCandidate == secondReminderCandidate) {
-                return firstReminderCandidate to NotificationTime.NONE
-            }
-
-            return if (firstReminderCandidate.ordinal <= secondReminderCandidate.ordinal) {
-                firstReminderCandidate to secondReminderCandidate
-            } else {
-                secondReminderCandidate to firstReminderCandidate
-            }
-        }
-
-        private suspend fun updateReminderTimes(
-            firstTime: NotificationTime,
-            secondTime: NotificationTime,
-        ) {
-            settingsManager.setReminderTimes(firstTime, secondTime)
         }
     }
+
+    override suspend fun handleEvent(event: SettingEvent) {
+        when (event) {
+            is Login -> {
+                loginManager.login(credentials = event.credentials)
+            }
+
+            SettingEvent.Logout -> {
+                loginManager.logout()
+            }
+
+            is SettingEvent.UpdateAutoUpdateSchedule -> {
+                settingsManager.setAutoUpdateSchedule(enabled = event.enabled)
+            }
+
+            is SettingEvent.UpdateNotificationsEnabled -> {
+                settingsManager.setNotificationsEnabled(enabled = event.enabled)
+            }
+
+            is SettingEvent.UpdateFirstReminderTime -> {
+                val currentSecondReminderTime = state.value.secondReminderTime
+                val desiredFirstReminderTime = event.time
+
+                val (normalizedFirstReminderTime, normalizedSecondReminderTime) =
+                    normalizeReminderTimes(
+                        firstReminderCandidate = desiredFirstReminderTime,
+                        secondReminderCandidate = currentSecondReminderTime,
+                    )
+
+                updateReminderTimes(
+                    firstTime = normalizedFirstReminderTime,
+                    secondTime = normalizedSecondReminderTime,
+                )
+            }
+
+            is SettingEvent.UpdateSecondReminderTime -> {
+                val currentFirstReminderTime = state.value.firstReminderTime
+                val desiredSecondReminderTime = event.time
+
+                val (normalizedFirstReminderTime, normalizedSecondReminderTime) =
+                    normalizeReminderTimes(
+                        firstReminderCandidate = currentFirstReminderTime,
+                        secondReminderCandidate = desiredSecondReminderTime,
+                    )
+
+                updateReminderTimes(
+                    firstTime = normalizedFirstReminderTime,
+                    secondTime = normalizedSecondReminderTime,
+                )
+            }
+
+            is SettingEvent.UpdateNotificationPermission -> {
+                setState { copy(hasNotificationPermission = event.granted) }
+            }
+
+            is SettingEvent.UpdateTheme -> {
+                settingsManager.setThemeMode(event.mode)
+            }
+        }
+    }
+
+    private fun normalizeReminderTimes(
+        firstReminderCandidate: NotificationTime,
+        secondReminderCandidate: NotificationTime,
+    ): Pair<NotificationTime, NotificationTime> {
+        if (firstReminderCandidate == NotificationTime.NONE && secondReminderCandidate == NotificationTime.NONE) {
+            return NotificationTime.NONE to NotificationTime.NONE
+        }
+
+        if (firstReminderCandidate == NotificationTime.NONE) {
+            return secondReminderCandidate to NotificationTime.NONE
+        }
+
+        if (secondReminderCandidate == NotificationTime.NONE) {
+            return firstReminderCandidate to NotificationTime.NONE
+        }
+
+        if (firstReminderCandidate == secondReminderCandidate) {
+            return firstReminderCandidate to NotificationTime.NONE
+        }
+
+        return if (firstReminderCandidate.ordinal <= secondReminderCandidate.ordinal) {
+            firstReminderCandidate to secondReminderCandidate
+        } else {
+            secondReminderCandidate to firstReminderCandidate
+        }
+    }
+
+    private suspend fun updateReminderTimes(
+        firstTime: NotificationTime,
+        secondTime: NotificationTime,
+    ) {
+        settingsManager.setReminderTimes(firstTime, secondTime)
+    }
+}

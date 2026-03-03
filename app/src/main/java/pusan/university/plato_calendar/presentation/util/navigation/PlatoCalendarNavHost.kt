@@ -5,25 +5,20 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.toRoute
 import pusan.university.plato_calendar.presentation.cafeteria.CafeteriaScreen
 import pusan.university.plato_calendar.presentation.calendar.CalendarScreen
 import pusan.university.plato_calendar.presentation.setting.SettingScreen
 import pusan.university.plato_calendar.presentation.todo.ToDoScreen
-import pusan.university.plato_calendar.presentation.util.component.WebView
 import pusan.university.plato_calendar.presentation.util.navigation.PlatoCalendarScreen.CafeteriaScreen
 import pusan.university.plato_calendar.presentation.util.navigation.PlatoCalendarScreen.CalendarScreen
 import pusan.university.plato_calendar.presentation.util.navigation.PlatoCalendarScreen.SettingScreen
 import pusan.university.plato_calendar.presentation.util.navigation.PlatoCalendarScreen.ToDoScreen
-import pusan.university.plato_calendar.presentation.util.navigation.PlatoCalendarScreen.WebViewScreen
 
 @Composable
 fun PlatoCalendarNavHost(
@@ -75,24 +70,14 @@ fun PlatoCalendarNavHost(
             popExitTransition = { ordinalSlideExit() },
         ) {
             SettingScreen(
-                navigateToWebView = { url -> navController.navigate(WebViewScreen(url)) },
                 modifier = Modifier.fillMaxSize(),
-            )
-        }
-
-        composable<WebViewScreen> {
-            val url = it.toRoute<WebViewScreen>().url
-
-            WebView(
-                url = url,
-                modifier = Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding(),
             )
         }
     }
 }
 
 private fun AnimatedContentTransitionScope<NavBackStackEntry>.computeOrdinalSlideDirection():
-    AnimatedContentTransitionScope.SlideDirection? {
+        AnimatedContentTransitionScope.SlideDirection? {
     val fromIndex =
         BottomBarItem.entries.indexOfFirst { it.route::class.qualifiedName == initialState.destination.route }
     val toIndex =

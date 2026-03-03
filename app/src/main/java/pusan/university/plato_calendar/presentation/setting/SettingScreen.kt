@@ -18,11 +18,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -39,14 +39,12 @@ import pusan.university.plato_calendar.presentation.setting.component.SettingSec
 import pusan.university.plato_calendar.presentation.setting.component.ThemeSelector
 import pusan.university.plato_calendar.presentation.setting.component.ToggleSwitch
 import pusan.university.plato_calendar.presentation.setting.intent.SettingEvent
-import pusan.university.plato_calendar.presentation.setting.intent.SettingEvent.NavigateToWebView
 import pusan.university.plato_calendar.presentation.setting.intent.SettingEvent.UpdateAutoUpdateSchedule
 import pusan.university.plato_calendar.presentation.setting.intent.SettingEvent.UpdateFirstReminderTime
 import pusan.university.plato_calendar.presentation.setting.intent.SettingEvent.UpdateNotificationPermission
 import pusan.university.plato_calendar.presentation.setting.intent.SettingEvent.UpdateNotificationsEnabled
 import pusan.university.plato_calendar.presentation.setting.intent.SettingEvent.UpdateSecondReminderTime
 import pusan.university.plato_calendar.presentation.setting.intent.SettingEvent.UpdateTheme
-import pusan.university.plato_calendar.presentation.setting.intent.SettingSideEffect
 import pusan.university.plato_calendar.presentation.setting.intent.SettingState
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.ACCOUNT
@@ -67,7 +65,6 @@ import pusan.university.plato_calendar.presentation.widget.receiver.CalendarWidg
 
 @Composable
 fun SettingScreen(
-    navigateToWebView: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SettingViewModel = hiltViewModel(),
 ) {
@@ -80,16 +77,6 @@ fun SettingScreen(
     LifecycleEventEffect(event = Lifecycle.Event.ON_RESUME) {
         val granted = checkNotificationPermission(context)
         viewModel.setEvent(UpdateNotificationPermission(granted))
-    }
-
-    LaunchedEffect(Unit) {
-        launch {
-            viewModel.sideEffect.collect { sideEffect ->
-                when (sideEffect) {
-                    is SettingSideEffect.NavigateToWebView -> navigateToWebView(sideEffect.url)
-                }
-            }
-        }
     }
 
     val handleSettingEvent: (SettingEvent) -> Unit = { event ->
@@ -151,6 +138,8 @@ fun SettingContent(
     onEvent: (SettingEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val uriHandler = LocalUriHandler.current
+
     Column(
         modifier = modifier.padding(start = 16.dp, end = 16.dp),
     ) {
@@ -265,12 +254,8 @@ fun SettingContent(
                                     SettingItem(
                                         text = content.label.orEmpty(),
                                         url = content.url,
-                                        navigateToWebView = { navigateUrl ->
-                                            onEvent(
-                                                NavigateToWebView(
-                                                    navigateUrl,
-                                                ),
-                                            )
+                                        navigateToWeb = { url ->
+                                            uriHandler.openUri(url)
                                         },
                                     )
 
