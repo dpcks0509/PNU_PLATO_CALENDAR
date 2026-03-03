@@ -50,7 +50,7 @@ import pusan.university.plato_calendar.presentation.setting.model.SettingMenu
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.ACCOUNT
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.NOTIFICATIONS
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SHORT_CUT
-import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.STUDENT_SUPPORT
+import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.USER_SUPPORT
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.AUTO_UPDATE_SCHEDULE
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.FIRST_REMINDER
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.NOTIFICATIONS_ENABLED
@@ -249,7 +249,7 @@ fun SettingContent(
                                 )
                             }
 
-                            SHORT_CUT, STUDENT_SUPPORT -> {
+                            SHORT_CUT, USER_SUPPORT -> {
                                 menu.items.forEachIndexed { index, content ->
                                     SettingItem(
                                         text = content.label.orEmpty(),

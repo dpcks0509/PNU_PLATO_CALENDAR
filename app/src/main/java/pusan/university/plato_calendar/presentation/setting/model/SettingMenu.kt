@@ -32,7 +32,7 @@ enum class SettingMenu(
         title = "바로가기",
         items = listOf(PUSAN_NATIONAL_UNIVERSITY, STUDENT_SUPPORT_SYSTEM, SMART_EDUCATION_PLATFORM),
     ),
-    STUDENT_SUPPORT(title = "학생지원", items = listOf(ANNOUNCEMENTS, CONTACT_US)),
+    USER_SUPPORT(title = "사용자 지원", items = listOf(ANNOUNCEMENTS, CONTACT_US)),
     ;
 
     enum class SettingContent(
