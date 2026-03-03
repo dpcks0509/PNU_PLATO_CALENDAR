@@ -50,12 +50,12 @@ import pusan.university.plato_calendar.presentation.setting.model.SettingMenu
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.ACCOUNT
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.NOTIFICATIONS
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SHORT_CUT
-import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.USER_SUPPORT
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.AUTO_UPDATE_SCHEDULE
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.FIRST_REMINDER
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.NOTIFICATIONS_ENABLED
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.SettingContent.SECOND_REMINDER
 import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.THEME
+import pusan.university.plato_calendar.presentation.setting.model.SettingMenu.USER_SUPPORT
 import pusan.university.plato_calendar.presentation.util.component.TopBar
 import pusan.university.plato_calendar.presentation.util.component.dialog.plato.content.PlatoDialogContent
 import pusan.university.plato_calendar.presentation.util.eventbus.DialogEventBus
