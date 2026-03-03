@@ -90,9 +90,9 @@ private fun buildScheduleFromFields(fields: Map<String, String>): PersonalSchedu
     // 에러 원인 파악 후 제거
     if ((fields["CATEGORIES"]?.split("_")?.size ?: 0) <= 1) {
         FirebaseCrashlytics.getInstance().apply {
-            setCustomKey("categories_value", fields["CATEGORIES"].toString())
-            log("CATEGORIES field has unexpected format: ${fields["CATEGORIES"]}")
-            recordException(IllegalStateException("schedule_categories_error: ${fields["CATEGORIES"]}"))
+            log("Schedule category parsing failed")
+            log("CATEGORIES: ${fields["CATEGORIES"]}")
+            recordException(IllegalStateException("Bad CATEGORIES format: '${fields["CATEGORIES"]}'})"))
         }
     }
 

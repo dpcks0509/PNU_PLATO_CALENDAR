@@ -164,7 +164,7 @@ class RemoteLoginRepository
             private const val COOKIES_DISABLED_ERROR = "현재, 브라우저의 쿠키가 작동하지 않습니다."
             private const val INVALID_USERNAME_FORMAT_ERROR =
                 "사용자 아이디: 이이디에는 영어소문자, 숫자, 밑줄( _ ), 하이폰( - ), 마침표( . ) 또는 @ 기호만을 쓸 수 있습니다."
-            private const val SESSION_EXPIRED_ERROR = "세션이 종료 되었습니다. 다시 로그인 하십시오."
+            private const val SESSION_EXPIRED_ERROR = "세션이 종료 되었습니다. 다시 로그인해주세요."
             private const val ACCOUNT_LOCKED_ERROR =
                 "로그인 시도 5회 실패로 인해 계정이 일시적으로 잠겼습니다.\n" +
                     "30분 후 다시 시도해 주세요."
