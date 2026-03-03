@@ -104,15 +104,7 @@ fun ExpandableToDoSection(
                                 .heightIn(max = 500.dp)
                                 .padding(vertical = 6.dp),
                     ) {
-                        items(
-                            items = items,
-                            key = { schedule ->
-                                when (schedule) {
-                                    is ScheduleUiModel.PersonalScheduleUiModel -> schedule.id
-                                    is ScheduleUiModel.AcademicScheduleUiModel -> schedule.hashCode()
-                                }
-                            },
-                        ) { schedule ->
+                        items(items = items) { schedule ->
                             ToDoScheduleItem(
                                 schedule = schedule,
                                 today = today,

@@ -120,9 +120,9 @@ fun TimePickerDialog(
     }
 }
 
-private @OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun TimePicker(
+private fun TimePicker(
     hour: Int,
     minute: Int,
     onTimeChange: (hour: Int, minute: Int) -> Unit,
@@ -271,7 +271,7 @@ private fun PickerColumn(
                     .fillMaxWidth()
                     .height(itemHeight * visibleItemsCount),
         ) {
-            items(items.size + visibleItemsCount - 1) { index ->
+            items(count = items.size + visibleItemsCount - 1) { index ->
                 val itemIndex = index - (visibleItemsCount / 2)
                 val item = items.getOrNull(itemIndex)
 

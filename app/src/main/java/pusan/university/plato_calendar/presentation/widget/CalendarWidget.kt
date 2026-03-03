@@ -71,9 +71,13 @@ class CalendarWidget : GlanceAppWidget() {
     @InstallIn(SingletonComponent::class)
     interface WidgetEntryPoint {
         fun loginManager(): LoginManager
+
         fun settingsManager(): SettingsManager
+
         fun alarmScheduler(): AlarmScheduler
+
         fun getPersonalSchedulesUseCase(): GetPersonalSchedulesUseCase
+
         fun getCourseNameUseCase(): GetCourseNameUseCase
     }
 
@@ -223,22 +227,29 @@ class CalendarWidget : GlanceAppWidget() {
                                     TextStyle(
                                         fontSize = 12.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = when {
-                                            isToday -> ColorProvider(
-                                                day = PrimaryLight,
-                                                night = PrimaryDark
-                                            )
+                                        color =
+                                            when {
+                                                isToday -> {
+                                                    ColorProvider(
+                                                        day = PrimaryLight,
+                                                        night = PrimaryDark,
+                                                    )
+                                                }
 
-                                            date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY -> ColorProvider(
-                                                day = RedLight,
-                                                night = RedDark
-                                            )
+                                                date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY -> {
+                                                    ColorProvider(
+                                                        day = RedLight,
+                                                        night = RedDark,
+                                                    )
+                                                }
 
-                                            else -> ColorProvider(
-                                                day = BlackLight,
-                                                night = BlackDark
-                                            )
-                                        }
+                                                else -> {
+                                                    ColorProvider(
+                                                        day = BlackLight,
+                                                        night = BlackDark,
+                                                    )
+                                                }
+                                            },
                                     ),
                             )
                         }
@@ -293,22 +304,29 @@ class CalendarWidget : GlanceAppWidget() {
                                         TextStyle(
                                             fontSize = 16.sp,
                                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                            color = when {
-                                                isToday -> ColorProvider(
-                                                    day = PrimaryLight,
-                                                    night = PrimaryDark
-                                                )
+                                            color =
+                                                when {
+                                                    isToday -> {
+                                                        ColorProvider(
+                                                            day = PrimaryLight,
+                                                            night = PrimaryDark,
+                                                        )
+                                                    }
 
-                                                date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY -> ColorProvider(
-                                                    day = RedLight,
-                                                    night = RedDark
-                                                )
+                                                    date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY -> {
+                                                        ColorProvider(
+                                                            day = RedLight,
+                                                            night = RedDark,
+                                                        )
+                                                    }
 
-                                                else -> ColorProvider(
-                                                    day = BlackLight,
-                                                    night = BlackDark
-                                                )
-                                            }
+                                                    else -> {
+                                                        ColorProvider(
+                                                            day = BlackLight,
+                                                            night = BlackDark,
+                                                        )
+                                                    }
+                                                },
                                         ),
                                 )
                             }
@@ -353,8 +371,8 @@ class CalendarWidget : GlanceAppWidget() {
                                 .background(
                                     ColorProvider(
                                         day = MediumGrayLight,
-                                        night = MediumGrayLight
-                                    )
+                                        night = MediumGrayLight,
+                                    ),
                                 ),
                     )
 
@@ -390,7 +408,7 @@ class CalendarWidget : GlanceAppWidget() {
                                 .fillMaxWidth()
                                 .defaultWeight(),
                     ) {
-                        items(selectedDateSchedules) { schedule ->
+                        items(items = selectedDateSchedules) { schedule ->
                             ScheduleWidgetItem(schedule)
                             Spacer(modifier = GlanceModifier.height(8.dp))
                         }
