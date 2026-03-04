@@ -87,16 +87,28 @@ internal fun String.parseHtmlToAcademicSchedules(): List<AcademicSchedule> {
 }
 
 private fun buildScheduleFromFields(fields: Map<String, String>): PersonalSchedule {
+    val categories = fields["CATEGORIES"]
+    val categoryParts = categories?.split("_").orEmpty()
+
     // 에러 원인 파악 후 제거
-    if ((fields["CATEGORIES"]?.split("_")?.size ?: 0) <= 1) {
+    if (categories != null && categoryParts.size < 3) {
         FirebaseCrashlytics.getInstance().apply {
             log("Schedule category parsing failed")
-            log("CATEGORIES: ${fields["CATEGORIES"]}")
-            recordException(IllegalStateException("Bad CATEGORIES format: '${fields["CATEGORIES"]}'})"))
+            log("CATEGORIES: $categories")
+            recordException(IllegalStateException("Bad CATEGORIES format: '$categories' (size=${categoryParts.size})"))
         }
     }
 
-    val courseCode = fields["CATEGORIES"]?.split("_")?.getOrNull(2)?.formatCourseCode()
+    val courseCode =
+        if (categories == null) {
+            null
+        } else {
+            when {
+                categoryParts.size == 1 -> categoryParts.getOrNull(0)?.formatCourseCode()
+                categoryParts.size >= 3 -> categoryParts.getOrNull(2)?.formatCourseCode()
+                else -> null
+            }
+        }
 
     val description = fields["DESCRIPTION"]?.processIcsDescription()
 
