@@ -1,6 +1,5 @@
 package pusan.university.plato_calendar.data.util.parser
 
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import pusan.university.plato_calendar.domain.entity.Schedule.AcademicSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CourseSchedule
@@ -87,28 +86,7 @@ internal fun String.parseHtmlToAcademicSchedules(): List<AcademicSchedule> {
 }
 
 private fun buildScheduleFromFields(fields: Map<String, String>): PersonalSchedule {
-    val categories = fields["CATEGORIES"]
-    val categoryParts = categories?.split("_").orEmpty()
-
-    // 에러 원인 파악 후 제거
-    if (categories != null && categoryParts.size < 3) {
-        FirebaseCrashlytics.getInstance().apply {
-            log("Schedule category parsing failed")
-            log("CATEGORIES: $categories")
-            recordException(IllegalStateException("Bad CATEGORIES format: '$categories' (size=${categoryParts.size})"))
-        }
-    }
-
-    val courseCode =
-        if (categories == null) {
-            null
-        } else {
-            when {
-                categoryParts.size == 1 -> categoryParts.getOrNull(0)?.formatCourseCode()
-                categoryParts.size >= 3 -> categoryParts.getOrNull(2)?.formatCourseCode()
-                else -> null
-            }
-        }
+    val courseCode = fields["CATEGORIES"]?.split("_")?.getOrNull(2)?.formatCourseCode()
 
     val description = fields["DESCRIPTION"]?.processIcsDescription()
 
