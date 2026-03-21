@@ -14,3 +14,5 @@
     src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"
     width="250"/>
 </a>
+
+[업데이트 소식](https://glaze-mustang-7cf.notion.site/PLATO-28057846cad680089524ea45cb9afce1)
