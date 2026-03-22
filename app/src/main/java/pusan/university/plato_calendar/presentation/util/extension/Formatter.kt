@@ -16,7 +16,7 @@ fun LocalDateTime.formatTimeWithMidnightSpecialCase(): String {
 }
 
 fun String.formatCourseCode(): String? {
-    if (this.length < 9) return null
+    if (this.length != 9) return null
 
     return this.substring(0..3) + this.substring(6..8)
 }

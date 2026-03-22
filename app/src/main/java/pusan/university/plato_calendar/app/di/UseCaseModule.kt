@@ -15,7 +15,6 @@ import pusan.university.plato_calendar.domain.repository.SelectedCafeteriaReposi
 import pusan.university.plato_calendar.domain.usecase.cafeteria.GetCafeteriaWeeklyPlanUseCase
 import pusan.university.plato_calendar.domain.usecase.cafeteria.GetSelectedCafeteriaUseCase
 import pusan.university.plato_calendar.domain.usecase.cafeteria.SetSelectedCafeteriaUseCase
-import pusan.university.plato_calendar.domain.usecase.course.GetCourseCodeUseCase
 import pusan.university.plato_calendar.domain.usecase.course.GetCourseNameUseCase
 import pusan.university.plato_calendar.domain.usecase.login.GetLoginCredentialsUseCase
 import pusan.university.plato_calendar.domain.usecase.login.LoginUseCase
@@ -40,13 +39,7 @@ object UseCaseModule {
     // Course
     @Provides
     @Singleton
-    fun provideGetCourseNameUseCase(courseRepository: CourseRepository): GetCourseNameUseCase =
-        GetCourseNameUseCase(courseRepository)
-
-    @Provides
-    @Singleton
-    fun provideGetCourseCodeUseCase(courseRepository: CourseRepository): GetCourseCodeUseCase =
-        GetCourseCodeUseCase(courseRepository)
+    fun provideGetCourseNameUseCase(courseRepository: CourseRepository): GetCourseNameUseCase = GetCourseNameUseCase(courseRepository)
 
     // Login
     @Provides
@@ -54,16 +47,14 @@ object UseCaseModule {
     fun provideLoginUseCase(
         loginRepository: LoginRepository,
         loginCredentialsRepository: LoginCredentialsRepository,
-    ): LoginUseCase =
-        LoginUseCase(loginRepository, loginCredentialsRepository)
+    ): LoginUseCase = LoginUseCase(loginRepository, loginCredentialsRepository)
 
     @Provides
     @Singleton
     fun provideLogoutUseCase(
         loginRepository: LoginRepository,
         loginCredentialsRepository: LoginCredentialsRepository,
-    ): LogoutUseCase =
-        LogoutUseCase(loginRepository, loginCredentialsRepository)
+    ): LogoutUseCase = LogoutUseCase(loginRepository, loginCredentialsRepository)
 
     @Provides
     @Singleton
@@ -107,8 +98,7 @@ object UseCaseModule {
     fun provideGetPersonalSchedulesUseCase(
         scheduleRepository: ScheduleRepository,
         completedScheduleRepository: CompletedScheduleRepository,
-    ): GetPersonalSchedulesUseCase =
-        GetPersonalSchedulesUseCase(scheduleRepository, completedScheduleRepository)
+    ): GetPersonalSchedulesUseCase = GetPersonalSchedulesUseCase(scheduleRepository, completedScheduleRepository)
 
     @Provides
     @Singleton
@@ -125,8 +115,7 @@ object UseCaseModule {
     fun provideDeleteCustomScheduleUseCase(
         scheduleRepository: ScheduleRepository,
         completedScheduleRepository: CompletedScheduleRepository,
-    ): DeleteCustomScheduleUseCase =
-        DeleteCustomScheduleUseCase(scheduleRepository, completedScheduleRepository)
+    ): DeleteCustomScheduleUseCase = DeleteCustomScheduleUseCase(scheduleRepository, completedScheduleRepository)
 
     @Provides
     @Singleton
@@ -135,8 +124,9 @@ object UseCaseModule {
 
     @Provides
     @Singleton
-    fun provideMarkScheduleAsUncompletedUseCase(completedScheduleRepository: CompletedScheduleRepository): MarkScheduleAsUncompletedUseCase =
-        MarkScheduleAsUncompletedUseCase(completedScheduleRepository)
+    fun provideMarkScheduleAsUncompletedUseCase(
+        completedScheduleRepository: CompletedScheduleRepository,
+    ): MarkScheduleAsUncompletedUseCase = MarkScheduleAsUncompletedUseCase(completedScheduleRepository)
 
     // Cafeteria
     @Provides

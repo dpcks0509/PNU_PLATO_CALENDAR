@@ -4,7 +4,6 @@ import pusan.university.plato_calendar.domain.entity.Schedule.AcademicSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CourseSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
-import pusan.university.plato_calendar.presentation.util.extension.formatCourseCode
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -86,7 +85,11 @@ internal fun String.parseHtmlToAcademicSchedules(): List<AcademicSchedule> {
 }
 
 private fun buildScheduleFromFields(fields: Map<String, String>): PersonalSchedule {
-    val courseCode = fields["CATEGORIES"]?.split("_")?.getOrNull(2)?.formatCourseCode()
+    val courseCode =
+        fields["CATEGORIES"]
+            ?.split("_")
+            ?.getOrNull(2)
+            ?.takeIf { it.length == 7 }
 
     val description = fields["DESCRIPTION"]?.processIcsDescription()
 
