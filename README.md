@@ -15,4 +15,4 @@
     width="250"/>
 </a>
 
-[업데이트 소식](https://glaze-mustang-7cf.notion.site/PLATO-28057846cad680089524ea45cb9afce1)
+[Release Notes](https://glaze-mustang-7cf.notion.site/PLATO-28057846cad680089524ea45cb9afce1)
