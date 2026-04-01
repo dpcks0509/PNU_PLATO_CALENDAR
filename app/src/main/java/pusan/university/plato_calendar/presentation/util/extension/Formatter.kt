@@ -14,9 +14,3 @@ fun LocalDateTime.formatTimeWithMidnightSpecialCase(): String {
 
     return "$period ${displayHour}시 ${displayMinute}분"
 }
-
-fun String.formatCourseCode(): String? {
-    if (this.length != 9) return null
-
-    return this.substring(0..3) + this.substring(6..8)
-}
