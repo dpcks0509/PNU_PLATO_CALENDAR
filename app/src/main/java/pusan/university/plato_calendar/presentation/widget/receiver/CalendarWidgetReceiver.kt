@@ -16,8 +16,7 @@ import pusan.university.plato_calendar.presentation.widget.CalendarWidget
 import pusan.university.plato_calendar.presentation.widget.callback.RefreshSchedulesCallback
 
 class CalendarWidgetReceiver : GlanceAppWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget
-        get() = CalendarWidget()
+    override val glanceAppWidget: GlanceAppWidget = CalendarWidget()
 
     private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
