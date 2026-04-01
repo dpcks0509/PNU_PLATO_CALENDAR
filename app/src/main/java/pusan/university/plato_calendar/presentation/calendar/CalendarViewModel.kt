@@ -289,12 +289,16 @@ constructor(
                         ToastEventBus.sendError(NETWORK_ERROR_MESSAGE)
                     }
 
-                    LoginStatus.Uninitialized, LoginStatus.LoginInProgress -> {
+                    LoginStatus.LoginInProgress -> {
+                        loadingManager.updateLoading(true)
+                    }
+
+                    LoginStatus.Uninitialized -> {
                         Unit
                     }
                 }
             }.invokeOnCompletion {
-                loadingManager.updateLoading(false)
+                if (loginManager.loginStatus.value != LoginStatus.LoginInProgress) loadingManager.updateLoading(false)
             }
     }
 
