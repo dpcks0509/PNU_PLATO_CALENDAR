@@ -1,14 +1,14 @@
 package pusan.university.plato_calendar.data.util.parser
 
 import pusan.university.plato_calendar.domain.entity.CourseMenu
-import pusan.university.plato_calendar.domain.entity.DailyCafeteriaPlan
+import pusan.university.plato_calendar.domain.entity.CafeteriaDailyPlan
 import pusan.university.plato_calendar.domain.entity.MealInfo
 import pusan.university.plato_calendar.domain.entity.MealType
 import pusan.university.plato_calendar.domain.entity.OperationInfo
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-internal fun String.parseHtmlToWeeklyPlans(): List<DailyCafeteriaPlan> {
+internal fun String.parseHtmlToWeeklyPlans(): List<CafeteriaDailyPlan> {
     data class MenuWithDate(
         val date: String,
         val day: String,
@@ -201,7 +201,7 @@ internal fun String.parseHtmlToWeeklyPlans(): List<DailyCafeteriaPlan> {
                 }
             }
 
-    val dailyCafeteriaPlans =
+    val cafeteriaDailyPlans =
         syncedMenusWithDate
             .sortedWith(compareBy({ it.date }, { it.mealType.ordinal }))
             .groupBy { it.date }
@@ -219,22 +219,22 @@ internal fun String.parseHtmlToWeeklyPlans(): List<DailyCafeteriaPlan> {
                             )
                         }.sortedBy { it.mealType.ordinal }
 
-                DailyCafeteriaPlan(
+                CafeteriaDailyPlan(
                     date = date,
                     day = day,
                     mealInfos = mealInfos,
                 )
             }.sortedBy { it.date }
 
-    if (dailyCafeteriaPlans.isEmpty()) return emptyList()
+    if (cafeteriaDailyPlans.isEmpty()) return emptyList()
 
     val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
-    val firstDate = LocalDate.parse(dailyCafeteriaPlans.first().date, formatter)
+    val firstDate = LocalDate.parse(cafeteriaDailyPlans.first().date, formatter)
     val sundayDate = firstDate.minusDays(1)
     val sundayDateString = sundayDate.format(formatter)
 
     val sundayMenu =
-        DailyCafeteriaPlan(
+        CafeteriaDailyPlan(
             date = sundayDateString,
             day = "일",
             mealInfos =
@@ -252,7 +252,7 @@ internal fun String.parseHtmlToWeeklyPlans(): List<DailyCafeteriaPlan> {
                 },
         )
 
-    return listOf(sundayMenu) + dailyCafeteriaPlans
+    return listOf(sundayMenu) + cafeteriaDailyPlans
 }
 
 internal fun String.parseNotice(): String {

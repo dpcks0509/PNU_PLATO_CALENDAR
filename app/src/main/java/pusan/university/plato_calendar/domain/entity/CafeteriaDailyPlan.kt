@@ -1,6 +1,6 @@
 package pusan.university.plato_calendar.domain.entity
 
-data class DailyCafeteriaPlan(
+data class CafeteriaDailyPlan(
     val date: String,
     val day: String,
     val mealInfos: List<MealInfo> = emptyList(),

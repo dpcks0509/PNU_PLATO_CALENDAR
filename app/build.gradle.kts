@@ -118,6 +118,7 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.bundles.glance)
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.jsoup)
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.crashlytics)

@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pusan.university.plato_calendar.domain.entity.Cafeteria
 import pusan.university.plato_calendar.domain.entity.CafeteriaWeeklyPlan
-import pusan.university.plato_calendar.domain.entity.DailyCafeteriaPlan
+import pusan.university.plato_calendar.domain.entity.CafeteriaDailyPlan
 import pusan.university.plato_calendar.presentation.cafeteria.intent.CafeteriaEvent
 import pusan.university.plato_calendar.presentation.cafeteria.intent.CafeteriaState
 import pusan.university.plato_calendar.presentation.util.theme.Black
@@ -115,7 +115,7 @@ private fun DateSelectorPreview() {
 
     val dailyPlans = (0..6).map { dayOffset ->
         val date = weekStart.plusDays(dayOffset.toLong())
-        DailyCafeteriaPlan(
+        CafeteriaDailyPlan(
             date = date.format(DateTimeFormatter.ofPattern("yyyy.MM.dd")),
             day = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.KOREAN),
             mealInfos = emptyList()

@@ -2,7 +2,7 @@ package pusan.university.plato_calendar.presentation.cafeteria.intent
 
 import pusan.university.plato_calendar.domain.entity.Cafeteria
 import pusan.university.plato_calendar.domain.entity.CafeteriaWeeklyPlan
-import pusan.university.plato_calendar.domain.entity.DailyCafeteriaPlan
+import pusan.university.plato_calendar.domain.entity.CafeteriaDailyPlan
 import pusan.university.plato_calendar.presentation.util.base.UiState
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -16,7 +16,7 @@ data class CafeteriaState(
     fun getWeeklyPlanByCafeteria(cafeteria: Cafeteria): CafeteriaWeeklyPlan =
         cafeteriaWeeklyPlans[cafeteria] ?: CafeteriaWeeklyPlan(cafeteria, "", emptyList())
 
-    fun getCurrentDailyPlan(): DailyCafeteriaPlan? {
+    fun getCurrentDailyPlan(): CafeteriaDailyPlan? {
         val weeklyPlan = getWeeklyPlanByCafeteria(selectedCafeteria)
         val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
         val selectedDateString = selectedDate.format(formatter)
