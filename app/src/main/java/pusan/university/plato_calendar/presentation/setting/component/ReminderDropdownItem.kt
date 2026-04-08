@@ -84,6 +84,7 @@ fun ReminderDropdownItem(
 
             DropdownMenu(
                 expanded = isDropdownExpanded,
+                containerColor = VeryLightGray,
                 onDismissRequest = { isDropdownExpanded = false },
             ) {
                 NotificationTime.entries.forEach { option ->

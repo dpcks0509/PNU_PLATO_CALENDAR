@@ -22,8 +22,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pusan.university.plato_calendar.domain.entity.Cafeteria
-import pusan.university.plato_calendar.domain.entity.CafeteriaWeeklyPlan
 import pusan.university.plato_calendar.domain.entity.CafeteriaDailyPlan
+import pusan.university.plato_calendar.domain.entity.CafeteriaWeeklyPlan
 import pusan.university.plato_calendar.presentation.cafeteria.intent.CafeteriaEvent
 import pusan.university.plato_calendar.presentation.cafeteria.intent.CafeteriaState
 import pusan.university.plato_calendar.presentation.util.theme.Black
@@ -54,7 +54,7 @@ fun DateSelector(
             contentAlignment = Alignment.Center,
             modifier =
                 Modifier
-                    .size(40.dp)
+                    .size(36.dp)
                     .clip(CircleShape)
                     .clickable(
                         onClick = { if (canGoPrevious) onEvent(CafeteriaEvent.PreviousDay) },
@@ -65,7 +65,7 @@ fun DateSelector(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                 contentDescription = null,
                 tint = if (canGoPrevious) Gray else LightGray,
-                modifier = Modifier.size(32.dp),
+                modifier = Modifier.size(28.dp),
             )
         }
 
@@ -80,7 +80,7 @@ fun DateSelector(
 
             Text(
                 text = selectedDateInfo,
-                fontSize = 20.sp,
+                fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = Black,
             )
@@ -90,7 +90,7 @@ fun DateSelector(
             contentAlignment = Alignment.Center,
             modifier =
                 Modifier
-                    .size(40.dp)
+                    .size(36.dp)
                     .clip(CircleShape)
                     .clickable(
                         onClick = { if (canGoNext) onEvent(CafeteriaEvent.NextDay) },
@@ -101,7 +101,7 @@ fun DateSelector(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null,
                 tint = if (canGoNext) Gray else LightGray,
-                modifier = Modifier.size(32.dp),
+                modifier = Modifier.size(28.dp),
             )
         }
     }

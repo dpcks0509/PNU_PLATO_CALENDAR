@@ -1,6 +1,7 @@
 package pusan.university.plato_calendar.data.util.parser
 
 import org.jsoup.Jsoup
+import org.jsoup.parser.Parser
 import pusan.university.plato_calendar.domain.entity.DormitoryCafeteriaDailyPlan
 import pusan.university.plato_calendar.domain.entity.DormitoryMealInfo
 import pusan.university.plato_calendar.domain.entity.DormitoryMealType
@@ -49,10 +50,13 @@ internal fun String.parseDormHtmlToWeeklyPlans(): List<DormitoryCafeteriaDailyPl
             else -> continue
         }
 
-        val menus = menuTd.html()
-            .replace(Regex("<br\\s*/?>", RegexOption.IGNORE_CASE), "\n")
-            .replace(Regex("<[^>]+>"), "")
-            .trim()
+        val menus = Parser.unescapeEntities(
+            menuTd.html()
+                .replace(Regex("<br\\s*/?>", RegexOption.IGNORE_CASE), "\n")
+                .replace(Regex("<[^>]+>"), "")
+                .trim(),
+            false,
+        )
 
         entries.add(MealEntry(date = currentDate, day = currentDay, meal = DormitoryMealInfo(mealType = mealType, menus = menus)))
     }

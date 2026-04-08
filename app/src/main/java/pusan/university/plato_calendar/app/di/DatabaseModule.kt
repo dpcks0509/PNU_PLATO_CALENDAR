@@ -8,6 +8,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import pusan.university.plato_calendar.data.local.database.CafeteriaDataStore
 import pusan.university.plato_calendar.data.local.database.CompletedScheduleDataStore
+import pusan.university.plato_calendar.data.local.database.DormitoryDataStore
 import pusan.university.plato_calendar.data.local.database.LoginCredentialsDataStore
 import pusan.university.plato_calendar.data.local.database.SettingsDataStore
 import javax.inject.Singleton
@@ -38,4 +39,10 @@ object DatabaseModule {
     fun provideCafeteriaDataStore(
         @ApplicationContext context: Context,
     ): CafeteriaDataStore = CafeteriaDataStore(context)
+
+    @Provides
+    @Singleton
+    fun provideDormitoryDataStore(
+        @ApplicationContext context: Context,
+    ): DormitoryDataStore = DormitoryDataStore(context)
 }

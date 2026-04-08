@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import pusan.university.plato_calendar.domain.entity.Cafeteria
+import pusan.university.plato_calendar.presentation.cafeteria.model.CafeteriaTab
 import java.io.IOException
 import javax.inject.Inject
 
@@ -38,14 +39,36 @@ constructor(
                 } ?: Cafeteria.GEUMJEONG_STUDENT
             }
 
+    val selectedTab: Flow<CafeteriaTab> =
+        context
+            .dataStore
+            .data
+            .catch { exception ->
+                if (exception is IOException) {
+                    emit(emptyPreferences())
+                } else {
+                    throw exception
+                }
+            }.map { preferences ->
+                val name = preferences[KEY_SELECTED_CAFETERIA_TAB]
+                name?.let { runCatching { CafeteriaTab.valueOf(it) }.getOrNull() } ?: CafeteriaTab.CAMPUS
+            }
+
     suspend fun setSelectedCafeteria(cafeteria: Cafeteria) {
         context.dataStore.edit { prefs ->
             prefs[KEY_SELECTED_CAFETERIA_NAME] = cafeteria.name
         }
     }
 
+    suspend fun setSelectedTab(tab: CafeteriaTab) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_SELECTED_CAFETERIA_TAB] = tab.name
+        }
+    }
+
     companion object {
         private const val SELECTED_CAFETERIA = "selected_cafeteria"
         private val KEY_SELECTED_CAFETERIA_NAME = stringPreferencesKey("selected_cafeteria_name")
+        private val KEY_SELECTED_CAFETERIA_TAB = stringPreferencesKey("selected_cafeteria_tab")
     }
 }

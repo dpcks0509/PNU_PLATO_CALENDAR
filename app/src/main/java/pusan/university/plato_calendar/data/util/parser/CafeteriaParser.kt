@@ -1,7 +1,7 @@
 package pusan.university.plato_calendar.data.util.parser
 
-import pusan.university.plato_calendar.domain.entity.CourseMenu
 import pusan.university.plato_calendar.domain.entity.CafeteriaDailyPlan
+import pusan.university.plato_calendar.domain.entity.CourseMenu
 import pusan.university.plato_calendar.domain.entity.MealInfo
 import pusan.university.plato_calendar.domain.entity.MealType
 import pusan.university.plato_calendar.domain.entity.OperationInfo

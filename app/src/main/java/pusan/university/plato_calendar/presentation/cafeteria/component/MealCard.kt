@@ -44,7 +44,7 @@ fun MealCard(
         modifier = modifier.fillMaxWidth(),
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.padding(20.dp),
         ) {
             with(mealInfo) {
@@ -59,7 +59,7 @@ fun MealCard(
                     )
 
                     operationInfo.operatingTime?.let {
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
 
                         Icon(
                             painter = painterResource(R.drawable.ic_clock),
@@ -71,7 +71,7 @@ fun MealCard(
                         Spacer(modifier = Modifier.width(4.dp))
 
                         Text(
-                            text = "운영시간: ${operationInfo.operatingTime}",
+                            text = operationInfo.operatingTime,
                             fontSize = 14.sp,
                             color = Gray,
                         )
