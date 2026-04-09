@@ -4,14 +4,17 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import pusan.university.plato_calendar.data.util.ApiResult
 import pusan.university.plato_calendar.domain.entity.Cafeteria
 import pusan.university.plato_calendar.domain.entity.Dormitory
 import pusan.university.plato_calendar.domain.usecase.cafeteria.GetCafeteriaWeeklyPlanUseCase
 import pusan.university.plato_calendar.domain.usecase.cafeteria.GetDormitoryCafeteriaWeeklyPlanUseCase
+import pusan.university.plato_calendar.domain.usecase.cafeteria.GetSelectedCafeteriaTabUseCase
 import pusan.university.plato_calendar.domain.usecase.cafeteria.GetSelectedCafeteriaUseCase
 import pusan.university.plato_calendar.domain.usecase.cafeteria.GetSelectedDormitoryUseCase
+import pusan.university.plato_calendar.domain.usecase.cafeteria.SetSelectedCafeteriaTabUseCase
 import pusan.university.plato_calendar.domain.usecase.cafeteria.SetSelectedCafeteriaUseCase
 import pusan.university.plato_calendar.domain.usecase.cafeteria.SetSelectedDormitoryUseCase
 import pusan.university.plato_calendar.presentation.cafeteria.intent.CafeteriaEvent
@@ -26,7 +29,6 @@ import pusan.university.plato_calendar.presentation.cafeteria.intent.CafeteriaSt
 import pusan.university.plato_calendar.presentation.cafeteria.model.CafeteriaTab
 import pusan.university.plato_calendar.presentation.util.base.BaseViewModel
 import pusan.university.plato_calendar.presentation.util.eventbus.ToastEventBus
-import pusan.university.plato_calendar.presentation.util.manager.CafeteriaManager
 import pusan.university.plato_calendar.presentation.util.manager.LoadingManager
 import pusan.university.plato_calendar.presentation.util.manager.ScheduleManager
 import java.time.DayOfWeek
@@ -38,7 +40,8 @@ class CafeteriaViewModel
 constructor(
     private val loadingManager: LoadingManager,
     private val scheduleManager: ScheduleManager,
-    private val cafeteriaManager: CafeteriaManager,
+    private val getSelectedCafeteriaTabUseCase: GetSelectedCafeteriaTabUseCase,
+    private val setSelectedCafeteriaTabUseCase: SetSelectedCafeteriaTabUseCase,
     private val getCafeteriaWeeklyPlanUseCase: GetCafeteriaWeeklyPlanUseCase,
     private val getDormitoryCafeteriaWeeklyPlanUseCase: GetDormitoryCafeteriaWeeklyPlanUseCase,
     private val getSelectedCafeteriaUseCase: GetSelectedCafeteriaUseCase,
@@ -50,10 +53,14 @@ constructor(
         CafeteriaState(
             today = scheduleManager.today.value.toLocalDate(),
             selectedDate = scheduleManager.today.value.toLocalDate(),
-            selectedTab = cafeteriaManager.initialTab,
         ),
 ) {
     init {
+        viewModelScope.launch {
+            val initialTab = getSelectedCafeteriaTabUseCase().first()
+            setState { copy(selectedTab = initialTab) }
+        }
+
         viewModelScope.launch {
             scheduleManager.today.collect { today ->
                 setState { copy(today = today.toLocalDate()) }
@@ -76,7 +83,7 @@ constructor(
 
             is SelectTab -> {
                 setState { copy(selectedTab = event.tab) }
-                cafeteriaManager.setSelectedTab(event.tab)
+                setSelectedCafeteriaTabUseCase(event.tab)
                 when (event.tab) {
                     CafeteriaTab.DORMITORY -> getDormitoryWeeklyPlan(state.value.selectedDormitory)
                     CafeteriaTab.CAMPUS -> getCafeteriaWeeklyPlan(state.value.selectedCafeteria)
@@ -173,7 +180,7 @@ constructor(
         }
     }
 
-    private fun refresh(tab: CafeteriaTab) {
+    private fun refresh(tab: CafeteriaTab?) {
         val previousTodayDate = state.value.today
         scheduleManager.updateToday()
         val newTodayDate = state.value.today

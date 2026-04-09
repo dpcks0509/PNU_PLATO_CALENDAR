@@ -14,7 +14,7 @@ import java.time.format.DateTimeFormatter
 data class CafeteriaState(
     val today: LocalDate,
     val selectedDate: LocalDate,
-    val selectedTab: CafeteriaTab = CafeteriaTab.CAMPUS,
+    val selectedTab: CafeteriaTab? = null,
     val selectedCafeteria: Cafeteria = Cafeteria.GEUMJEONG_STUDENT,
     val selectedDormitory: Dormitory = Dormitory.JILLI,
     val cafeteriaWeeklyPlans: Map<Cafeteria, CafeteriaWeeklyPlan> = emptyMap(),

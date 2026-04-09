@@ -44,10 +44,6 @@ fun CafeteriaScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(viewModel.sideEffect) {
-        viewModel.sideEffect.collect { }
-    }
-
     CafeteriaContent(
         state = state,
         onEvent = viewModel::setEvent,
@@ -61,6 +57,10 @@ fun CafeteriaContent(
     onEvent: (CafeteriaEvent) -> Unit,
     modifier: Modifier,
 ) {
+    if (state.selectedTab == null) {
+        return
+    }
+
     val pagerState = rememberPagerState(initialPage = state.selectedTab.ordinal) { CafeteriaTab.entries.size }
     val coroutineScope = rememberCoroutineScope()
 

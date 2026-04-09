@@ -42,7 +42,6 @@ import pusan.university.plato_calendar.presentation.util.component.dialog.plato.
 import pusan.university.plato_calendar.presentation.util.component.dialog.plato.content.PlatoDialogContent
 import pusan.university.plato_calendar.presentation.util.eventbus.WidgetEvent
 import pusan.university.plato_calendar.presentation.util.eventbus.WidgetEventBus
-import pusan.university.plato_calendar.presentation.util.manager.CafeteriaManager
 import pusan.university.plato_calendar.presentation.util.manager.LoadingManager
 import pusan.university.plato_calendar.presentation.util.manager.LoginManager
 import pusan.university.plato_calendar.presentation.util.manager.SettingsManager
@@ -72,9 +71,6 @@ class MainActivity : ComponentActivity() {
     lateinit var settingsManager: SettingsManager
 
     @Inject
-    lateinit var cafeteriaManager: CafeteriaManager
-
-    @Inject
     lateinit var notificationHelper: NotificationHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -85,7 +81,6 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             settingsManager.loadInitialSettings()
-            cafeteriaManager.loadInitialState()
             isThemeLoaded = true
         }
 
