@@ -44,7 +44,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextRange
@@ -62,6 +61,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import pusan.university.plato_calendar.presentation.util.extension.noRippleClickable
 import pusan.university.plato_calendar.presentation.util.theme.Black
+import pusan.university.plato_calendar.presentation.util.theme.Gray
 import pusan.university.plato_calendar.presentation.util.theme.LightGray
 import pusan.university.plato_calendar.presentation.util.theme.PrimaryColor
 import pusan.university.plato_calendar.presentation.util.theme.White
@@ -78,6 +78,11 @@ fun TimePickerDialog(
 ) {
     var selectedHour by rememberSaveable { mutableIntStateOf(initialHour) }
     var selectedMinute by rememberSaveable { mutableIntStateOf(initialMinute) }
+    var editingField by rememberSaveable { mutableStateOf<TimeField?>(null) }
+    var editingText by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue("")) }
+
+    val hourRange = 0..23
+    val minuteRange = 0..59
 
     Dialog(onDismissRequest = onDismiss) {
         val focusManager = LocalFocusManager.current
@@ -110,6 +115,10 @@ fun TimePickerDialog(
                         selectedHour = hour
                         selectedMinute = minute
                     },
+                    editingField = editingField,
+                    editingText = editingText,
+                    onEditingFieldChange = { editingField = it },
+                    onEditingTextChange = { editingText = it },
                     modifier = Modifier.fillMaxWidth(),
                 )
 
@@ -132,7 +141,15 @@ fun TimePickerDialog(
 
                     Spacer(modifier = Modifier.width(8.dp))
 
-                    TextButton(onClick = { onConfirm(selectedHour, selectedMinute) }) {
+                    TextButton(onClick = {
+                        val effectiveHour = if (editingField == TimeField.HOUR) {
+                            editingText.text.toIntOrNull()?.coerceIn(hourRange) ?: selectedHour
+                        } else selectedHour
+                        val effectiveMinute = if (editingField == TimeField.MINUTE) {
+                            editingText.text.toIntOrNull()?.coerceIn(minuteRange) ?: selectedMinute
+                        } else selectedMinute
+                        onConfirm(effectiveHour, effectiveMinute)
+                    }) {
                         Text(
                             text = "확인",
                             color = PrimaryColor,
@@ -152,6 +169,10 @@ private fun TimePicker(
     hour: Int,
     minute: Int,
     onTimeChange: (hour: Int, minute: Int) -> Unit,
+    editingField: TimeField?,
+    editingText: TextFieldValue,
+    onEditingFieldChange: (TimeField?) -> Unit,
+    onEditingTextChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -168,9 +189,6 @@ private fun TimePicker(
 
     val hourSnapBehavior = rememberSnapFlingBehavior(lazyListState = hourListState)
     val minuteSnapBehavior = rememberSnapFlingBehavior(lazyListState = minuteListState)
-
-    var editingField by rememberSaveable { mutableStateOf<TimeField?>(null) }
-    var editingText by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue("")) }
 
     val currentHour by remember {
         derivedStateOf {
@@ -234,17 +252,21 @@ private fun TimePicker(
                     onScrollToItem = { value -> coroutineScope.launch { hourListState.animateScrollToItem(value) } },
                     onStartEditing = {
                         val text = currentHour.toString().padStart(2, '0')
-                        editingField = TimeField.HOUR
-                        editingText = TextFieldValue(text = text, selection = TextRange(0, text.length))
+                        onEditingFieldChange(TimeField.HOUR)
+                        onEditingTextChange(TextFieldValue(text = text, selection = TextRange(0, text.length)))
                     },
-                    onEditingTextChange = { editingText = it },
+                    onEditingTextChange = {
+                        if (editingField == TimeField.HOUR) {
+                            onEditingTextChange(it)
+                        }
+                    },
                     onEditingComplete = { text ->
                         val value = text.toIntOrNull()?.coerceIn(hourRange)
                         if (value != null) {
                             coroutineScope.launch { hourListState.scrollToItem(value) }
                         }
-                        editingField = null
-                        editingText = TextFieldValue("")
+                        onEditingFieldChange(null)
+                        onEditingTextChange(TextFieldValue(""))
                     },
                 )
 
@@ -270,17 +292,21 @@ private fun TimePicker(
                     onScrollToItem = { value -> coroutineScope.launch { minuteListState.animateScrollToItem(value) } },
                     onStartEditing = {
                         val text = currentMinute.toString().padStart(2, '0')
-                        editingField = TimeField.MINUTE
-                        editingText = TextFieldValue(text = text, selection = TextRange(0, text.length))
+                        onEditingFieldChange(TimeField.MINUTE)
+                        onEditingTextChange(TextFieldValue(text = text, selection = TextRange(0, text.length)))
                     },
-                    onEditingTextChange = { editingText = it },
+                    onEditingTextChange = {
+                        if (editingField == TimeField.MINUTE) {
+                            onEditingTextChange(it)
+                        }
+                    },
                     onEditingComplete = { text ->
                         val value = text.toIntOrNull()?.coerceIn(minuteRange)
                         if (value != null) {
                             coroutineScope.launch { minuteListState.scrollToItem(value) }
                         }
-                        editingField = null
-                        editingText = TextFieldValue("")
+                        onEditingFieldChange(null)
+                        onEditingTextChange(TextFieldValue(""))
                     },
                 )
             }
@@ -411,7 +437,7 @@ private fun PickerColumn(
                                 text = formatItem(item),
                                 fontSize = if (isSelected) 24.sp else 20.sp,
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                color = if (isSelected) Black else Color.Gray,
+                                color = if (isSelected) Black else Gray,
                                 textAlign = TextAlign.Center,
                                 modifier =
                                     Modifier
