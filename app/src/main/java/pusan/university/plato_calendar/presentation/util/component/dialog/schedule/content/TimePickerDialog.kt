@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -44,6 +46,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -57,6 +60,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
+import pusan.university.plato_calendar.presentation.util.extension.noRippleClickable
 import pusan.university.plato_calendar.presentation.util.theme.Black
 import pusan.university.plato_calendar.presentation.util.theme.LightGray
 import pusan.university.plato_calendar.presentation.util.theme.PrimaryColor
@@ -76,9 +80,15 @@ fun TimePickerDialog(
     var selectedMinute by rememberSaveable { mutableIntStateOf(initialMinute) }
 
     Dialog(onDismissRequest = onDismiss) {
+        val focusManager = LocalFocusManager.current
+
         Card(
             shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .noRippleClickable {
+                    focusManager.clearFocus()
+                },
         ) {
             Column(
                 modifier =
@@ -322,11 +332,21 @@ private fun PickerColumn(
     onEditingComplete: (String) -> Unit,
 ) {
     val focusRequester = remember { FocusRequester() }
+    val density = LocalDensity.current
+    val imeBottom = WindowInsets.ime.getBottom(density)
+    var prevImeBottom by rememberSaveable { mutableIntStateOf(imeBottom) }
 
     LaunchedEffect(isEditing) {
         if (isEditing) {
             focusRequester.requestFocus()
         }
+    }
+
+    LaunchedEffect(imeBottom) {
+        if (isEditing && prevImeBottom > 0 && imeBottom < prevImeBottom) {
+            onEditingComplete(editingText.text)
+        }
+        prevImeBottom = imeBottom
     }
 
     Box(
