@@ -38,9 +38,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import pusan.university.plato_calendar.domain.entity.LoginCredentials
+import pusan.university.plato_calendar.presentation.util.theme.Black
+import pusan.university.plato_calendar.presentation.util.theme.Gray
 import pusan.university.plato_calendar.presentation.util.theme.LightGray
 import pusan.university.plato_calendar.presentation.util.theme.MediumGray
 import pusan.university.plato_calendar.presentation.util.theme.PrimaryColor
+import pusan.university.plato_calendar.presentation.util.theme.VeryLightGray
 import pusan.university.plato_calendar.presentation.util.theme.White
 
 @Composable
@@ -59,7 +62,7 @@ fun LoginDialog(
 
     Dialog(onDismissRequest = { if (!isLoggingIn) onDismiss() }) {
         Card(
-            colors = CardDefaults.cardColors(containerColor = White),
+            colors = CardDefaults.cardColors(containerColor = VeryLightGray),
             shape = RoundedCornerShape(20.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
             modifier = Modifier.fillMaxWidth(),
@@ -68,7 +71,7 @@ fun LoginDialog(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.padding(20.dp),
             ) {
-                Text(text = "로그인", fontSize = 24.sp, fontWeight = FontWeight.SemiBold)
+                Text(text = "로그인", fontSize = 24.sp, fontWeight = FontWeight.SemiBold, color = Black)
 
                 OutlinedTextFieldBackground {
                     OutlinedTextField(
