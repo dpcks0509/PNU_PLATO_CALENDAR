@@ -38,12 +38,19 @@ data class CafeteriaState(
         return getWeeklyPlanByDormitory(selectedDormitory).weeklyPlans.find { it.date == selectedDateString }
     }
 
-    fun getWeekStartDate(): LocalDate? {
-        return getWeeklyPlanByCafeteria(selectedCafeteria).weeklyPlans.firstOrNull()?.let { parseDateString(it.date) }
-    }
+    fun getWeekStartDate(): LocalDate? =
+        when (selectedTab) {
+            CafeteriaTab.CAMPUS -> getWeeklyPlanByCafeteria(selectedCafeteria).weeklyPlans.firstOrNull()?.let { parseDateString(it.date) }
+            CafeteriaTab.DORMITORY -> getWeeklyPlanByDormitory(selectedDormitory).weeklyPlans.firstOrNull()?.let { parseDateString(it.date) }
+            null -> null
+        }
 
     fun getWeekEndDate(): LocalDate? =
-        getWeeklyPlanByCafeteria(selectedCafeteria).weeklyPlans.lastOrNull()?.let { parseDateString(it.date) }
+        when (selectedTab) {
+            CafeteriaTab.CAMPUS -> getWeeklyPlanByCafeteria(selectedCafeteria).weeklyPlans.lastOrNull()?.let { parseDateString(it.date) }
+            CafeteriaTab.DORMITORY -> getWeeklyPlanByDormitory(selectedDormitory).weeklyPlans.lastOrNull()?.let { parseDateString(it.date) }
+            null -> null
+        }
 
     private fun parseDateString(dateString: String): LocalDate? {
         val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
