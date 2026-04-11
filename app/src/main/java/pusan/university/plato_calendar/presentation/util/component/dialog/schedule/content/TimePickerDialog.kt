@@ -36,6 +36,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -69,6 +70,9 @@ import kotlin.math.abs
 
 private enum class TimeField { HOUR, MINUTE }
 
+private val hourRange = 0..23
+private val minuteRange = 0..59
+
 @Composable
 fun TimePickerDialog(
     initialHour: Int,
@@ -79,21 +83,23 @@ fun TimePickerDialog(
     var selectedHour by rememberSaveable { mutableIntStateOf(initialHour) }
     var selectedMinute by rememberSaveable { mutableIntStateOf(initialMinute) }
     var editingField by rememberSaveable { mutableStateOf<TimeField?>(null) }
-    var editingText by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue("")) }
-
-    val hourRange = 0..23
-    val minuteRange = 0..59
+    var editingText by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+        mutableStateOf(TextFieldValue(""))
+    }
 
     Dialog(onDismissRequest = onDismiss) {
         val focusManager = LocalFocusManager.current
 
         Card(
             shape = RoundedCornerShape(16.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .noRippleClickable {
-                    focusManager.clearFocus()
-                },
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .noRippleClickable {
+                        focusManager.clearFocus()
+                        editingField = null
+                        editingText = TextFieldValue("")
+                    },
         ) {
             Column(
                 modifier =
@@ -116,8 +122,8 @@ fun TimePickerDialog(
                         selectedMinute = minute
                     },
                     editingField = editingField,
-                    editingText = editingText,
                     onEditingFieldChange = { editingField = it },
+                    editingText = editingText,
                     onEditingTextChange = { editingText = it },
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -142,13 +148,26 @@ fun TimePickerDialog(
                     Spacer(modifier = Modifier.width(8.dp))
 
                     TextButton(onClick = {
-                        val effectiveHour = if (editingField == TimeField.HOUR) {
-                            editingText.text.toIntOrNull()?.coerceIn(hourRange) ?: selectedHour
-                        } else selectedHour
-                        val effectiveMinute = if (editingField == TimeField.MINUTE) {
-                            editingText.text.toIntOrNull()?.coerceIn(minuteRange) ?: selectedMinute
-                        } else selectedMinute
-                        onConfirm(effectiveHour, effectiveMinute)
+                        var finalHour = selectedHour
+                        var finalMinute = selectedMinute
+                        when (editingField) {
+                            TimeField.HOUR -> {
+                                editingText.text
+                                    .toIntOrNull()
+                                    ?.coerceIn(hourRange)
+                                    ?.let { finalHour = it }
+                            }
+
+                            TimeField.MINUTE -> {
+                                editingText.text
+                                    .toIntOrNull()
+                                    ?.coerceIn(minuteRange)
+                                    ?.let { finalMinute = it }
+                            }
+
+                            null -> {}
+                        }
+                        onConfirm(finalHour, finalMinute)
                     }) {
                         Text(
                             text = "확인",
@@ -170,8 +189,8 @@ private fun TimePicker(
     minute: Int,
     onTimeChange: (hour: Int, minute: Int) -> Unit,
     editingField: TimeField?,
-    editingText: TextFieldValue,
     onEditingFieldChange: (TimeField?) -> Unit,
+    editingText: TextFieldValue,
     onEditingTextChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -181,8 +200,7 @@ private fun TimePicker(
     val itemHeightPx = with(density) { itemHeight.toPx() }
     val visibleItemsCount = 3
 
-    val hourRange = 0..23
-    val minuteRange = 0..59
+    val latestEditingField by rememberUpdatedState(editingField)
 
     val hourListState = rememberLazyListState(initialFirstVisibleItemIndex = hour)
     val minuteListState = rememberLazyListState(initialFirstVisibleItemIndex = minute)
@@ -248,17 +266,36 @@ private fun TimePicker(
                     modifier = Modifier.weight(1f),
                     formatItem = { it.toString().padStart(2, '0') },
                     isEditing = editingField == TimeField.HOUR,
-                    editingText = if (editingField == TimeField.HOUR) editingText else TextFieldValue(""),
-                    onScrollToItem = { value -> coroutineScope.launch { hourListState.animateScrollToItem(value) } },
+                    editingText =
+                        if (editingField == TimeField.HOUR) {
+                            editingText
+                        } else {
+                            TextFieldValue(
+                                "",
+                            )
+                        },
+                    onScrollToItem = { value ->
+                        coroutineScope.launch {
+                            hourListState.animateScrollToItem(
+                                value,
+                            )
+                        }
+                    },
                     onStartEditing = {
+                        if (editingField == TimeField.MINUTE) {
+                            val minuteValue = editingText.text.toIntOrNull()?.coerceIn(minuteRange)
+                            if (minuteValue != null) {
+                                coroutineScope.launch { minuteListState.scrollToItem(minuteValue) }
+                            }
+                        }
                         val text = currentHour.toString().padStart(2, '0')
                         onEditingFieldChange(TimeField.HOUR)
-                        onEditingTextChange(TextFieldValue(text = text, selection = TextRange(0, text.length)))
+                        onEditingTextChange(
+                            TextFieldValue(text = text, selection = TextRange(0, text.length)),
+                        )
                     },
                     onEditingTextChange = {
-                        if (editingField == TimeField.HOUR) {
-                            onEditingTextChange(it)
-                        }
+                        if (latestEditingField == TimeField.HOUR) onEditingTextChange(it)
                     },
                     onEditingComplete = { text ->
                         val value = text.toIntOrNull()?.coerceIn(hourRange)
@@ -288,17 +325,36 @@ private fun TimePicker(
                     modifier = Modifier.weight(1f),
                     formatItem = { it.toString().padStart(2, '0') },
                     isEditing = editingField == TimeField.MINUTE,
-                    editingText = if (editingField == TimeField.MINUTE) editingText else TextFieldValue(""),
-                    onScrollToItem = { value -> coroutineScope.launch { minuteListState.animateScrollToItem(value) } },
+                    editingText =
+                        if (editingField == TimeField.MINUTE) {
+                            editingText
+                        } else {
+                            TextFieldValue(
+                                "",
+                            )
+                        },
+                    onScrollToItem = { value ->
+                        coroutineScope.launch {
+                            minuteListState.animateScrollToItem(
+                                value,
+                            )
+                        }
+                    },
                     onStartEditing = {
+                        if (editingField == TimeField.HOUR) {
+                            val hourValue = editingText.text.toIntOrNull()?.coerceIn(hourRange)
+                            if (hourValue != null) {
+                                coroutineScope.launch { hourListState.scrollToItem(hourValue) }
+                            }
+                        }
                         val text = currentMinute.toString().padStart(2, '0')
                         onEditingFieldChange(TimeField.MINUTE)
-                        onEditingTextChange(TextFieldValue(text = text, selection = TextRange(0, text.length)))
+                        onEditingTextChange(
+                            TextFieldValue(text = text, selection = TextRange(0, text.length)),
+                        )
                     },
                     onEditingTextChange = {
-                        if (editingField == TimeField.MINUTE) {
-                            onEditingTextChange(it)
-                        }
+                        if (latestEditingField == TimeField.MINUTE) onEditingTextChange(it)
                     },
                     onEditingComplete = { text ->
                         val value = text.toIntOrNull()?.coerceIn(minuteRange)
@@ -387,41 +443,47 @@ private fun PickerColumn(
                         onEditingTextChange(newValue)
                     }
                 },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Done,
-                ),
-                keyboardActions = KeyboardActions(
-                    onDone = { onEditingComplete(editingText.text) },
-                ),
-                textStyle = TextStyle(
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = PrimaryColor,
-                    textAlign = TextAlign.Center,
-                ),
+                keyboardOptions =
+                    KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Done,
+                    ),
+                keyboardActions =
+                    KeyboardActions(
+                        onDone = { onEditingComplete(editingText.text) },
+                    ),
+                textStyle =
+                    TextStyle(
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = PrimaryColor,
+                        textAlign = TextAlign.Center,
+                    ),
                 singleLine = true,
-                modifier = Modifier
-                    .width(56.dp)
-                    .focusRequester(focusRequester),
+                modifier =
+                    Modifier
+                        .width(56.dp)
+                        .focusRequester(focusRequester),
             )
         } else {
             LazyColumn(
                 state = listState,
                 flingBehavior = flingBehavior,
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(itemHeight * visibleItemsCount),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(itemHeight * visibleItemsCount),
             ) {
                 items(count = items.size + visibleItemsCount - 1) { index ->
                     val itemIndex = index - (visibleItemsCount / 2)
                     val item = items.getOrNull(itemIndex)
 
                     Box(
-                        modifier = Modifier
-                            .height(itemHeight)
-                            .fillMaxWidth(),
+                        modifier =
+                            Modifier
+                                .height(itemHeight)
+                                .fillMaxWidth(),
                         contentAlignment = Alignment.Center,
                     ) {
                         if (item != null) {
@@ -444,8 +506,11 @@ private fun PickerColumn(
                                         .alpha(alpha)
                                         .offset(y = if (isSelected) 0.dp else 0.dp)
                                         .clickable {
-                                            if (isSelected) onStartEditing()
-                                            else onScrollToItem(item)
+                                            if (isSelected) {
+                                                onStartEditing()
+                                            } else {
+                                                onScrollToItem(item)
+                                            }
                                         },
                             )
                         }
