@@ -44,6 +44,9 @@ import pusan.university.plato_calendar.R
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
 import pusan.university.plato_calendar.presentation.calendar.model.PickerTarget
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
+import pusan.university.plato_calendar.presentation.setting.component.ReminderDropdownItem
+import pusan.university.plato_calendar.presentation.setting.component.ToggleSwitch
+import pusan.university.plato_calendar.presentation.setting.model.NotificationTime
 import pusan.university.plato_calendar.presentation.util.component.dialog.schedule.content.ScheduleDialogContent
 import pusan.university.plato_calendar.presentation.util.extension.formatTimeWithMidnightSpecialCase
 import pusan.university.plato_calendar.presentation.util.extension.noRippleClickable
@@ -66,6 +69,29 @@ import java.util.Locale
 private const val TITLE = "제목"
 private const val HAS_NO_DESCRIPTION = "설명 없음"
 
+private fun normalizeReminderTimes(
+    firstReminderCandidate: NotificationTime,
+    secondReminderCandidate: NotificationTime,
+): Pair<NotificationTime, NotificationTime> {
+    if (firstReminderCandidate == NotificationTime.NONE && secondReminderCandidate == NotificationTime.NONE) {
+        return NotificationTime.NONE to NotificationTime.NONE
+    }
+    if (firstReminderCandidate == NotificationTime.NONE) {
+        return secondReminderCandidate to NotificationTime.NONE
+    }
+    if (secondReminderCandidate == NotificationTime.NONE) {
+        return firstReminderCandidate to NotificationTime.NONE
+    }
+    if (firstReminderCandidate == secondReminderCandidate) {
+        return firstReminderCandidate to NotificationTime.NONE
+    }
+    return if (firstReminderCandidate.ordinal <= secondReminderCandidate.ordinal) {
+        firstReminderCandidate to secondReminderCandidate
+    } else {
+        secondReminderCandidate to firstReminderCandidate
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomScheduleBottomSheet(
@@ -75,12 +101,28 @@ fun CustomScheduleBottomSheet(
     deleteSchedule: () -> Unit,
     onShowDialog: (ScheduleDialogContent) -> Unit,
     onDismiss: () -> Unit,
+    defaultFirstReminderTime: NotificationTime,
+    defaultSecondReminderTime: NotificationTime,
+    onAlarmUpdated: (Boolean, NotificationTime, NotificationTime) -> Unit
 ) {
     var title by rememberSaveable { mutableStateOf(schedule.title) }
     var description by rememberSaveable { mutableStateOf(schedule.description.orEmpty()) }
     var time by rememberSaveable(stateSaver = LocalDateTimeSaver) { mutableStateOf(schedule.endAt) }
 
     var timePickerFor by rememberSaveable { mutableStateOf<PickerTarget?>(null) }
+
+    var notificationsEnabled by rememberSaveable { mutableStateOf(true) }
+    var firstReminderTime by rememberSaveable { mutableStateOf(defaultFirstReminderTime) }
+    var secondReminderTime by rememberSaveable { mutableStateOf(defaultSecondReminderTime) }
+    var isAlarmInitialized by remember { mutableStateOf(false) }
+
+    LaunchedEffect(notificationsEnabled, firstReminderTime, secondReminderTime) {
+        if (isAlarmInitialized) {
+            onAlarmUpdated(notificationsEnabled, firstReminderTime, secondReminderTime)
+        } else {
+            isAlarmInitialized = true
+        }
+    }
 
     val zoneId = ZoneId.systemDefault()
     val today = LocalDateTime.now().toLocalDate()
@@ -302,7 +344,7 @@ fun CustomScheduleBottomSheet(
                 modifier = Modifier.size(24.dp),
             )
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(8.dp))
 
             Column(
                 modifier =
@@ -347,8 +389,53 @@ fun CustomScheduleBottomSheet(
                 )
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(8.dp))
         }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        ToggleSwitch(
+            label = "알림 받기",
+            checked = notificationsEnabled,
+            onCheckedChange = { notificationsEnabled = it },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .background(White)
+                .padding(start = 4.dp, end = 8.dp)
+        )
+
+        ReminderDropdownItem(
+            label = "알림",
+            selectedLabel = firstReminderTime.label,
+            enabled = notificationsEnabled,
+            onSelect = { selected ->
+                val (first, second) = normalizeReminderTimes(selected, secondReminderTime)
+                firstReminderTime = first
+                secondReminderTime = second
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .background(White)
+                .padding(start = 4.dp, end = 8.dp)
+        )
+
+        ReminderDropdownItem(
+            label = "두 번째 알림",
+            selectedLabel = secondReminderTime.label,
+            enabled = notificationsEnabled,
+            onSelect = { selected ->
+                val (first, second) = normalizeReminderTimes(firstReminderTime, selected)
+                firstReminderTime = first
+                secondReminderTime = second
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .background(White)
+                .padding(start = 4.dp, end = 8.dp)
+        )
     }
 
     Spacer(modifier = Modifier.height(12.dp))

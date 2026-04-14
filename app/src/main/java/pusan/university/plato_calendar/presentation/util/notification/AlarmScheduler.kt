@@ -143,6 +143,7 @@ class AlarmScheduler
                 NotificationTime.TWELVE_HOURS -> endDateTime.minusHours(12)
                 NotificationTime.ONE_DAY -> endDateTime.minusDays(1)
                 NotificationTime.TWO_DAYS -> endDateTime.minusDays(2)
+                NotificationTime.THREE_DAYS -> endDateTime.minusDays(3)
                 NotificationTime.ONE_WEEK -> endDateTime.minusWeeks(1)
                 else -> endDateTime
             }

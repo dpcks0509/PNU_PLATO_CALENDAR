@@ -66,7 +66,7 @@ class NotificationHelper
                     .Builder(context, CHANNEL_ID)
                     .setContentTitle(title)
                     .setContentText(message)
-                    .setSmallIcon(R.drawable.ic_notification)
+                    .setSmallIcon(R.drawable.ic_calendar)
                     .setColor(ContextCompat.getColor(context, R.color.primary_color))
                     .setAutoCancel(true)
                     .setContentIntent(pendingIntent)

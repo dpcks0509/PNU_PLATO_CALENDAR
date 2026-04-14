@@ -9,7 +9,7 @@ data class SettingState(
     val autoUpdateSchedule: Boolean = false,
     val notificationsEnabled: Boolean = false,
     val firstReminderTime: NotificationTime = NotificationTime.ONE_HOUR,
-    val secondReminderTime: NotificationTime = NotificationTime.NONE,
+    val secondReminderTime: NotificationTime = NotificationTime.ONE_DAY,
     val shouldPromptNotificationPermission: Boolean = false,
     val hasNotificationPermission: Boolean = false,
     val themeMode: ThemeMode = ThemeMode.SYSTEM,

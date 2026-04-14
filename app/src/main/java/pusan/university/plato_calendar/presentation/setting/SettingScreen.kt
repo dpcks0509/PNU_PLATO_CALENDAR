@@ -61,6 +61,7 @@ import pusan.university.plato_calendar.presentation.util.component.dialog.plato.
 import pusan.university.plato_calendar.presentation.util.eventbus.DialogEventBus
 import pusan.university.plato_calendar.presentation.util.theme.MediumGray
 import pusan.university.plato_calendar.presentation.util.theme.PlatoCalendarTheme
+import pusan.university.plato_calendar.presentation.util.theme.VeryLightGray
 import pusan.university.plato_calendar.presentation.widget.receiver.CalendarWidgetReceiver
 
 @Composable
@@ -182,6 +183,11 @@ fun SettingContent(
                                                         UpdateAutoUpdateSchedule(enabled),
                                                     )
                                                 },
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .height(48.dp)
+                                                    .background(VeryLightGray)
+                                                    .padding(horizontal = 16.dp)
                                             )
                                         }
 
@@ -194,6 +200,11 @@ fun SettingContent(
                                                         UpdateNotificationsEnabled(enabled),
                                                     )
                                                 },
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .height(48.dp)
+                                                    .background(VeryLightGray)
+                                                    .padding(horizontal = 16.dp)
                                             )
                                         }
 
@@ -209,6 +220,11 @@ fun SettingContent(
                                                         ),
                                                     )
                                                 },
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .height(48.dp)
+                                                    .background(VeryLightGray)
+                                                    .padding(horizontal = 16.dp)
                                             )
                                         }
 
@@ -224,6 +240,11 @@ fun SettingContent(
                                                     )
                                                 },
                                                 enabled = state.hasNotificationPermission,
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .height(48.dp)
+                                                    .background(VeryLightGray)
+                                                    .padding(horizontal = 16.dp)
                                             )
                                         }
 

@@ -33,6 +33,7 @@ import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.EditCu
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.Refresh
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.ShowScheduleBottomSheet
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.TogglePersonalScheduleCompletion
+import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.UpdateScheduleAlarm
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoSideEffect
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoState
 import pusan.university.plato_calendar.presentation.todo.model.ToDoSection
@@ -101,6 +102,11 @@ fun ToDoScreen(
             },
             onShowDialog = { dialogContent -> viewModel.setEvent(ToDoEvent.ShowDialog(dialogContent)) },
             onDismiss = { coroutineScope.launch { sheetState.hide() } },
+            onUpdateScheduleAlarm = { scheduleId, enabled, first, second ->
+                viewModel.setEvent(UpdateScheduleAlarm(scheduleId, enabled, first, second))
+            },
+            defaultFirstReminderTime = state.defaultFirstReminderTime,
+            defaultSecondReminderTime = state.defaultSecondReminderTime,
             modifier = Modifier.fillMaxWidth(),
         )
     }

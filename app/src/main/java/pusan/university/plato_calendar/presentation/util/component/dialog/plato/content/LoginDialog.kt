@@ -39,12 +39,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import pusan.university.plato_calendar.domain.entity.LoginCredentials
 import pusan.university.plato_calendar.presentation.util.theme.Black
-import pusan.university.plato_calendar.presentation.util.theme.Gray
 import pusan.university.plato_calendar.presentation.util.theme.LightGray
 import pusan.university.plato_calendar.presentation.util.theme.MediumGray
 import pusan.university.plato_calendar.presentation.util.theme.PrimaryColor
 import pusan.university.plato_calendar.presentation.util.theme.VeryLightGray
-import pusan.university.plato_calendar.presentation.util.theme.White
 
 @Composable
 fun LoginDialog(

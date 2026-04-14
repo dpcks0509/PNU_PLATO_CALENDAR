@@ -32,6 +32,7 @@ import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEven
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.ShowScheduleBottomSheetById
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.TogglePersonalScheduleCompletion
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.UpdateCurrentYearMonth
+import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.UpdateScheduleAlarm
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.UpdateSelectedDate
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.UpdateSelectedDateByWidget
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarSideEffect
@@ -52,6 +53,7 @@ import pusan.university.plato_calendar.presentation.util.eventbus.ToastEventBus
 import pusan.university.plato_calendar.presentation.util.manager.LoadingManager
 import pusan.university.plato_calendar.presentation.util.manager.LoginManager
 import pusan.university.plato_calendar.presentation.util.manager.ScheduleManager
+import pusan.university.plato_calendar.presentation.util.manager.SettingsManager
 import pusan.university.plato_calendar.presentation.util.notification.AlarmScheduler
 import java.time.LocalDate
 import javax.inject.Inject
@@ -63,6 +65,7 @@ constructor(
     private val loginManager: LoginManager,
     private val scheduleManager: ScheduleManager,
     private val loadingManager: LoadingManager,
+    private val settingsManager: SettingsManager,
     private val alarmScheduler: AlarmScheduler,
     private val getAcademicSchedulesUseCase: GetAcademicSchedulesUseCase,
     private val getPersonalSchedulesUseCase: GetPersonalSchedulesUseCase,
@@ -103,6 +106,17 @@ constructor(
             launch {
                 scheduleManager.today.collect { today ->
                     setState { copy(today = today.toLocalDate()) }
+                }
+            }
+
+            launch {
+                settingsManager.appSettings.collect { settings ->
+                    setState {
+                        copy(
+                            defaultFirstReminderTime = settings.firstReminderTime,
+                            defaultSecondReminderTime = settings.secondReminderTime,
+                        )
+                    }
                 }
             }
         }
@@ -188,6 +202,23 @@ constructor(
 
             CalendarEvent.HideDialog -> {
                 setState { copy(scheduleDialogContent = null) }
+            }
+
+            is UpdateScheduleAlarm -> {
+                val schedule = state.value.schedules
+                    .filterIsInstance<PersonalScheduleUiModel>()
+                    .find { it.id == event.scheduleId }
+                if (schedule != null) {
+                    if (event.enabled) {
+                        alarmScheduler.scheduleNotificationsForSchedule(
+                            personalSchedules = listOf(schedule),
+                            firstReminderTime = event.firstReminderTime,
+                            secondReminderTime = event.secondReminderTime,
+                        )
+                    } else {
+                        alarmScheduler.cancelNotification(event.scheduleId)
+                    }
+                }
             }
         }
     }
@@ -316,6 +347,14 @@ constructor(
                     )
                 val updatedSchedules = state.value.schedules + customSchedule
                 scheduleManager.updateSchedules(updatedSchedules)
+
+                if (newSchedule.notificationsEnabled) {
+                    alarmScheduler.scheduleNotificationsForSchedule(
+                        personalSchedules = listOf(customSchedule),
+                        firstReminderTime = newSchedule.firstReminderTime,
+                        secondReminderTime = newSchedule.secondReminderTime,
+                    )
+                }
 
                 setState { copy(scheduleBottomSheetContent = null) }
                 setSideEffect { CalendarSideEffect.HideScheduleBottomSheet }

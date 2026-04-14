@@ -42,6 +42,7 @@ import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEven
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.ShowScheduleBottomSheetById
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.TogglePersonalScheduleCompletion
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.UpdateCurrentYearMonth
+import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.UpdateScheduleAlarm
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.UpdateSelectedDate
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.UpdateSelectedDateByWidget
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarSideEffect
@@ -174,6 +175,11 @@ fun CalendarScreen(
                 )
             },
             onDismiss = { coroutineScope.launch { sheetState.hide() } },
+            onUpdateScheduleAlarm = { scheduleId, enabled, first, second ->
+                viewModel.setEvent(UpdateScheduleAlarm(scheduleId, enabled, first, second))
+            },
+            defaultFirstReminderTime = state.defaultFirstReminderTime,
+            defaultSecondReminderTime = state.defaultSecondReminderTime,
             modifier = Modifier.fillMaxWidth(),
         )
     }

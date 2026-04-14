@@ -40,6 +40,8 @@ import pusan.university.plato_calendar.presentation.util.eventbus.ToastEventBus
 import pusan.university.plato_calendar.presentation.util.manager.LoadingManager
 import pusan.university.plato_calendar.presentation.util.manager.LoginManager
 import pusan.university.plato_calendar.presentation.util.manager.ScheduleManager
+import pusan.university.plato_calendar.presentation.util.manager.SettingsManager
+import pusan.university.plato_calendar.presentation.util.notification.AlarmScheduler
 import javax.inject.Inject
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoSideEffect.HideScheduleBottomSheet as ToDoHideSheet
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoSideEffect.ShowScheduleBottomSheet as ToDoShowSheet
@@ -51,6 +53,8 @@ constructor(
     private val loginManager: LoginManager,
     private val scheduleManager: ScheduleManager,
     private val loadingManager: LoadingManager,
+    private val settingsManager: SettingsManager,
+    private val alarmScheduler: AlarmScheduler,
     private val getAcademicSchedulesUseCase: GetAcademicSchedulesUseCase,
     private val getPersonalSchedulesUseCase: GetPersonalSchedulesUseCase,
     private val getCourseNameUseCase: GetCourseNameUseCase,
@@ -70,9 +74,21 @@ constructor(
                     setState { copy(today = today) }
                 }
             }
+
             launch {
                 scheduleManager.schedules.collect { schedules ->
                     setState { copy(schedules = schedules) }
+                }
+            }
+
+            launch {
+                settingsManager.appSettings.collect { settings ->
+                    setState {
+                        copy(
+                            defaultFirstReminderTime = settings.firstReminderTime,
+                            defaultSecondReminderTime = settings.secondReminderTime,
+                        )
+                    }
                 }
             }
         }
@@ -109,6 +125,23 @@ constructor(
 
             ToDoEvent.HideDialog -> {
                 setState { copy(scheduleDialogContent = null) }
+            }
+
+            is ToDoEvent.UpdateScheduleAlarm -> {
+                val schedule = state.value.schedules
+                    .filterIsInstance<PersonalScheduleUiModel>()
+                    .find { it.id == event.scheduleId }
+                if (schedule != null) {
+                    if (event.enabled) {
+                        alarmScheduler.scheduleNotificationsForSchedule(
+                            personalSchedules = listOf(schedule),
+                            firstReminderTime = event.firstReminderTime,
+                            secondReminderTime = event.secondReminderTime,
+                        )
+                    } else {
+                        alarmScheduler.cancelNotification(event.scheduleId)
+                    }
+                }
             }
         }
     }

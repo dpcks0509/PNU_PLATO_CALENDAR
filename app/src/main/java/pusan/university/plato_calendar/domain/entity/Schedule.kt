@@ -1,5 +1,6 @@
 package pusan.university.plato_calendar.domain.entity
 
+import pusan.university.plato_calendar.presentation.setting.model.NotificationTime
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -44,5 +45,8 @@ sealed class Schedule {
         val description: String?,
         val startAt: LocalDateTime,
         val endAt: LocalDateTime,
+        val notificationsEnabled: Boolean = true,
+        val firstReminderTime: NotificationTime = NotificationTime.ONE_HOUR,
+        val secondReminderTime: NotificationTime = NotificationTime.ONE_DAY,
     ) : Schedule()
 }

@@ -1,12 +1,8 @@
 package pusan.university.plato_calendar.presentation.setting.component
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
@@ -37,17 +33,12 @@ fun ReminderDropdownItem(
     selectedLabel: String,
     enabled: Boolean,
     onSelect: (NotificationTime) -> Unit,
+    modifier: Modifier
 ) {
     var isDropdownExpanded by rememberSaveable { mutableStateOf(false) }
 
     Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .height(48.dp)
-                .background(VeryLightGray)
-                .padding(horizontal = 16.dp)
-                .alpha(if (enabled) 1f else 0.6f),
+        modifier = modifier.alpha(if (enabled) 1f else 0.6f),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(

@@ -5,6 +5,7 @@ import pusan.university.plato_calendar.domain.entity.Schedule.NewSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.YearMonth
+import pusan.university.plato_calendar.presentation.setting.model.NotificationTime
 import pusan.university.plato_calendar.presentation.util.base.UiEvent
 import pusan.university.plato_calendar.presentation.util.component.dialog.schedule.content.ScheduleDialogContent
 import java.time.LocalDate
@@ -58,4 +59,11 @@ sealed interface CalendarEvent : UiEvent {
     ) : CalendarEvent
 
     data object HideDialog : CalendarEvent
+
+    data class UpdateScheduleAlarm(
+        val scheduleId: Long,
+        val enabled: Boolean,
+        val firstReminderTime: NotificationTime,
+        val secondReminderTime: NotificationTime,
+    ) : CalendarEvent
 }

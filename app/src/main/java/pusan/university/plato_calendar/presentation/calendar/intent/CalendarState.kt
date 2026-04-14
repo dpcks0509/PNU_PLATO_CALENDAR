@@ -4,6 +4,7 @@ import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiMod
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.YearMonth
+import pusan.university.plato_calendar.presentation.setting.model.NotificationTime
 import pusan.university.plato_calendar.presentation.util.base.UiState
 import pusan.university.plato_calendar.presentation.util.component.bottomsheet.schedule.content.ScheduleBottomSheetContent
 import pusan.university.plato_calendar.presentation.util.component.dialog.schedule.content.ScheduleDialogContent
@@ -16,6 +17,8 @@ data class CalendarState(
     val schedules: List<ScheduleUiModel> = emptyList(),
     val scheduleBottomSheetContent: ScheduleBottomSheetContent? = null,
     val scheduleDialogContent: ScheduleDialogContent? = null,
+    val defaultFirstReminderTime: NotificationTime = NotificationTime.ONE_HOUR,
+    val defaultSecondReminderTime: NotificationTime = NotificationTime.ONE_DAY,
 ) : UiState {
     val baseToday: LocalDate = today
     val selectedDateSchedules: List<ScheduleUiModel>

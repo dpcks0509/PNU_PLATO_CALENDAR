@@ -15,6 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import pusan.university.plato_calendar.domain.entity.Schedule.NewSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
+import pusan.university.plato_calendar.presentation.setting.model.NotificationTime
 import pusan.university.plato_calendar.presentation.util.component.bottomsheet.schedule.content.AcademicScheduleBottomSheet
 import pusan.university.plato_calendar.presentation.util.component.bottomsheet.schedule.content.CourseScheduleBottomSheet
 import pusan.university.plato_calendar.presentation.util.component.bottomsheet.schedule.content.CustomScheduleBottomSheet
@@ -40,6 +41,9 @@ fun ScheduleBottomSheet(
     toggleScheduleCompletion: (Long, Boolean) -> Unit,
     onShowDialog: (ScheduleDialogContent) -> Unit,
     onDismiss: () -> Unit,
+    onUpdateScheduleAlarm: (Long, Boolean, NotificationTime, NotificationTime) -> Unit,
+    defaultFirstReminderTime: NotificationTime,
+    defaultSecondReminderTime: NotificationTime,
     modifier: Modifier = Modifier,
 ) {
     val scrollState = rememberScrollState()
@@ -72,6 +76,11 @@ fun ScheduleBottomSheet(
                             schedule = content.schedule,
                             toggleScheduleCompletion = toggleScheduleCompletion,
                             onDismiss = onDismiss,
+                            defaultFirstReminderTime = defaultFirstReminderTime,
+                            defaultSecondReminderTime = defaultSecondReminderTime,
+                            onAlarmUpdated = { enabled, first, second ->
+                                onUpdateScheduleAlarm(content.schedule.id, enabled, first, second)
+                            },
                         )
                     }
 
@@ -90,6 +99,11 @@ fun ScheduleBottomSheet(
                             },
                             onShowDialog = onShowDialog,
                             onDismiss = onDismiss,
+                            defaultFirstReminderTime = defaultFirstReminderTime,
+                            defaultSecondReminderTime = defaultSecondReminderTime,
+                            onAlarmUpdated = { enabled, first, second ->
+                                onUpdateScheduleAlarm(content.schedule.id, enabled, first, second)
+                            },
                         )
                     }
 
@@ -99,6 +113,8 @@ fun ScheduleBottomSheet(
                             makeSchedule = makeSchedule,
                             onShowDialog = onShowDialog,
                             onDismiss = onDismiss,
+                            defaultFirstReminderTime = defaultFirstReminderTime,
+                            defaultSecondReminderTime = defaultSecondReminderTime,
                         )
                     }
                 }

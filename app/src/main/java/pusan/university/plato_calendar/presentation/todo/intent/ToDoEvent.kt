@@ -2,6 +2,7 @@ package pusan.university.plato_calendar.presentation.todo.intent
 
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel
+import pusan.university.plato_calendar.presentation.setting.model.NotificationTime
 import pusan.university.plato_calendar.presentation.util.base.UiEvent
 import pusan.university.plato_calendar.presentation.util.component.dialog.schedule.content.ScheduleDialogContent
 
@@ -30,4 +31,11 @@ sealed interface ToDoEvent : UiEvent {
     ) : ToDoEvent
 
     data object HideDialog : ToDoEvent
+
+    data class UpdateScheduleAlarm(
+        val scheduleId: Long,
+        val enabled: Boolean,
+        val firstReminderTime: NotificationTime,
+        val secondReminderTime: NotificationTime,
+    ) : ToDoEvent
 }

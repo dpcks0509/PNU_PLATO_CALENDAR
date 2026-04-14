@@ -24,6 +24,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,6 +42,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pusan.university.plato_calendar.R
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
+import pusan.university.plato_calendar.presentation.setting.component.ReminderDropdownItem
+import pusan.university.plato_calendar.presentation.setting.component.ToggleSwitch
+import pusan.university.plato_calendar.presentation.setting.model.NotificationTime
 import pusan.university.plato_calendar.presentation.util.extension.formatTimeWithMidnightSpecialCase
 import pusan.university.plato_calendar.presentation.util.extension.noRippleClickable
 import pusan.university.plato_calendar.presentation.util.theme.Black
@@ -48,12 +57,51 @@ import java.util.Locale
 
 private const val HAS_NO_DESCRIPTION = "설명 없음"
 
+private fun normalizeReminderTimes(
+    firstReminderCandidate: NotificationTime,
+    secondReminderCandidate: NotificationTime,
+): Pair<NotificationTime, NotificationTime> {
+    if (firstReminderCandidate == NotificationTime.NONE && secondReminderCandidate == NotificationTime.NONE) {
+        return NotificationTime.NONE to NotificationTime.NONE
+    }
+    if (firstReminderCandidate == NotificationTime.NONE) {
+        return secondReminderCandidate to NotificationTime.NONE
+    }
+    if (secondReminderCandidate == NotificationTime.NONE) {
+        return firstReminderCandidate to NotificationTime.NONE
+    }
+    if (firstReminderCandidate == secondReminderCandidate) {
+        return firstReminderCandidate to NotificationTime.NONE
+    }
+    return if (firstReminderCandidate.ordinal <= secondReminderCandidate.ordinal) {
+        firstReminderCandidate to secondReminderCandidate
+    } else {
+        secondReminderCandidate to firstReminderCandidate
+    }
+}
+
 @Composable
 fun CourseScheduleBottomSheet(
     schedule: CourseScheduleUiModel,
     toggleScheduleCompletion: (Long, Boolean) -> Unit,
     onDismiss: () -> Unit,
+    defaultFirstReminderTime: NotificationTime,
+    defaultSecondReminderTime: NotificationTime,
+    onAlarmUpdated: (Boolean, NotificationTime, NotificationTime) -> Unit,
 ) {
+    var notificationsEnabled by rememberSaveable { mutableStateOf(true) }
+    var firstReminderTime by rememberSaveable { mutableStateOf(defaultFirstReminderTime) }
+    var secondReminderTime by rememberSaveable { mutableStateOf(defaultSecondReminderTime) }
+    var isAlarmInitialized by remember { mutableStateOf(false) }
+
+    LaunchedEffect(notificationsEnabled, firstReminderTime, secondReminderTime) {
+        if (isAlarmInitialized) {
+            onAlarmUpdated(notificationsEnabled, firstReminderTime, secondReminderTime)
+        } else {
+            isAlarmInitialized = true
+        }
+    }
+
     val dateFormatter = DateTimeFormatter.ofPattern("M월 d일 (E)", Locale.KOREAN)
     val formattedStartDate = schedule.startAt.format(dateFormatter)
     val formattedStartTime = schedule.startAt.formatTimeWithMidnightSpecialCase()
@@ -318,6 +366,51 @@ fun CourseScheduleBottomSheet(
                 )
             }
         }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        ToggleSwitch(
+            label = "알림 받기",
+            checked = notificationsEnabled,
+            onCheckedChange = { notificationsEnabled = it },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .background(White)
+                .padding(start = 4.dp, end = 8.dp)
+        )
+
+        ReminderDropdownItem(
+            label = "알림",
+            selectedLabel = firstReminderTime.label,
+            enabled = notificationsEnabled,
+            onSelect = { selected ->
+                val (first, second) = normalizeReminderTimes(selected, secondReminderTime)
+                firstReminderTime = first
+                secondReminderTime = second
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .background(White)
+                .padding(start = 4.dp, end = 8.dp)
+        )
+
+        ReminderDropdownItem(
+            label = "두 번째 알림",
+            selectedLabel = secondReminderTime.label,
+            enabled = notificationsEnabled,
+            onSelect = { selected ->
+                val (first, second) = normalizeReminderTimes(firstReminderTime, selected)
+                firstReminderTime = first
+                secondReminderTime = second
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .background(White)
+                .padding(start = 4.dp, end = 8.dp)
+        )
     }
 
     Spacer(modifier = Modifier.height(12.dp))

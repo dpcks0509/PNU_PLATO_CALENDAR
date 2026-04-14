@@ -11,6 +11,7 @@ enum class NotificationTime(
     TWELVE_HOURS("12시간 전"),
     ONE_DAY("1일 전"),
     TWO_DAYS("2일 전"),
+    THREE_DAYS("3일 전"),
     ONE_WEEK("1주 전"),
     ;
 
