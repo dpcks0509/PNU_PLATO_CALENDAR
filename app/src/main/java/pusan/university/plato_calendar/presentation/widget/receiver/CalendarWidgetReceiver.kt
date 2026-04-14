@@ -56,16 +56,22 @@ class CalendarWidgetReceiver : GlanceAppWidgetReceiver() {
         super.onUpdate(context, appWidgetManager, appWidgetIds)
 
         appWidgetIds.forEach { appWidgetId ->
-            coroutineScope.launch {
-                val glanceId =
-                    GlanceAppWidgetManager(context)
-                        .getGlanceIdBy(appWidgetId)
+            if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) return@forEach
 
-                RefreshSchedulesCallback().onAction(
-                    context = context,
-                    glanceId = glanceId,
-                    parameters = actionParametersOf(),
-                )
+            coroutineScope.launch {
+                try {
+                    val glanceId =
+                        GlanceAppWidgetManager(context)
+                            .getGlanceIdBy(appWidgetId)
+
+                    RefreshSchedulesCallback().onAction(
+                        context = context,
+                        glanceId = glanceId,
+                        parameters = actionParametersOf(),
+                    )
+                } catch (_: IllegalArgumentException) {
+                    // appWidgetId가 더 이상 유효하지 않음 (위젯이 제거됨)
+                }
             }
         }
     }
