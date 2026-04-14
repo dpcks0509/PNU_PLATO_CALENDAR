@@ -118,45 +118,20 @@ class RemoteLoginRepository
         override suspend fun logout(sessKey: String): ApiResult<Unit> {
             val response = handleApiResponse { loginService.logout(sessKey = sessKey) }
 
-            if (response is ApiResponse.Failure.NetworkException) return ApiResult.Error(response.exception)
-            if (response is ApiResponse.Failure.UnknownException) return ApiResult.Error(response.exception)
-            if (response is ApiResponse.Failure.HttpException && response.code == REDIRECT_CODE) {
-                val redirectLocation =
-                    response.headers["Location"]
-                        ?: return ApiResult.Error(Exception(LOGOUT_FAILED_ERROR))
-                val redirectUrl = redirectLocation.toHttpUrlOrNull()
-
-                when (redirectUrl?.queryParameter("errorcode")) {
-                    null -> {
-                        Unit
-                    }
-
-                    else -> {
-                        return ApiResult.Error(Exception(LOGOUT_FAILED_ERROR))
+            return when {
+                response is ApiResponse.Failure.NetworkException -> ApiResult.Error(response.exception)
+                response is ApiResponse.Failure.UnknownException -> ApiResult.Error(response.exception)
+                response is ApiResponse.Failure.HttpException && response.code == REDIRECT_CODE -> {
+                    val redirectLocation = response.headers["Location"]
+                    val redirectUrl = redirectLocation?.toHttpUrlOrNull()
+                    if (redirectUrl?.queryParameter("errorcode") != null) {
+                        ApiResult.Error(Exception(LOGOUT_FAILED_ERROR))
+                    } else {
+                        ApiResult.Success(Unit)
                     }
                 }
+                else -> ApiResult.Error(Exception(LOGOUT_FAILED_ERROR))
             }
-
-            val redirectResponse = handleApiResponse { loginService.redirect() }
-            if (redirectResponse is ApiResponse.Failure.NetworkException) {
-                return ApiResult.Error(
-                    redirectResponse.exception,
-                )
-            }
-            if (redirectResponse is ApiResponse.Failure.UnknownException) {
-                return ApiResult.Error(
-                    redirectResponse.exception,
-                )
-            }
-            if (redirectResponse !is ApiResponse.Success) {
-                return ApiResult.Error(
-                    Exception(
-                        LOGOUT_FAILED_ERROR,
-                    ),
-                )
-            }
-
-            return ApiResult.Success(Unit)
         }
 
         companion object {
