@@ -62,16 +62,23 @@ fun ToDoScreen(
         viewModel.sideEffect.collect { sideEffect ->
             when (sideEffect) {
                 ToDoSideEffect.HideScheduleBottomSheet -> {
-                    coroutineScope.launch { sheetState.hide() }
-                    isScheduleBottomSheetVisible = false
+                    coroutineScope.launch {
+                        sheetState.hide()
+                    }.invokeOnCompletion {
+                        isScheduleBottomSheetVisible = false
+                    }
                 }
 
                 ToDoSideEffect.ShowScheduleBottomSheet -> {
-                    if (isScheduleBottomSheetVisible) {
-                        isScheduleBottomSheetVisible = false
-                        sheetState.hide()
+                    coroutineScope.launch {
+                        if (isScheduleBottomSheetVisible) {
+                            sheetState.hide()
+                            isScheduleBottomSheetVisible = false
+                        }
+
+                        isScheduleBottomSheetVisible = true
+                        sheetState.show()
                     }
-                    isScheduleBottomSheetVisible = true
                 }
             }
         }
@@ -101,7 +108,13 @@ fun ToDoScreen(
                 viewModel.setEvent(TogglePersonalScheduleCompletion(id, completed))
             },
             onShowDialog = { dialogContent -> viewModel.setEvent(ToDoEvent.ShowDialog(dialogContent)) },
-            onDismiss = { coroutineScope.launch { sheetState.hide() } },
+            onDismiss = {
+                coroutineScope.launch {
+                    sheetState.hide()
+                }.invokeOnCompletion {
+                    isScheduleBottomSheetVisible = false
+                }
+            },
             onUpdateScheduleAlarm = { scheduleId, enabled, first, second ->
                 viewModel.setEvent(UpdateScheduleAlarm(scheduleId, enabled, first, second))
             },

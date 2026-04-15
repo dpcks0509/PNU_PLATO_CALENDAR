@@ -84,16 +84,23 @@ fun CalendarScreen(
         viewModel.sideEffect.collect { sideEffect ->
             when (sideEffect) {
                 CalendarSideEffect.HideScheduleBottomSheet -> {
-                    coroutineScope.launch { sheetState.hide() }
-                    isScheduleBottomSheetVisible = false
+                    coroutineScope.launch {
+                        sheetState.hide()
+                    }.invokeOnCompletion {
+                        isScheduleBottomSheetVisible = false
+                    }
                 }
 
                 CalendarSideEffect.ShowScheduleBottomSheet -> {
-                    if (isScheduleBottomSheetVisible) {
-                        isScheduleBottomSheetVisible = false
-                        sheetState.hide()
+                    coroutineScope.launch {
+                        if (isScheduleBottomSheetVisible) {
+                            sheetState.hide()
+                            isScheduleBottomSheetVisible = false
+                        }
+
+                        isScheduleBottomSheetVisible = true
+                        sheetState.show()
                     }
-                    isScheduleBottomSheetVisible = true
                 }
 
                 is CalendarSideEffect.ScrollToPage -> {
@@ -174,7 +181,13 @@ fun CalendarScreen(
                     )
                 )
             },
-            onDismiss = { coroutineScope.launch { sheetState.hide() } },
+            onDismiss = {
+                coroutineScope.launch {
+                    sheetState.hide()
+                }.invokeOnCompletion {
+                    isScheduleBottomSheetVisible = false
+                }
+            },
             onUpdateScheduleAlarm = { scheduleId, enabled, first, second ->
                 viewModel.setEvent(UpdateScheduleAlarm(scheduleId, enabled, first, second))
             },
