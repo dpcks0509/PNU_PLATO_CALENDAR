@@ -66,6 +66,7 @@ object NetworkModule {
                         .build(),
                 )
             }.addInterceptor(logging)
+            .retryOnConnectionFailure(true)
             .build()
     }
 
@@ -97,6 +98,7 @@ object NetworkModule {
                 )
             }.addInterceptor(logging)
             .followRedirects(false)
+            .retryOnConnectionFailure(true)
             .build()
     }
 
