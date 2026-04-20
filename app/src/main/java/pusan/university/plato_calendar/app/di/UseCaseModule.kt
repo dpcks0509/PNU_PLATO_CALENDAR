@@ -6,10 +6,10 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import pusan.university.plato_calendar.domain.repository.AppSettingsRepository
 import pusan.university.plato_calendar.domain.repository.CafeteriaRepository
-import pusan.university.plato_calendar.domain.repository.CompletedScheduleRepository
 import pusan.university.plato_calendar.domain.repository.CourseRepository
 import pusan.university.plato_calendar.domain.repository.LoginCredentialsRepository
 import pusan.university.plato_calendar.domain.repository.LoginRepository
+import pusan.university.plato_calendar.domain.repository.ScheduleAlarmRepository
 import pusan.university.plato_calendar.domain.repository.ScheduleRepository
 import pusan.university.plato_calendar.domain.repository.SelectedCafeteriaRepository
 import pusan.university.plato_calendar.domain.usecase.cafeteria.GetCafeteriaWeeklyPlanUseCase
@@ -24,8 +24,6 @@ import pusan.university.plato_calendar.domain.usecase.schedule.EditPersonalSched
 import pusan.university.plato_calendar.domain.usecase.schedule.GetAcademicSchedulesUseCase
 import pusan.university.plato_calendar.domain.usecase.schedule.GetPersonalSchedulesUseCase
 import pusan.university.plato_calendar.domain.usecase.schedule.MakeCustomScheduleUseCase
-import pusan.university.plato_calendar.domain.usecase.schedule.MarkScheduleAsCompletedUseCase
-import pusan.university.plato_calendar.domain.usecase.schedule.MarkScheduleAsUncompletedUseCase
 import pusan.university.plato_calendar.domain.usecase.settings.GetAppSettingsUseCase
 import pusan.university.plato_calendar.domain.usecase.settings.SetAutoUpdateScheduleUseCase
 import pusan.university.plato_calendar.domain.usecase.settings.SetNotificationsEnabledUseCase
@@ -97,8 +95,8 @@ object UseCaseModule {
     @Singleton
     fun provideGetPersonalSchedulesUseCase(
         scheduleRepository: ScheduleRepository,
-        completedScheduleRepository: CompletedScheduleRepository,
-    ): GetPersonalSchedulesUseCase = GetPersonalSchedulesUseCase(scheduleRepository, completedScheduleRepository)
+        scheduleAlarmRepository: ScheduleAlarmRepository,
+    ): GetPersonalSchedulesUseCase = GetPersonalSchedulesUseCase(scheduleRepository, scheduleAlarmRepository)
 
     @Provides
     @Singleton
@@ -114,19 +112,8 @@ object UseCaseModule {
     @Singleton
     fun provideDeleteCustomScheduleUseCase(
         scheduleRepository: ScheduleRepository,
-        completedScheduleRepository: CompletedScheduleRepository,
-    ): DeleteCustomScheduleUseCase = DeleteCustomScheduleUseCase(scheduleRepository, completedScheduleRepository)
-
-    @Provides
-    @Singleton
-    fun provideMarkScheduleAsCompletedUseCase(completedScheduleRepository: CompletedScheduleRepository): MarkScheduleAsCompletedUseCase =
-        MarkScheduleAsCompletedUseCase(completedScheduleRepository)
-
-    @Provides
-    @Singleton
-    fun provideMarkScheduleAsUncompletedUseCase(
-        completedScheduleRepository: CompletedScheduleRepository,
-    ): MarkScheduleAsUncompletedUseCase = MarkScheduleAsUncompletedUseCase(completedScheduleRepository)
+        scheduleAlarmRepository: ScheduleAlarmRepository,
+    ): DeleteCustomScheduleUseCase = DeleteCustomScheduleUseCase(scheduleRepository, scheduleAlarmRepository)
 
     // Cafeteria
     @Provides

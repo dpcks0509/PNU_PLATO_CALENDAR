@@ -27,7 +27,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -89,10 +88,16 @@ fun CourseScheduleBottomSheet(
     defaultSecondReminderTime: NotificationTime,
     onAlarmUpdated: (Boolean, NotificationTime, NotificationTime) -> Unit,
 ) {
-    var notificationsEnabled by rememberSaveable { mutableStateOf(true) }
-    var firstReminderTime by rememberSaveable { mutableStateOf(defaultFirstReminderTime) }
-    var secondReminderTime by rememberSaveable { mutableStateOf(defaultSecondReminderTime) }
-    var isAlarmInitialized by remember { mutableStateOf(false) }
+    var notificationsEnabled by rememberSaveable {
+        mutableStateOf(schedule.notificationsEnabled)
+    }
+    var firstReminderTime by rememberSaveable {
+        mutableStateOf(if (schedule.isCustomized) schedule.firstReminderTime else defaultFirstReminderTime)
+    }
+    var secondReminderTime by rememberSaveable {
+        mutableStateOf(if (schedule.isCustomized) schedule.secondReminderTime else defaultSecondReminderTime)
+    }
+    var isAlarmInitialized by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(notificationsEnabled, firstReminderTime, secondReminderTime) {
         if (isAlarmInitialized) {

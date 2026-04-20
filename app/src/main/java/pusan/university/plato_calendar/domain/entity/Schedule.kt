@@ -46,7 +46,7 @@ sealed class Schedule {
         val startAt: LocalDateTime,
         val endAt: LocalDateTime,
         val notificationsEnabled: Boolean = true,
-        val firstReminderTime: NotificationTime = NotificationTime.ONE_HOUR,
-        val secondReminderTime: NotificationTime = NotificationTime.ONE_DAY,
+        val firstReminderTime: NotificationTime = NotificationTime.FIRST_REMINDER_TIME,
+        val secondReminderTime: NotificationTime = NotificationTime.SECOND_REMINDER_TIME,
     ) : Schedule()
 }

@@ -111,10 +111,16 @@ fun CustomScheduleBottomSheet(
 
     var timePickerFor by rememberSaveable { mutableStateOf<PickerTarget?>(null) }
 
-    var notificationsEnabled by rememberSaveable { mutableStateOf(true) }
-    var firstReminderTime by rememberSaveable { mutableStateOf(defaultFirstReminderTime) }
-    var secondReminderTime by rememberSaveable { mutableStateOf(defaultSecondReminderTime) }
-    var isAlarmInitialized by remember { mutableStateOf(false) }
+    var notificationsEnabled by rememberSaveable {
+        mutableStateOf(schedule.notificationsEnabled)
+    }
+    var firstReminderTime by rememberSaveable {
+        mutableStateOf(if (schedule.isCustomized) schedule.firstReminderTime else defaultFirstReminderTime)
+    }
+    var secondReminderTime by rememberSaveable {
+        mutableStateOf(if (schedule.isCustomized) schedule.secondReminderTime else defaultSecondReminderTime)
+    }
+    var isAlarmInitialized by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(notificationsEnabled, firstReminderTime, secondReminderTime) {
         if (isAlarmInitialized) {

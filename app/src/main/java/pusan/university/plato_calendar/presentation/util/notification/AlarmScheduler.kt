@@ -24,29 +24,27 @@ class AlarmScheduler
         private val alarmManager: AlarmManager by lazy { context.getSystemService(AlarmManager::class.java) }
 
         fun scheduleNotificationsForSchedule(
-            personalSchedules: List<PersonalScheduleUiModel>,
+            schedule: PersonalScheduleUiModel,
             firstReminderTime: NotificationTime,
             secondReminderTime: NotificationTime,
         ) {
-            cancelAllNotifications(personalSchedules)
+            cancelNotification(schedule.id)
 
             val now = LocalDateTime.now()
 
-            personalSchedules.forEach { personalSchedule ->
-                scheduleReminderIfNeeded(
-                    schedule = personalSchedule,
-                    now = now,
-                    reminderTime = firstReminderTime,
-                    reminderIndex = 1,
-                )
+            scheduleReminderIfNeeded(
+                schedule = schedule,
+                now = now,
+                reminderTime = firstReminderTime,
+                reminderIndex = 1,
+            )
 
-                scheduleReminderIfNeeded(
-                    schedule = personalSchedule,
-                    now = now,
-                    reminderTime = secondReminderTime,
-                    reminderIndex = 2,
-                )
-            }
+            scheduleReminderIfNeeded(
+                schedule = schedule,
+                now = now,
+                reminderTime = secondReminderTime,
+                reminderIndex = 2,
+            )
         }
 
         fun cancelAllNotifications(personalSchedules: List<PersonalScheduleUiModel>) {

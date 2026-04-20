@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import pusan.university.plato_calendar.domain.usecase.schedule.GetAllScheduleAlarmInfosUseCase
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
 import pusan.university.plato_calendar.presentation.util.manager.ScheduleManager
 import pusan.university.plato_calendar.presentation.util.manager.SettingsManager
@@ -25,6 +26,9 @@ class BootReceiver : BroadcastReceiver() {
     @Inject
     lateinit var settingsManager: SettingsManager
 
+    @Inject
+    lateinit var getAllScheduleAlarmInfosUseCase: GetAllScheduleAlarmInfosUseCase
+
     override fun onReceive(
         context: Context,
         intent: Intent,
@@ -40,17 +44,24 @@ class BootReceiver : BroadcastReceiver() {
             .launch {
                 val settings = settingsManager.appSettings.first()
                 val schedules = scheduleManager.schedules.first()
+                val alarmInfos = getAllScheduleAlarmInfosUseCase()
 
                 if (!settings.notificationsEnabled) return@launch
 
                 val personalSchedules =
                     schedules.filterIsInstance<PersonalScheduleUiModel>().filter { !it.isCompleted }
 
-                alarmScheduler.scheduleNotificationsForSchedule(
-                    personalSchedules = personalSchedules,
-                    firstReminderTime = settings.firstReminderTime,
-                    secondReminderTime = settings.secondReminderTime,
-                )
+                personalSchedules.forEach { schedule ->
+                    val alarmInfo = alarmInfos[schedule.id]
+                    val enabled = alarmInfo?.notificationsEnabled ?: true
+                    if (!enabled) return@forEach
+
+                    alarmScheduler.scheduleNotificationsForSchedule(
+                        schedule = schedule,
+                        firstReminderTime = if (alarmInfo?.isCustomized == true) alarmInfo.firstReminderTime else settings.firstReminderTime,
+                        secondReminderTime = if (alarmInfo?.isCustomized == true) alarmInfo.secondReminderTime else settings.secondReminderTime,
+                    )
+                }
             }.invokeOnCompletion {
                 pendingResult.finish()
             }

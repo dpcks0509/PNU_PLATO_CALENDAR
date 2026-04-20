@@ -21,5 +21,8 @@ enum class NotificationTime(
                 ON_TIME -> "지금"
                 else -> this.label
             }
+
+        val FIRST_REMINDER_TIME = ONE_HOUR
+        val SECOND_REMINDER_TIME = ONE_DAY
     }
 }

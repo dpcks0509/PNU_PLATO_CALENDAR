@@ -10,6 +10,7 @@ import androidx.glance.appwidget.state.updateAppWidgetState
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import pusan.university.plato_calendar.data.util.ApiResult
 import pusan.university.plato_calendar.domain.entity.LoginStatus
@@ -41,79 +42,99 @@ class RefreshSchedulesCallback : ActionCallback {
                 WidgetEntryPoint::class.java,
             )
 
-        val loginManager = entryPoint.loginManager()
-        val settingsManager = entryPoint.settingsManager()
-        val alarmScheduler = entryPoint.alarmScheduler()
-        val getPersonalSchedulesUseCase = entryPoint.getPersonalSchedulesUseCase()
-        val getCourseNameUseCase = entryPoint.getCourseNameUseCase()
+        val coroutineScope = entryPoint.getCoroutineScope()
 
-        suspend fun getPersonalSchedules(sessKey: String): List<PersonalScheduleUiModel> {
-            return when (val result = getPersonalSchedulesUseCase(sessKey)) {
-                is ApiResult.Success -> {
-                    result.data.map { domain ->
-                        when (domain) {
-                            is CourseSchedule -> {
-                                val courseName =
-                                    getCourseNameUseCase(domain.courseCode)
+        coroutineScope.launch {
+            val loginManager = entryPoint.loginManager()
+            val scheduleManager = entryPoint.scheduleManager()
+            val settingsManager = entryPoint.settingsManager()
+            val alarmScheduler = entryPoint.alarmScheduler()
+            val getPersonalSchedulesUseCase = entryPoint.getPersonalSchedulesUseCase()
+            val getCourseNameUseCase = entryPoint.getCourseNameUseCase()
+            val getAllScheduleAlarmInfosUseCase = entryPoint.getAllScheduleAlarmInfosUseCase()
 
-                                CourseScheduleUiModel(
-                                    domain = domain,
-                                    courseName = courseName,
-                                )
+            suspend fun getPersonalSchedules(sessKey: String): List<PersonalScheduleUiModel> {
+                return when (val result = getPersonalSchedulesUseCase(sessKey)) {
+                    is ApiResult.Success -> {
+                        result.data.map { domain ->
+                            when (domain) {
+                                is CourseSchedule -> {
+                                    val courseName =
+                                        getCourseNameUseCase(domain.courseCode)
+
+                                    CourseScheduleUiModel(
+                                        domain = domain,
+                                        courseName = courseName,
+                                    )
+                                }
+
+                                is CustomSchedule -> CustomScheduleUiModel(domain)
                             }
+                        }
+                    }
 
-                            is CustomSchedule -> CustomScheduleUiModel(domain)
+                    is ApiResult.Error -> {
+                        scheduleManager.schedules.value.filterIsInstance<PersonalScheduleUiModel>()
+                    }
+                }
+            }
+
+            suspend fun syncAlarms(schedules: List<ScheduleUiModel>) {
+                val settings = settingsManager.appSettings.first()
+                if (!settings.notificationsEnabled) return
+
+                val personalSchedules =
+                    schedules
+                        .filterIsInstance<PersonalScheduleUiModel>()
+                        .filter { !it.isCompleted }
+
+                val alarmInfos = getAllScheduleAlarmInfosUseCase()
+
+                personalSchedules.forEach { schedule ->
+                    val alarmInfo = alarmInfos[schedule.id]
+                    val enabled = alarmInfo?.notificationsEnabled ?: true
+                    if (!enabled) return@forEach
+
+                    alarmScheduler.scheduleNotificationsForSchedule(
+                        schedule = schedule,
+                        firstReminderTime = if (alarmInfo?.isCustomized == true) alarmInfo.firstReminderTime else settings.firstReminderTime,
+                        secondReminderTime = if (alarmInfo?.isCustomized == true) alarmInfo.secondReminderTime else settings.secondReminderTime,
+                    )
+                }
+            }
+
+            loginManager.autoLogin()
+
+            val personalSchedules =
+                withContext(Dispatchers.IO) {
+                    when (val loginStatus = loginManager.loginStatus.value) {
+                        is LoginStatus.Login -> {
+                            getPersonalSchedules(loginStatus.loginSession.sessKey)
+                        }
+
+                        LoginStatus.NetworkDisconnected -> {
+                            scheduleManager.schedules.value.filterIsInstance<PersonalScheduleUiModel>()
+                        }
+
+                        LoginStatus.Logout, LoginStatus.Uninitialized, LoginStatus.LoginInProgress -> {
+                            emptyList()
                         }
                     }
                 }
-                is ApiResult.Error -> emptyList()
-            }
-        }
 
-        suspend fun syncAlarms(schedules: List<ScheduleUiModel>) {
-            val settings = settingsManager.appSettings.first()
+            syncAlarms(personalSchedules)
 
-            val personalSchedules =
-                schedules
-                    .filterIsInstance<PersonalScheduleUiModel>()
-                    .filter { !it.isCompleted }
+            val schedulesJson = PersonalScheduleSerializer.serializePersonalSchedules(personalSchedules)
+            val today = LocalDate.now().toString()
 
-            if (settings.notificationsEnabled) {
-                alarmScheduler.scheduleNotificationsForSchedule(
-                    personalSchedules = personalSchedules,
-                    firstReminderTime = settings.firstReminderTime,
-                    secondReminderTime = settings.secondReminderTime,
-                )
-            }
-        }
-
-        loginManager.autoLogin()
-
-        val personalSchedules =
-            withContext(Dispatchers.IO) {
-                when (val loginStatus = loginManager.loginStatus.value) {
-                    is LoginStatus.Login -> {
-                        getPersonalSchedules(loginStatus.loginSession.sessKey)
-                    }
-
-                    LoginStatus.Logout, LoginStatus.Uninitialized, LoginStatus.NetworkDisconnected, LoginStatus.LoginInProgress -> {
-                        emptyList()
-                    }
-                }
+            updateAppWidgetState(context, glanceId) { prefs ->
+                prefs[stringPreferencesKey("schedules_list")] = schedulesJson
+                prefs[stringPreferencesKey("today")] = today
+                prefs[stringPreferencesKey("selected_date")] = today
+                prefs[booleanPreferencesKey("is_loading")] = false
             }
 
-        syncAlarms(personalSchedules)
-
-        val schedulesJson = PersonalScheduleSerializer.serializePersonalSchedules(personalSchedules)
-        val today = LocalDate.now().toString()
-
-        updateAppWidgetState(context, glanceId) { prefs ->
-            prefs[stringPreferencesKey("schedules_list")] = schedulesJson
-            prefs[stringPreferencesKey("today")] = today
-            prefs[stringPreferencesKey("selected_date")] = today
-            prefs[booleanPreferencesKey("is_loading")] = false
+            CalendarWidget().update(context, glanceId)
         }
-
-        CalendarWidget().update(context, glanceId)
     }
 }

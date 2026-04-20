@@ -17,8 +17,8 @@ data class CalendarState(
     val schedules: List<ScheduleUiModel> = emptyList(),
     val scheduleBottomSheetContent: ScheduleBottomSheetContent? = null,
     val scheduleDialogContent: ScheduleDialogContent? = null,
-    val defaultFirstReminderTime: NotificationTime = NotificationTime.ONE_HOUR,
-    val defaultSecondReminderTime: NotificationTime = NotificationTime.ONE_DAY,
+    val defaultFirstReminderTime: NotificationTime = NotificationTime.FIRST_REMINDER_TIME,
+    val defaultSecondReminderTime: NotificationTime = NotificationTime.SECOND_REMINDER_TIME,
 ) : UiState {
     val baseToday: LocalDate = today
     val selectedDateSchedules: List<ScheduleUiModel>

@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.Color
 import pusan.university.plato_calendar.domain.entity.Schedule.AcademicSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
+import pusan.university.plato_calendar.presentation.setting.model.NotificationTime
 import pusan.university.plato_calendar.presentation.util.extension.formatTimeWithMidnightSpecialCase
 import pusan.university.plato_calendar.presentation.util.theme.CalendarFlamingo
 import pusan.university.plato_calendar.presentation.util.theme.CalendarLavender
@@ -38,6 +39,10 @@ sealed class ScheduleUiModel {
         abstract val startAt: LocalDateTime
         abstract val endAt: LocalDateTime
         abstract val isCompleted: Boolean
+        abstract val notificationsEnabled: Boolean
+        abstract val firstReminderTime: NotificationTime
+        abstract val secondReminderTime: NotificationTime
+        abstract val isCustomized: Boolean
 
         val deadLine: String
             get() = endAt.formatTimeWithMidnightSpecialCase()
@@ -49,6 +54,10 @@ sealed class ScheduleUiModel {
             override val startAt: LocalDateTime,
             override val endAt: LocalDateTime,
             override val isCompleted: Boolean,
+            override val notificationsEnabled: Boolean = true,
+            override val firstReminderTime: NotificationTime = NotificationTime.FIRST_REMINDER_TIME,
+            override val secondReminderTime: NotificationTime = NotificationTime.SECOND_REMINDER_TIME,
+            override val isCustomized: Boolean = false,
             val courseName: String,
         ) : PersonalScheduleUiModel() {
             val titleWithCourseName: String get() = if (courseName.isEmpty()) title else "${courseName}_$title"
@@ -75,6 +84,10 @@ sealed class ScheduleUiModel {
             override val startAt: LocalDateTime,
             override val endAt: LocalDateTime,
             override val isCompleted: Boolean,
+            override val notificationsEnabled: Boolean = true,
+            override val firstReminderTime: NotificationTime = NotificationTime.FIRST_REMINDER_TIME,
+            override val secondReminderTime: NotificationTime = NotificationTime.SECOND_REMINDER_TIME,
+            override val isCustomized: Boolean = false,
         ) : PersonalScheduleUiModel() {
             constructor(domain: CustomSchedule) : this(
                 id = domain.id,

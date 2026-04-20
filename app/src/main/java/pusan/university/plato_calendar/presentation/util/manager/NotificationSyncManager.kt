@@ -35,16 +35,19 @@ class NotificationSyncManager
                                 .filterIsInstance<PersonalScheduleUiModel>()
                                 .filter { !it.isCompleted }
 
-                        with(settings) {
-                            if (notificationsEnabled) {
-                                alarmScheduler.scheduleNotificationsForSchedule(
-                                    personalSchedules = personalSchedules,
-                                    firstReminderTime = firstReminderTime,
-                                    secondReminderTime = secondReminderTime,
-                                )
-                            } else {
-                                alarmScheduler.cancelAllNotifications(personalSchedules)
-                            }
+                        if (!settings.notificationsEnabled) {
+                            alarmScheduler.cancelAllNotifications(personalSchedules)
+                            return@collect
+                        }
+
+                        personalSchedules.forEach { schedule ->
+                            if (!schedule.notificationsEnabled) return@forEach
+
+                            alarmScheduler.scheduleNotificationsForSchedule(
+                                schedule = schedule,
+                                firstReminderTime = if (schedule.isCustomized) schedule.firstReminderTime else settings.firstReminderTime,
+                                secondReminderTime = if (schedule.isCustomized) schedule.secondReminderTime else settings.secondReminderTime,
+                            )
                         }
                     }
                 }

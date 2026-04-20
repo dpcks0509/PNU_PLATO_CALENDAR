@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import pusan.university.plato_calendar.app.network.NoNetworkConnectivityException
 import pusan.university.plato_calendar.app.network.NoNetworkConnectivityException.Companion.NETWORK_ERROR_MESSAGE
@@ -13,14 +14,16 @@ import pusan.university.plato_calendar.domain.entity.LoginStatus
 import pusan.university.plato_calendar.domain.entity.Schedule.NewSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CourseSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
+import pusan.university.plato_calendar.domain.entity.ScheduleAlarmInfo
 import pusan.university.plato_calendar.domain.usecase.course.GetCourseNameUseCase
 import pusan.university.plato_calendar.domain.usecase.schedule.DeleteCustomScheduleUseCase
 import pusan.university.plato_calendar.domain.usecase.schedule.EditPersonalScheduleUseCase
 import pusan.university.plato_calendar.domain.usecase.schedule.GetAcademicSchedulesUseCase
+import pusan.university.plato_calendar.domain.usecase.schedule.GetAllScheduleAlarmInfosUseCase
 import pusan.university.plato_calendar.domain.usecase.schedule.GetPersonalSchedulesUseCase
+import pusan.university.plato_calendar.domain.usecase.schedule.GetScheduleAlarmInfoUseCase
 import pusan.university.plato_calendar.domain.usecase.schedule.MakeCustomScheduleUseCase
-import pusan.university.plato_calendar.domain.usecase.schedule.MarkScheduleAsCompletedUseCase
-import pusan.university.plato_calendar.domain.usecase.schedule.MarkScheduleAsUncompletedUseCase
+import pusan.university.plato_calendar.domain.usecase.schedule.SaveScheduleAlarmInfoUseCase
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.DeleteCustomSchedule
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.EditCustomSchedule
@@ -55,6 +58,7 @@ import pusan.university.plato_calendar.presentation.util.manager.LoginManager
 import pusan.university.plato_calendar.presentation.util.manager.ScheduleManager
 import pusan.university.plato_calendar.presentation.util.manager.SettingsManager
 import pusan.university.plato_calendar.presentation.util.notification.AlarmScheduler
+import java.io.IOException
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -73,8 +77,9 @@ constructor(
     private val makeCustomScheduleUseCase: MakeCustomScheduleUseCase,
     private val editPersonalScheduleUseCase: EditPersonalScheduleUseCase,
     private val deleteCustomScheduleUseCase: DeleteCustomScheduleUseCase,
-    private val markScheduleAsCompletedUseCase: MarkScheduleAsCompletedUseCase,
-    private val markScheduleAsUncompletedUseCase: MarkScheduleAsUncompletedUseCase,
+    private val saveScheduleAlarmInfoUseCase: SaveScheduleAlarmInfoUseCase,
+    private val getAllScheduleAlarmInfosUseCase: GetAllScheduleAlarmInfosUseCase,
+    private val getScheduleAlarmInfoUseCase: GetScheduleAlarmInfoUseCase,
     private val savedStateHandle: SavedStateHandle,
 ) : BaseViewModel<CalendarState, CalendarEvent, CalendarSideEffect>(
     initialState =
@@ -119,6 +124,7 @@ constructor(
                     }
                 }
             }
+
         }
     }
 
@@ -205,13 +211,47 @@ constructor(
             }
 
             is UpdateScheduleAlarm -> {
-                val schedule = state.value.schedules
+                val currentSettings = settingsManager.appSettings.first()
+                val isCustomized =
+                    event.firstReminderTime != currentSettings.firstReminderTime ||
+                            event.secondReminderTime != currentSettings.secondReminderTime
+                val currentSchedule = state.value.schedules
                     .filterIsInstance<PersonalScheduleUiModel>()
                     .find { it.id == event.scheduleId }
-                if (schedule != null) {
-                    if (event.enabled) {
+                val alarmInfo = ScheduleAlarmInfo(
+                    isCompleted = currentSchedule?.isCompleted ?: false,
+                    notificationsEnabled = event.enabled,
+                    firstReminderTime = event.firstReminderTime,
+                    secondReminderTime = event.secondReminderTime,
+                    isCustomized = isCustomized,
+                )
+                saveScheduleAlarmInfoUseCase(event.scheduleId, alarmInfo)
+
+                val updatedSchedules = state.value.schedules.map { schedule ->
+                    if (schedule is PersonalScheduleUiModel && schedule.id == event.scheduleId) {
+                        when (schedule) {
+                            is CourseScheduleUiModel -> schedule.copy(
+                                notificationsEnabled = event.enabled,
+                                firstReminderTime = event.firstReminderTime,
+                                secondReminderTime = event.secondReminderTime,
+                                isCustomized = isCustomized,
+                            )
+
+                            is CustomScheduleUiModel -> schedule.copy(
+                                notificationsEnabled = event.enabled,
+                                firstReminderTime = event.firstReminderTime,
+                                secondReminderTime = event.secondReminderTime,
+                                isCustomized = isCustomized,
+                            )
+                        }
+                    } else schedule
+                }
+                scheduleManager.updateSchedules(updatedSchedules)
+
+                if (currentSchedule != null) {
+                    if (event.enabled && !currentSchedule.isCompleted) {
                         alarmScheduler.scheduleNotificationsForSchedule(
-                            personalSchedules = listOf(schedule),
+                            schedule = currentSchedule,
                             firstReminderTime = event.firstReminderTime,
                             secondReminderTime = event.secondReminderTime,
                         )
@@ -222,6 +262,32 @@ constructor(
             }
         }
     }
+
+    private fun List<ScheduleUiModel>.withAlarmInfos(alarmInfos: Map<Long, ScheduleAlarmInfo>): List<ScheduleUiModel> =
+        map { schedule ->
+            if (schedule is PersonalScheduleUiModel) {
+                val info = alarmInfos[schedule.id] ?: return@map schedule
+                when (schedule) {
+                    is CourseScheduleUiModel -> schedule.copy(
+                        isCompleted = info.isCompleted,
+                        notificationsEnabled = info.notificationsEnabled,
+                        firstReminderTime = info.firstReminderTime,
+                        secondReminderTime = info.secondReminderTime,
+                        isCustomized = info.isCustomized,
+                    )
+
+                    is CustomScheduleUiModel -> schedule.copy(
+                        isCompleted = info.isCompleted,
+                        notificationsEnabled = info.notificationsEnabled,
+                        firstReminderTime = info.firstReminderTime,
+                        secondReminderTime = info.secondReminderTime,
+                        isCustomized = info.isCustomized,
+                    )
+                }
+            } else {
+                schedule
+            }
+        }
 
     private fun refresh() {
         scheduleManager.updateToday()
@@ -243,7 +309,7 @@ constructor(
                 if (result.exception !is NoNetworkConnectivityException) {
                     ToastEventBus.sendError(result.exception.message)
                 }
-                emptyList()
+                scheduleManager.schedules.value.filterIsInstance<AcademicScheduleUiModel>()
             }
         }
 
@@ -271,8 +337,11 @@ constructor(
 
             is ApiResult.Error -> {
                 loadingManager.updateLoading(false)
-                ToastEventBus.sendError(result.exception.message)
-                emptyList()
+                val isNetworkError = result.exception is NoNetworkConnectivityException || result.exception is IOException
+                if (!isNetworkError) {
+                    ToastEventBus.sendError(result.exception.message)
+                }
+                scheduleManager.schedules.value.filterIsInstance<PersonalScheduleUiModel>()
             }
         }
 
@@ -289,7 +358,8 @@ constructor(
                                 async { getPersonalSchedules(loginStatus.loginSession.sessKey) },
                             )
 
-                        val schedules = academicSchedules + personalSchedules
+                        val alarmInfos = getAllScheduleAlarmInfosUseCase()
+                        val schedules = (academicSchedules + personalSchedules).withAlarmInfos(alarmInfos)
 
                         if (schedules.isNotEmpty()) scheduleManager.updateSchedules(schedules)
                         loadingManager.updateLoading(false)
@@ -336,6 +406,10 @@ constructor(
     private suspend fun makeCustomSchedule(newSchedule: NewSchedule) {
         when (val result = makeCustomScheduleUseCase(newSchedule)) {
             is ApiResult.Success -> {
+                val currentSettings = settingsManager.appSettings.first()
+                val isCustomized =
+                    newSchedule.firstReminderTime != currentSettings.firstReminderTime ||
+                            newSchedule.secondReminderTime != currentSettings.secondReminderTime
                 val customSchedule =
                     CustomScheduleUiModel(
                         id = result.data,
@@ -344,13 +418,25 @@ constructor(
                         startAt = newSchedule.startAt,
                         endAt = newSchedule.endAt,
                         isCompleted = false,
+                        notificationsEnabled = newSchedule.notificationsEnabled,
+                        firstReminderTime = newSchedule.firstReminderTime,
+                        secondReminderTime = newSchedule.secondReminderTime,
+                        isCustomized = isCustomized,
                     )
                 val updatedSchedules = state.value.schedules + customSchedule
                 scheduleManager.updateSchedules(updatedSchedules)
 
+                val alarmInfo = ScheduleAlarmInfo(
+                    notificationsEnabled = newSchedule.notificationsEnabled,
+                    firstReminderTime = newSchedule.firstReminderTime,
+                    secondReminderTime = newSchedule.secondReminderTime,
+                    isCustomized = isCustomized,
+                )
+                saveScheduleAlarmInfoUseCase(customSchedule.id, alarmInfo)
+
                 if (newSchedule.notificationsEnabled) {
                     alarmScheduler.scheduleNotificationsForSchedule(
-                        personalSchedules = listOf(customSchedule),
+                        schedule = customSchedule,
                         firstReminderTime = newSchedule.firstReminderTime,
                         secondReminderTime = newSchedule.secondReminderTime,
                     )
@@ -422,10 +508,22 @@ constructor(
         id: Long,
         isCompleted: Boolean,
     ) {
+        val freshAlarmInfo = getScheduleAlarmInfoUseCase(id)
+        val updatedAlarmInfo = (freshAlarmInfo ?: ScheduleAlarmInfo()).copy(isCompleted = isCompleted)
+        saveScheduleAlarmInfoUseCase(id, updatedAlarmInfo)
+
         if (isCompleted) {
-            markScheduleAsCompletedUseCase(id)
-        } else {
-            markScheduleAsUncompletedUseCase(id)
+            alarmScheduler.cancelNotification(id)
+        } else if (updatedAlarmInfo.notificationsEnabled) {
+            val schedule = state.value.schedules.filterIsInstance<PersonalScheduleUiModel>().find { it.id == id }
+            if (schedule != null) {
+                val currentSettings = settingsManager.appSettings.first()
+                alarmScheduler.scheduleNotificationsForSchedule(
+                    schedule = schedule,
+                    firstReminderTime = if (updatedAlarmInfo.isCustomized) updatedAlarmInfo.firstReminderTime else currentSettings.firstReminderTime,
+                    secondReminderTime = if (updatedAlarmInfo.isCustomized) updatedAlarmInfo.secondReminderTime else currentSettings.secondReminderTime,
+                )
+            }
         }
 
         val updatedSchedules =

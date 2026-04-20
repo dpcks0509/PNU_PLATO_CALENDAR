@@ -1,12 +1,11 @@
 package pusan.university.plato_calendar.domain.entity
 
 import pusan.university.plato_calendar.presentation.setting.model.NotificationTime
-import pusan.university.plato_calendar.presentation.setting.model.ThemeMode
 
-data class AppSettings(
-    val autoUpdateSchedule: Boolean = false,
-    val notificationsEnabled: Boolean = false,
+data class ScheduleAlarmInfo(
+    val isCompleted: Boolean = false,
+    val notificationsEnabled: Boolean = true,
     val firstReminderTime: NotificationTime = NotificationTime.FIRST_REMINDER_TIME,
     val secondReminderTime: NotificationTime = NotificationTime.SECOND_REMINDER_TIME,
-    val themeMode: ThemeMode = ThemeMode.SYSTEM,
+    val isCustomized: Boolean = false,
 )

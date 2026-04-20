@@ -39,11 +39,14 @@ import androidx.glance.text.TextStyle
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineScope
 import pusan.university.plato_calendar.R
 import pusan.university.plato_calendar.domain.usecase.course.GetCourseNameUseCase
+import pusan.university.plato_calendar.domain.usecase.schedule.GetAllScheduleAlarmInfosUseCase
 import pusan.university.plato_calendar.domain.usecase.schedule.GetPersonalSchedulesUseCase
 import pusan.university.plato_calendar.presentation.main.MainActivity
 import pusan.university.plato_calendar.presentation.util.manager.LoginManager
+import pusan.university.plato_calendar.presentation.util.manager.ScheduleManager
 import pusan.university.plato_calendar.presentation.util.manager.SettingsManager
 import pusan.university.plato_calendar.presentation.util.notification.AlarmScheduler
 import pusan.university.plato_calendar.presentation.util.serializer.PersonalScheduleSerializer.deserializePersonalSchedules
@@ -72,6 +75,8 @@ class CalendarWidget : GlanceAppWidget() {
     interface WidgetEntryPoint {
         fun loginManager(): LoginManager
 
+        fun scheduleManager(): ScheduleManager
+
         fun settingsManager(): SettingsManager
 
         fun alarmScheduler(): AlarmScheduler
@@ -79,6 +84,10 @@ class CalendarWidget : GlanceAppWidget() {
         fun getPersonalSchedulesUseCase(): GetPersonalSchedulesUseCase
 
         fun getCourseNameUseCase(): GetCourseNameUseCase
+
+        fun getAllScheduleAlarmInfosUseCase(): GetAllScheduleAlarmInfosUseCase
+
+        fun getCoroutineScope(): CoroutineScope
     }
 
     override suspend fun provideGlance(
