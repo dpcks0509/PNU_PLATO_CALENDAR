@@ -29,6 +29,6 @@ fun <T, R> ApiResponse<T>.toApiResult(
         }
 
         is ApiResponse.Failure.UnknownException -> {
-            ApiResult.Error(exception)
+            ApiResult.Error(Throwable(message = this.message, cause = exception.cause))
         }
     }
