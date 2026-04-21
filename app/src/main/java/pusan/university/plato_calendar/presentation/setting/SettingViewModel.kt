@@ -5,7 +5,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import pusan.university.plato_calendar.domain.entity.LoginStatus
 import pusan.university.plato_calendar.presentation.setting.intent.SettingEvent
-import pusan.university.plato_calendar.presentation.setting.intent.SettingEvent.Login
 import pusan.university.plato_calendar.presentation.setting.intent.SettingSideEffect
 import pusan.university.plato_calendar.presentation.setting.intent.SettingState
 import pusan.university.plato_calendar.presentation.setting.model.NotificationTime
@@ -63,10 +62,6 @@ constructor(
 
     override suspend fun handleEvent(event: SettingEvent) {
         when (event) {
-            is Login -> {
-                loginManager.login(credentials = event.credentials)
-            }
-
             SettingEvent.Logout -> {
                 loginManager.logout()
             }

@@ -1,6 +1,5 @@
 package pusan.university.plato_calendar.presentation.calendar.intent
 
-import pusan.university.plato_calendar.domain.entity.LoginCredentials
 import pusan.university.plato_calendar.domain.entity.Schedule.NewSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel
@@ -11,8 +10,6 @@ import pusan.university.plato_calendar.presentation.util.component.dialog.schedu
 import java.time.LocalDate
 
 sealed interface CalendarEvent : UiEvent {
-    data class Login(val credentials: LoginCredentials) : CalendarEvent
-
     data object MoveToToday : CalendarEvent
 
     data object Refresh : CalendarEvent

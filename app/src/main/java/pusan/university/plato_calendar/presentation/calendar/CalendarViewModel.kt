@@ -27,7 +27,6 @@ import pusan.university.plato_calendar.domain.usecase.schedule.SaveScheduleAlarm
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.DeleteCustomSchedule
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.EditCustomSchedule
-import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.Login
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.MakeCustomSchedule
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.MoveToToday
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.Refresh
@@ -130,10 +129,6 @@ constructor(
 
     override suspend fun handleEvent(event: CalendarEvent) {
         when (event) {
-            is Login -> {
-                loginManager.login(credentials = event.credentials)
-            }
-
             MoveToToday -> {
                 val today = scheduleManager.today.value.toLocalDate()
                 val baseToday = scheduleManager.baseToday
