@@ -47,12 +47,6 @@ android {
 
     buildTypes {
         debug {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro",
-            )
-
             buildConfigField(
                 "String",
                 "BANNER_AD_UNIT_ID",
@@ -65,12 +59,6 @@ android {
         }
 
         release {
-            isMinifyEnabled = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro",
-            )
-
             buildConfigField(
                 "String",
                 "BANNER_AD_UNIT_ID",

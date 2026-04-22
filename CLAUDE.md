@@ -177,9 +177,3 @@ object 싱글턴으로 컴포넌트 간 단방향 이벤트 전달:
 ## 직렬화
 
 `kotlinx.serialization` 사용. `Json` 설정: `ignoreUnknownKeys = true`, `coerceInputValues = true`, `encodeDefaults = true`.
-
----
-
-## ProGuard 주의사항
-
-릴리즈 빌드(`isMinifyEnabled = true`)에서 새 직렬화 클래스, sealed class, enum 추가 시 `proguard-rules.pro`에 keep 규칙 필요. 특히 `@Serializable` 클래스의 `$$serializer`, Navigation sealed class, Glance 위젯에서 참조하는 enum은 반드시 유지해야 한다.
