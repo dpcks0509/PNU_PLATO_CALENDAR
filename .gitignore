@@ -8,7 +8,7 @@
 .externalNativeBuild
 .cxx
 local.properties
-/app/release/app-release.aab
+/app/release
 /app/google-services.json
 /app/PLATO_CALENDAR.jks
 /.claude
