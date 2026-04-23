@@ -5,11 +5,16 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import dagger.hilt.android.qualifiers.ApplicationContext
+import pusan.university.plato_calendar.domain.entity.AcademicScheduleAlarmInfo
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
+import pusan.university.plato_calendar.presentation.setting.model.AcademicNotificationHour
 import pusan.university.plato_calendar.presentation.setting.model.NotificationTime
 import pusan.university.plato_calendar.presentation.setting.model.NotificationTime.Companion.getReminderTime
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
+import kotlin.math.absoluteValue
 import java.time.ZoneId
 import java.util.Calendar
 import javax.inject.Inject
@@ -46,6 +51,66 @@ class AlarmScheduler
                 reminderIndex = 2,
             )
         }
+
+        fun scheduleAcademicNotification(
+            title: String,
+            startAt: LocalDate,
+            endAt: LocalDate,
+            startDateHour: AcademicNotificationHour,
+            endDateHour: AcademicNotificationHour,
+        ) {
+            val key = AcademicScheduleAlarmInfo.generateKey(title, startAt, endAt)
+            cancelAcademicNotification(key)
+
+            val now = LocalDateTime.now()
+
+            if (startDateHour != AcademicNotificationHour.NONE) {
+                val reminderDateTime = LocalDateTime.of(startAt, LocalTime.of(startDateHour.hour, 0))
+                if (reminderDateTime.isAfter(now)) {
+                    val notificationId = academicNotificationId(key, 1)
+                    scheduleNotificationWithScheduleId(
+                        notificationId = notificationId,
+                        scheduleId = notificationId.toLong(),
+                        title = title,
+                        message = "시작일 ${startDateHour.label}",
+                        calendar = localDateTimeToCalendar(reminderDateTime),
+                    )
+                }
+            }
+
+            if (endDateHour != AcademicNotificationHour.NONE) {
+                val reminderDateTime = LocalDateTime.of(endAt, LocalTime.of(endDateHour.hour, 0))
+                if (reminderDateTime.isAfter(now)) {
+                    val notificationId = academicNotificationId(key, 2)
+                    scheduleNotificationWithScheduleId(
+                        notificationId = notificationId,
+                        scheduleId = notificationId.toLong(),
+                        title = title,
+                        message = "마감일 ${endDateHour.label}",
+                        calendar = localDateTimeToCalendar(reminderDateTime),
+                    )
+                }
+            }
+        }
+
+        fun cancelAcademicNotification(key: String) {
+            listOf(1, 2).forEach { reminderIndex ->
+                val notificationId = academicNotificationId(key, reminderIndex)
+                val intent = Intent(context, AlarmReceiver::class.java)
+                val pendingIntent =
+                    PendingIntent.getBroadcast(
+                        context,
+                        notificationId,
+                        intent,
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                    )
+                alarmManager.cancel(pendingIntent)
+                pendingIntent.cancel()
+            }
+        }
+
+        private fun academicNotificationId(key: String, reminderIndex: Int): Int =
+            -((key.hashCode().absoluteValue % 100_000_000) * 10 + reminderIndex)
 
         fun cancelAllNotifications(personalSchedules: List<PersonalScheduleUiModel>) {
             personalSchedules.forEach { schedule ->

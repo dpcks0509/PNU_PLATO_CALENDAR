@@ -12,6 +12,7 @@ import kotlinx.coroutines.SupervisorJob
 import pusan.university.plato_calendar.data.local.database.CafeteriaDataStore
 import pusan.university.plato_calendar.data.local.database.DormitoryDataStore
 import pusan.university.plato_calendar.data.local.database.LoginCredentialsDataStore
+import pusan.university.plato_calendar.data.local.database.AcademicScheduleAlarmDataStore
 import pusan.university.plato_calendar.data.local.database.ScheduleAlarmDataStore
 import pusan.university.plato_calendar.data.local.database.SettingsDataStore
 import javax.inject.Singleton
@@ -48,6 +49,12 @@ object DatabaseModule {
     fun provideScheduleAlarmDataStore(
         @ApplicationContext context: Context,
     ): ScheduleAlarmDataStore = ScheduleAlarmDataStore(context)
+
+    @Provides
+    @Singleton
+    fun provideAcademicScheduleAlarmDataStore(
+        @ApplicationContext context: Context,
+    ): AcademicScheduleAlarmDataStore = AcademicScheduleAlarmDataStore(context)
 
     @Provides
     @Singleton

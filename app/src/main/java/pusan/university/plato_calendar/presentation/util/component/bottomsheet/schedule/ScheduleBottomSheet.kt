@@ -15,6 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import pusan.university.plato_calendar.domain.entity.Schedule.NewSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
+import pusan.university.plato_calendar.presentation.setting.model.AcademicNotificationHour
 import pusan.university.plato_calendar.presentation.setting.model.NotificationTime
 import pusan.university.plato_calendar.presentation.util.component.bottomsheet.schedule.content.AcademicScheduleBottomSheet
 import pusan.university.plato_calendar.presentation.util.component.bottomsheet.schedule.content.CourseScheduleBottomSheet
@@ -42,6 +43,7 @@ fun ScheduleBottomSheet(
     onShowDialog: (ScheduleDialogContent) -> Unit,
     onDismiss: () -> Unit,
     onUpdateScheduleAlarm: (Long, Boolean, NotificationTime, NotificationTime) -> Unit,
+    onUpdateAcademicScheduleAlarm: (AcademicScheduleContent, Boolean, AcademicNotificationHour, AcademicNotificationHour) -> Unit,
     defaultFirstReminderTime: NotificationTime,
     defaultSecondReminderTime: NotificationTime,
     modifier: Modifier = Modifier,
@@ -67,7 +69,11 @@ fun ScheduleBottomSheet(
                     is AcademicScheduleContent -> {
                         AcademicScheduleBottomSheet(
                             schedule = content.schedule,
+                            alarmInfo = content.alarmInfo,
                             onDismiss = onDismiss,
+                            onAlarmUpdated = { enabled, startHour, endHour ->
+                                onUpdateAcademicScheduleAlarm(content, enabled, startHour, endHour)
+                            },
                         )
                     }
 

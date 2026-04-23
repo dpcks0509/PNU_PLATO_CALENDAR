@@ -99,12 +99,25 @@ fun AcademicScheduleItem(
             color = Color.White,
         )
 
-        Text(
-            text = formatDateRange(schedule.startAt, schedule.endAt),
-            fontSize = 14.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = Color.White,
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = formatDateRange(schedule.startAt, schedule.endAt),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color.White,
+            )
+
+            if (schedule.notificationsEnabled) {
+                Spacer(modifier = Modifier.width(4.dp))
+
+                Icon(
+                    painter = painterResource(R.drawable.ic_notification),
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = Color.White
+                )
+            }
+        }
     }
 }
 

@@ -120,6 +120,13 @@ fun ToDoScreen(
             onUpdateScheduleAlarm = { scheduleId, enabled, first, second ->
                 viewModel.setEvent(UpdateScheduleAlarm(scheduleId, enabled, first, second))
             },
+            onUpdateAcademicScheduleAlarm = { content, enabled, startHour, endHour ->
+                viewModel.setEvent(
+                    ToDoEvent.UpdateAcademicScheduleAlarm(
+                        content.schedule, enabled, startHour, endHour
+                    )
+                )
+            },
             defaultFirstReminderTime = state.defaultFirstReminderTime,
             defaultSecondReminderTime = state.defaultSecondReminderTime,
             modifier = Modifier

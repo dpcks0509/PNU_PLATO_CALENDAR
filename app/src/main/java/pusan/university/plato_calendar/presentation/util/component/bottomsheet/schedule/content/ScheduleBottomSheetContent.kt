@@ -1,5 +1,6 @@
 package pusan.university.plato_calendar.presentation.util.component.bottomsheet.schedule.content
 
+import pusan.university.plato_calendar.domain.entity.AcademicScheduleAlarmInfo
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
@@ -7,6 +8,7 @@ import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiMod
 sealed interface ScheduleBottomSheetContent {
     data class AcademicScheduleContent(
         val schedule: AcademicScheduleUiModel,
+        val alarmInfo: AcademicScheduleAlarmInfo? = null,
     ) : ScheduleBottomSheetContent
 
     data class CourseScheduleContent(

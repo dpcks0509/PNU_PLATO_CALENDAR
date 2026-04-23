@@ -14,16 +14,21 @@ import pusan.university.plato_calendar.domain.entity.LoginStatus
 import pusan.university.plato_calendar.domain.entity.Schedule.NewSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CourseSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
+import pusan.university.plato_calendar.domain.entity.AcademicScheduleAlarmInfo
 import pusan.university.plato_calendar.domain.entity.ScheduleAlarmInfo
 import pusan.university.plato_calendar.domain.usecase.course.GetCourseNameUseCase
 import pusan.university.plato_calendar.domain.usecase.schedule.DeleteCustomScheduleUseCase
 import pusan.university.plato_calendar.domain.usecase.schedule.EditPersonalScheduleUseCase
+import pusan.university.plato_calendar.domain.usecase.schedule.GetAcademicScheduleAlarmInfoUseCase
 import pusan.university.plato_calendar.domain.usecase.schedule.GetAcademicSchedulesUseCase
+import pusan.university.plato_calendar.domain.usecase.schedule.GetAllAcademicScheduleAlarmInfosUseCase
 import pusan.university.plato_calendar.domain.usecase.schedule.GetAllScheduleAlarmInfosUseCase
 import pusan.university.plato_calendar.domain.usecase.schedule.GetPersonalSchedulesUseCase
 import pusan.university.plato_calendar.domain.usecase.schedule.GetScheduleAlarmInfoUseCase
 import pusan.university.plato_calendar.domain.usecase.schedule.MakeCustomScheduleUseCase
+import pusan.university.plato_calendar.domain.usecase.schedule.SaveAcademicScheduleAlarmInfoUseCase
 import pusan.university.plato_calendar.domain.usecase.schedule.SaveScheduleAlarmInfoUseCase
+import pusan.university.plato_calendar.presentation.setting.model.AcademicNotificationHour
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.DeleteCustomSchedule
 import pusan.university.plato_calendar.presentation.calendar.intent.CalendarEvent.EditCustomSchedule
@@ -79,6 +84,9 @@ constructor(
     private val saveScheduleAlarmInfoUseCase: SaveScheduleAlarmInfoUseCase,
     private val getAllScheduleAlarmInfosUseCase: GetAllScheduleAlarmInfosUseCase,
     private val getScheduleAlarmInfoUseCase: GetScheduleAlarmInfoUseCase,
+    private val saveAcademicScheduleAlarmInfoUseCase: SaveAcademicScheduleAlarmInfoUseCase,
+    private val getAcademicScheduleAlarmInfoUseCase: GetAcademicScheduleAlarmInfoUseCase,
+    private val getAllAcademicScheduleAlarmInfosUseCase: GetAllAcademicScheduleAlarmInfosUseCase,
     private val savedStateHandle: SavedStateHandle,
 ) : BaseViewModel<CalendarState, CalendarEvent, CalendarSideEffect>(
     initialState =
@@ -255,6 +263,46 @@ constructor(
                     }
                 }
             }
+
+            is CalendarEvent.UpdateAcademicScheduleAlarm -> {
+                val schedule = event.schedule
+                val key = AcademicScheduleAlarmInfo.generateKey(schedule.title, schedule.startAt, schedule.endAt)
+                val notificationsEnabled = event.enabled &&
+                    (event.startDateHour != AcademicNotificationHour.NONE || event.endDateHour != AcademicNotificationHour.NONE)
+
+                saveAcademicScheduleAlarmInfoUseCase(
+                    key,
+                    AcademicScheduleAlarmInfo(
+                        title = schedule.title,
+                        startAt = schedule.startAt,
+                        endAt = schedule.endAt,
+                        notificationsEnabled = event.enabled,
+                        startDateHour = event.startDateHour,
+                        endDateHour = event.endDateHour,
+                    ),
+                )
+
+                val updatedSchedules = state.value.schedules.map { s ->
+                    if (s is AcademicScheduleUiModel && s.title == schedule.title && s.startAt == schedule.startAt && s.endAt == schedule.endAt) {
+                        s.copy(notificationsEnabled = notificationsEnabled)
+                    } else {
+                        s
+                    }
+                }
+                scheduleManager.updateSchedules(updatedSchedules)
+
+                if (event.enabled) {
+                    alarmScheduler.scheduleAcademicNotification(
+                        title = schedule.title,
+                        startAt = schedule.startAt,
+                        endAt = schedule.endAt,
+                        startDateHour = event.startDateHour,
+                        endDateHour = event.endDateHour,
+                    )
+                } else {
+                    alarmScheduler.cancelAcademicNotification(key)
+                }
+            }
         }
     }
 
@@ -283,6 +331,26 @@ constructor(
                 schedule
             }
         }
+
+    private fun List<ScheduleUiModel>.withAcademicAlarmInfos(
+        academicAlarmInfos: List<AcademicScheduleAlarmInfo>,
+    ): List<ScheduleUiModel> {
+        val alarmMap = academicAlarmInfos.associateBy {
+            AcademicScheduleAlarmInfo.generateKey(it.title, it.startAt, it.endAt)
+        }
+        return map { schedule ->
+            if (schedule is AcademicScheduleUiModel) {
+                val key = AcademicScheduleAlarmInfo.generateKey(schedule.title, schedule.startAt, schedule.endAt)
+                val info = alarmMap[key] ?: return@map schedule
+                schedule.copy(
+                    notificationsEnabled = info.notificationsEnabled &&
+                        (info.startDateHour != AcademicNotificationHour.NONE || info.endDateHour != AcademicNotificationHour.NONE),
+                )
+            } else {
+                schedule
+            }
+        }
+    }
 
     private fun refresh() {
         scheduleManager.updateToday()
@@ -354,7 +422,10 @@ constructor(
                             )
 
                         val alarmInfos = getAllScheduleAlarmInfosUseCase()
-                        val schedules = (academicSchedules + personalSchedules).withAlarmInfos(alarmInfos)
+                        val academicAlarmInfos = getAllAcademicScheduleAlarmInfosUseCase()
+                        val schedules = (academicSchedules + personalSchedules)
+                            .withAlarmInfos(alarmInfos)
+                            .withAcademicAlarmInfos(academicAlarmInfos)
 
                         if (schedules.isNotEmpty()) scheduleManager.updateSchedules(schedules)
                         loadingManager.updateLoading(false)
@@ -377,8 +448,9 @@ constructor(
                         loadingManager.updateLoading(true)
 
                         val academicSchedules = getAcademicSchedules()
+                        val academicAlarmInfos = getAllAcademicScheduleAlarmInfosUseCase()
 
-                        scheduleManager.updateSchedules(academicSchedules)
+                        scheduleManager.updateSchedules(academicSchedules.withAcademicAlarmInfos(academicAlarmInfos))
                     }
 
                     LoginStatus.NetworkDisconnected -> {
@@ -539,12 +611,16 @@ constructor(
         ToastEventBus.sendSuccess(if (isCompleted) "일정이 완료되었습니다." else "일정이 재개되었습니다.")
     }
 
-    private fun showScheduleBottomSheet(schedule: ScheduleUiModel?) {
+    private suspend fun showScheduleBottomSheet(schedule: ScheduleUiModel?) {
         val content =
             when (schedule) {
                 is CourseScheduleUiModel -> CourseScheduleContent(schedule)
                 is CustomScheduleUiModel -> CustomScheduleContent(schedule)
-                is AcademicScheduleUiModel -> AcademicScheduleContent(schedule)
+                is AcademicScheduleUiModel -> {
+                    val key = AcademicScheduleAlarmInfo.generateKey(schedule.title, schedule.startAt, schedule.endAt)
+                    val alarmInfo = getAcademicScheduleAlarmInfoUseCase(key)
+                    AcademicScheduleContent(schedule, alarmInfo)
+                }
                 null -> NewScheduleContent
             }
 
@@ -561,7 +637,7 @@ constructor(
         }
     }
 
-    private fun showScheduleBottomSheetById(scheduleId: Long) {
+    private suspend fun showScheduleBottomSheetById(scheduleId: Long) {
         when (loginManager.loginStatus.value) {
             is LoginStatus.Login -> {
                 val schedule =

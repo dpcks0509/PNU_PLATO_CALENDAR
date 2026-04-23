@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import pusan.university.plato_calendar.domain.usecase.schedule.GetAllAcademicScheduleAlarmInfosUseCase
 import pusan.university.plato_calendar.domain.usecase.schedule.GetAllScheduleAlarmInfosUseCase
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
 import pusan.university.plato_calendar.presentation.util.manager.ScheduleManager
@@ -28,6 +29,9 @@ class BootReceiver : BroadcastReceiver() {
 
     @Inject
     lateinit var getAllScheduleAlarmInfosUseCase: GetAllScheduleAlarmInfosUseCase
+
+    @Inject
+    lateinit var getAllAcademicScheduleAlarmInfosUseCase: GetAllAcademicScheduleAlarmInfosUseCase
 
     override fun onReceive(
         context: Context,
@@ -60,6 +64,17 @@ class BootReceiver : BroadcastReceiver() {
                         schedule = schedule,
                         firstReminderTime = if (alarmInfo?.isCustomized == true) alarmInfo.firstReminderTime else settings.firstReminderTime,
                         secondReminderTime = if (alarmInfo?.isCustomized == true) alarmInfo.secondReminderTime else settings.secondReminderTime,
+                    )
+                }
+
+                val academicAlarmInfos = getAllAcademicScheduleAlarmInfosUseCase()
+                academicAlarmInfos.filter { it.notificationsEnabled }.forEach { info ->
+                    alarmScheduler.scheduleAcademicNotification(
+                        title = info.title,
+                        startAt = info.startAt,
+                        endAt = info.endAt,
+                        startDateHour = info.startDateHour,
+                        endDateHour = info.endDateHour,
                     )
                 }
             }.invokeOnCompletion {

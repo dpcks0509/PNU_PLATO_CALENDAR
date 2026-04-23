@@ -4,6 +4,8 @@ import pusan.university.plato_calendar.domain.entity.Schedule.NewSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.YearMonth
+import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
+import pusan.university.plato_calendar.presentation.setting.model.AcademicNotificationHour
 import pusan.university.plato_calendar.presentation.setting.model.NotificationTime
 import pusan.university.plato_calendar.presentation.util.base.UiEvent
 import pusan.university.plato_calendar.presentation.util.component.dialog.schedule.content.ScheduleDialogContent
@@ -62,5 +64,12 @@ sealed interface CalendarEvent : UiEvent {
         val enabled: Boolean,
         val firstReminderTime: NotificationTime,
         val secondReminderTime: NotificationTime,
+    ) : CalendarEvent
+
+    data class UpdateAcademicScheduleAlarm(
+        val schedule: AcademicScheduleUiModel,
+        val enabled: Boolean,
+        val startDateHour: AcademicNotificationHour,
+        val endDateHour: AcademicNotificationHour,
     ) : CalendarEvent
 }
