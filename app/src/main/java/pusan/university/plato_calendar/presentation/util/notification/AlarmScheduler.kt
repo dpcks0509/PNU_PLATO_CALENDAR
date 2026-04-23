@@ -72,7 +72,7 @@ class AlarmScheduler
                         notificationId = notificationId,
                         scheduleId = notificationId.toLong(),
                         title = title,
-                        message = "시작일 ${startDateHour.label}",
+                        message = "• 시작일",
                         calendar = localDateTimeToCalendar(reminderDateTime),
                     )
                 }
@@ -86,7 +86,7 @@ class AlarmScheduler
                         notificationId = notificationId,
                         scheduleId = notificationId.toLong(),
                         title = title,
-                        message = "마감일 ${endDateHour.label}",
+                        message = "• 마감일",
                         calendar = localDateTimeToCalendar(reminderDateTime),
                     )
                 }
