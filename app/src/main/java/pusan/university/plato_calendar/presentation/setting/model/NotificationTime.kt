@@ -5,10 +5,12 @@ enum class NotificationTime(
 ) {
     NONE("없음"),
     ON_TIME("이벤트 시간"),
+    FIVE_MINUTES("5분 전"),
+    TEN_MINUTES("10분 전"),
+    THIRTY_MINUTES("30분 전"),
     ONE_HOUR("1시간 전"),
     TWO_HOURS("2시간 전"),
     SIX_HOURS("6시간 전"),
-    TWELVE_HOURS("12시간 전"),
     ONE_DAY("1일 전"),
     TWO_DAYS("2일 전"),
     THREE_DAYS("3일 전"),
