@@ -40,7 +40,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pusan.university.plato_calendar.R
 import pusan.university.plato_calendar.domain.entity.Schedule.NewSchedule
-import pusan.university.plato_calendar.presentation.calendar.model.PickerTarget
 import pusan.university.plato_calendar.presentation.setting.component.ReminderDropdownItem
 import pusan.university.plato_calendar.presentation.setting.component.ToggleSwitch
 import pusan.university.plato_calendar.presentation.setting.model.NotificationTime
@@ -114,7 +113,7 @@ fun NewScheduleBottomSheet(
         mutableStateOf(initialStartTime)
     }
 
-    var timePickerFor by rememberSaveable { mutableStateOf<PickerTarget?>(null) }
+    var showTimePicker by rememberSaveable { mutableStateOf(false) }
 
     var notificationsEnabled by rememberSaveable { mutableStateOf(true) }
     var firstReminderTime by rememberSaveable { mutableStateOf(defaultFirstReminderTime) }
@@ -362,7 +361,7 @@ fun NewScheduleBottomSheet(
                                     onConfirm = { millis ->
                                         val pickedDate = Instant.ofEpochMilli(millis).atZone(zoneId).toLocalDate()
                                         time = LocalDateTime.of(pickedDate, time.toLocalTime())
-                                        timePickerFor = PickerTarget.END
+                                        showTimePicker = true
                                     },
                                 ),
                             )
@@ -440,19 +439,16 @@ fun NewScheduleBottomSheet(
 
     Spacer(modifier = Modifier.height(12.dp))
 
-    timePickerFor?.let {
-        LaunchedEffect(timePickerFor) {
-            onShowDialog(
-                ScheduleDialogContent.TimePickerContent(
-                    initialHour = time.hour,
-                    initialMinute = time.minute,
-                    onConfirm = { hour, minute ->
-                        time = time.withHour(hour).withMinute(minute)
-                    },
-                ),
-            )
-
-            timePickerFor = null
-        }
+    if (showTimePicker) {
+        onShowDialog(
+            ScheduleDialogContent.TimePickerContent(
+                initialHour = time.hour,
+                initialMinute = time.minute,
+                onConfirm = { hour, minute ->
+                    time = time.withHour(hour).withMinute(minute)
+                },
+            ),
+        )
+        showTimePicker = false
     }
 }
