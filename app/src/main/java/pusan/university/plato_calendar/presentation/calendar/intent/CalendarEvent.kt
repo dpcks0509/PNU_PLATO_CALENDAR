@@ -3,8 +3,8 @@ package pusan.university.plato_calendar.presentation.calendar.intent
 import pusan.university.plato_calendar.domain.entity.Schedule.NewSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel
-import pusan.university.plato_calendar.presentation.calendar.model.YearMonth
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
+import pusan.university.plato_calendar.presentation.calendar.model.YearMonth
 import pusan.university.plato_calendar.presentation.setting.model.AcademicNotificationHour
 import pusan.university.plato_calendar.presentation.setting.model.NotificationTime
 import pusan.university.plato_calendar.presentation.util.base.UiEvent

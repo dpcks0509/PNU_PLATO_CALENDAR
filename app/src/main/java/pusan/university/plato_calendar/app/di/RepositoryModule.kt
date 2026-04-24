@@ -4,10 +4,10 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import pusan.university.plato_calendar.data.local.repository.LocalAcademicScheduleAlarmRepository
 import pusan.university.plato_calendar.data.local.repository.LocalAppSettingsRepository
 import pusan.university.plato_calendar.data.local.repository.LocalCourseRepository
 import pusan.university.plato_calendar.data.local.repository.LocalLoginCredentialsRepository
-import pusan.university.plato_calendar.data.local.repository.LocalAcademicScheduleAlarmRepository
 import pusan.university.plato_calendar.data.local.repository.LocalScheduleAlarmRepository
 import pusan.university.plato_calendar.data.local.repository.LocalSelectedCafeteriaRepository
 import pusan.university.plato_calendar.data.local.repository.LocalSelectedDormitoryRepository
@@ -15,13 +15,13 @@ import pusan.university.plato_calendar.data.remote.repository.RemoteCafeteriaRep
 import pusan.university.plato_calendar.data.remote.repository.RemoteDormitoryCafeteriaRepository
 import pusan.university.plato_calendar.data.remote.repository.RemoteLoginRepository
 import pusan.university.plato_calendar.data.remote.repository.RemoteScheduleRepository
+import pusan.university.plato_calendar.domain.repository.AcademicScheduleAlarmRepository
 import pusan.university.plato_calendar.domain.repository.AppSettingsRepository
 import pusan.university.plato_calendar.domain.repository.CafeteriaRepository
 import pusan.university.plato_calendar.domain.repository.CourseRepository
 import pusan.university.plato_calendar.domain.repository.DormitoryCafeteriaRepository
 import pusan.university.plato_calendar.domain.repository.LoginCredentialsRepository
 import pusan.university.plato_calendar.domain.repository.LoginRepository
-import pusan.university.plato_calendar.domain.repository.AcademicScheduleAlarmRepository
 import pusan.university.plato_calendar.domain.repository.ScheduleAlarmRepository
 import pusan.university.plato_calendar.domain.repository.ScheduleRepository
 import pusan.university.plato_calendar.domain.repository.SelectedCafeteriaRepository

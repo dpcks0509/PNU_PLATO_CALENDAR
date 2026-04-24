@@ -9,10 +9,10 @@ import kotlinx.coroutines.launch
 import pusan.university.plato_calendar.app.network.NoNetworkConnectivityException
 import pusan.university.plato_calendar.app.network.NoNetworkConnectivityException.Companion.NETWORK_ERROR_MESSAGE
 import pusan.university.plato_calendar.data.util.ApiResult
+import pusan.university.plato_calendar.domain.entity.AcademicScheduleAlarmInfo
 import pusan.university.plato_calendar.domain.entity.LoginStatus
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CourseSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
-import pusan.university.plato_calendar.domain.entity.AcademicScheduleAlarmInfo
 import pusan.university.plato_calendar.domain.entity.ScheduleAlarmInfo
 import pusan.university.plato_calendar.domain.usecase.course.GetCourseNameUseCase
 import pusan.university.plato_calendar.domain.usecase.schedule.DeleteCustomScheduleUseCase
@@ -25,12 +25,12 @@ import pusan.university.plato_calendar.domain.usecase.schedule.GetPersonalSchedu
 import pusan.university.plato_calendar.domain.usecase.schedule.GetScheduleAlarmInfoUseCase
 import pusan.university.plato_calendar.domain.usecase.schedule.SaveAcademicScheduleAlarmInfoUseCase
 import pusan.university.plato_calendar.domain.usecase.schedule.SaveScheduleAlarmInfoUseCase
-import pusan.university.plato_calendar.presentation.setting.model.AcademicNotificationHour
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
+import pusan.university.plato_calendar.presentation.setting.model.AcademicNotificationHour
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.DeleteCustomSchedule
 import pusan.university.plato_calendar.presentation.todo.intent.ToDoEvent.EditCustomSchedule

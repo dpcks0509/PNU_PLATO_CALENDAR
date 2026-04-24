@@ -9,10 +9,10 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import pusan.university.plato_calendar.data.local.database.AcademicScheduleAlarmDataStore
 import pusan.university.plato_calendar.data.local.database.CafeteriaDataStore
 import pusan.university.plato_calendar.data.local.database.DormitoryDataStore
 import pusan.university.plato_calendar.data.local.database.LoginCredentialsDataStore
-import pusan.university.plato_calendar.data.local.database.AcademicScheduleAlarmDataStore
 import pusan.university.plato_calendar.data.local.database.ScheduleAlarmDataStore
 import pusan.university.plato_calendar.data.local.database.SettingsDataStore
 import javax.inject.Singleton
