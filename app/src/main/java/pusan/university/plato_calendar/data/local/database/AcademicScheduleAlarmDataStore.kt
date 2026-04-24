@@ -5,9 +5,12 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import pusan.university.plato_calendar.domain.entity.AcademicScheduleAlarmInfo
 import pusan.university.plato_calendar.presentation.setting.model.AcademicNotificationHour
 import java.io.IOException
@@ -57,6 +60,23 @@ constructor(
             }
     }
 
+    suspend fun getOrCreateNotificationBaseId(key: String): Int {
+        context.academicScheduleAlarmDataStore.edit { prefs ->
+            if (prefs[notificationBaseIdKey(key)] != null) return@edit
+            val nextId = (prefs[NEXT_NOTIFICATION_ID_KEY] ?: 1)
+            prefs[notificationBaseIdKey(key)] = nextId
+            prefs[NEXT_NOTIFICATION_ID_KEY] = nextId + 1
+        }
+        return getNotificationBaseId(key) ?: 1
+    }
+
+    suspend fun getNotificationBaseId(key: String): Int? {
+        val prefs = context.academicScheduleAlarmDataStore.data
+            .handleIOException()
+            .first()
+        return prefs[notificationBaseIdKey(key)]
+    }
+
     suspend fun saveAlarmInfo(key: String, alarmInfo: AcademicScheduleAlarmInfo) {
         context.academicScheduleAlarmDataStore.edit { prefs ->
             prefs[titleKey(key)] = alarmInfo.title
@@ -68,9 +88,9 @@ constructor(
         }
     }
 
-    private fun kotlinx.coroutines.flow.Flow<Preferences>.handleIOException() =
+    private fun Flow<Preferences>.handleIOException() =
         this.let { flow ->
-            kotlinx.coroutines.flow.flow {
+            flow {
                 try {
                     flow.collect { emit(it) }
                 } catch (e: IOException) {
@@ -88,6 +108,7 @@ constructor(
     private fun endDateKey(key: String) = stringPreferencesKey("$PREFIX_END_DATE$key")
     private fun startHourKey(key: String) = stringPreferencesKey("$PREFIX_START_HOUR$key")
     private fun endHourKey(key: String) = stringPreferencesKey("$PREFIX_END_HOUR$key")
+    private fun notificationBaseIdKey(key: String) = intPreferencesKey("$PREFIX_NOTIFICATION_ID$key")
 
     companion object {
         private const val PREFIX_ENABLED = "acad_enabled_"
@@ -96,5 +117,7 @@ constructor(
         private const val PREFIX_END_DATE = "acad_end_date_"
         private const val PREFIX_START_HOUR = "acad_start_hour_"
         private const val PREFIX_END_HOUR = "acad_end_hour_"
+        private const val PREFIX_NOTIFICATION_ID = "acad_notification_id_"
+        private val NEXT_NOTIFICATION_ID_KEY = intPreferencesKey("acad_next_notification_id")
     }
 }
