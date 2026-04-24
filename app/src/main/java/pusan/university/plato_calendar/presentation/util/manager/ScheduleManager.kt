@@ -59,18 +59,10 @@ class ScheduleManager
             }
 
         private fun refreshMonthlySchedules() {
-            val groupedByDate: Map<LocalDate, List<ScheduleUiModel>> =
-                _schedules.value.groupBy { schedule ->
-                    when (schedule) {
-                        is AcademicScheduleUiModel -> schedule.endAt
-                        is PersonalScheduleUiModel -> schedule.endAt.toLocalDate()
-                    }
-                }
-
             monthlySchedules.values.forEach { monthSchedule ->
                 monthSchedule.forEach { weekSchedule ->
                     weekSchedule.forEachIndexed { index, daySchedule ->
-                        val newSchedules = groupedByDate[daySchedule?.date].orEmpty()
+                        val newSchedules = daySchedule?.date?.let(::getSchedulesForDate).orEmpty()
                         if (daySchedule?.schedules != newSchedules) {
                             weekSchedule[index] = daySchedule?.copy(schedules = newSchedules)
                         }
@@ -78,6 +70,14 @@ class ScheduleManager
                 }
             }
         }
+
+        private fun getSchedulesForDate(date: LocalDate): List<ScheduleUiModel> =
+            _schedules.value.filter { schedule ->
+                when (schedule) {
+                    is AcademicScheduleUiModel -> date == schedule.startAt || date == schedule.endAt
+                    is PersonalScheduleUiModel -> date == schedule.endAt.toLocalDate()
+                }
+            }
 
         private fun deselectDate(date: LocalDate) {
             monthlySchedules.values.flatten().forEach { weekSchedule ->
@@ -171,13 +171,7 @@ class ScheduleManager
             val isSelected = date == selectedDate.value
             val isInMonth =
                 date.year == yearMonth.year && date.monthValue == yearMonth.month
-            val daySchedules =
-                _schedules.value.filter { schedule ->
-                    when (schedule) {
-                        is AcademicScheduleUiModel -> date == schedule.endAt
-                        is PersonalScheduleUiModel -> date == schedule.endAt.toLocalDate()
-                    }
-                }
+            val daySchedules = getSchedulesForDate(date)
 
             return DaySchedule(
                 date = date,

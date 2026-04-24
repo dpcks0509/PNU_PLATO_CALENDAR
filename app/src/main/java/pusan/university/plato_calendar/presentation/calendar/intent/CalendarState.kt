@@ -26,7 +26,7 @@ data class CalendarState(
             schedules
                 .filter { schedule ->
                     when (schedule) {
-                        is AcademicScheduleUiModel -> schedule.endAt == selectedDate
+                        is AcademicScheduleUiModel -> schedule.startAt == selectedDate || schedule.endAt == selectedDate
                         is PersonalScheduleUiModel -> schedule.endAt.toLocalDate() == selectedDate
                     }
                 }.sortedWith(
