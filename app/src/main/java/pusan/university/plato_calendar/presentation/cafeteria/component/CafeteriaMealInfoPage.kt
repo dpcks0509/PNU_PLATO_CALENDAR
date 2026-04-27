@@ -45,7 +45,7 @@ fun CafeteriaMealInfoPage(
             dailyPlan?.let {
                 MealType.entries.forEach { mealType ->
                     dailyPlan.getMealInfo(mealType)?.let { mealInfo ->
-                        MealCard(mealInfo = mealInfo)
+                        MealCard(mealInfo = mealInfo, cafeteriaName = state.selectedCafeteria.title)
                     }
                 }
             }

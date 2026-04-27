@@ -1,5 +1,7 @@
 package pusan.university.plato_calendar.presentation.cafeteria.component
 
+import android.content.Context
+import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,8 +18,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -26,17 +30,46 @@ import pusan.university.plato_calendar.domain.entity.CourseMenu
 import pusan.university.plato_calendar.domain.entity.MealInfo
 import pusan.university.plato_calendar.domain.entity.MealType
 import pusan.university.plato_calendar.domain.entity.OperationInfo
+import pusan.university.plato_calendar.presentation.util.extension.noRippleClickable
 import pusan.university.plato_calendar.presentation.util.theme.Black
 import pusan.university.plato_calendar.presentation.util.theme.Gray
 import pusan.university.plato_calendar.presentation.util.theme.PlatoCalendarTheme
 import pusan.university.plato_calendar.presentation.util.theme.PrimaryColor
 import pusan.university.plato_calendar.presentation.util.theme.WhiteGray
 
+private fun buildMealShareText(cafeteriaName: String, mealInfo: MealInfo): String =
+    buildString {
+        appendLine(cafeteriaName)
+        append("[${mealInfo.mealType.title}]")
+        mealInfo.operationInfo.operatingTime?.let { append(" $it") }
+        appendLine()
+        if (!mealInfo.operationInfo.isOperating) {
+            append(mealInfo.operationInfo.notOperatingReason ?: "")
+        } else {
+            mealInfo.courseMenus.forEachIndexed { index, course ->
+                if (index > 0) appendLine()
+                course.courseTitle?.let { appendLine(it) }
+                course.menus?.let { append(it) }
+            }
+        }
+    }
+
+private fun shareMealText(context: Context, text: String) {
+    val sendIntent = Intent(Intent.ACTION_SEND).apply {
+        putExtra(Intent.EXTRA_TEXT, text)
+        type = "text/plain"
+    }
+    context.startActivity(Intent.createChooser(sendIntent, null))
+}
+
 @Composable
 fun MealCard(
     mealInfo: MealInfo,
+    cafeteriaName: String,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
+
     Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = WhiteGray),
@@ -74,8 +107,22 @@ fun MealCard(
                             text = operationInfo.operatingTime,
                             fontSize = 14.sp,
                             color = Gray,
+                            textAlign = TextAlign.Center
                         )
                     }
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    Icon(
+                        painter = painterResource(R.drawable.ic_share),
+                        contentDescription = null,
+                        tint = Gray,
+                        modifier = Modifier
+                            .size(24.dp)
+                            .noRippleClickable {
+                                shareMealText(context, buildMealShareText(cafeteriaName, mealInfo))
+                            },
+                    )
                 }
 
                 if (!operationInfo.isOperating) {
@@ -122,6 +169,7 @@ fun MealCard(
 private fun MealCardOperatingPreview() {
     PlatoCalendarTheme {
         MealCard(
+            cafeteriaName = "금정 학생",
             mealInfo = MealInfo(
                 mealType = MealType.LUNCH,
                 operationInfo = OperationInfo(
@@ -149,6 +197,7 @@ private fun MealCardOperatingPreview() {
 private fun MealCardNotOperatingPreview() {
     PlatoCalendarTheme {
         MealCard(
+            cafeteriaName = "금정 학생",
             mealInfo = MealInfo(
                 mealType = MealType.DINNER,
                 operationInfo = OperationInfo(
