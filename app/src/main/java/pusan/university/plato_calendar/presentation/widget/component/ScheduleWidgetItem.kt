@@ -83,7 +83,7 @@ fun ScheduleWidgetItem(schedule: ScheduleUiModel, selectedDate: LocalDate) {
         modifier =
             GlanceModifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp)
+                .padding(vertical = 4.dp)
                 .clickable(
                     actionRunCallback<OpenScheduleDetailCallback>(
                         actionParametersOf(
