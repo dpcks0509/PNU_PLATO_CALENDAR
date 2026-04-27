@@ -37,7 +37,6 @@ data class CalendarState(
                                 is AcademicScheduleUiModel -> 1
                             }
                         },
-                        { if (it is PersonalScheduleUiModel) it.isCompleted else false },
                         {
                             when (it) {
                                 is AcademicScheduleUiModel -> it.endAt.atStartOfDay()
