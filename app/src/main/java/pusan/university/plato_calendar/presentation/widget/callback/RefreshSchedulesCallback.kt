@@ -2,33 +2,16 @@ package pusan.university.plato_calendar.presentation.widget.callback
 
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.action.ActionParameters
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.state.updateAppWidgetState
-import dagger.hilt.android.EntryPointAccessors
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import pusan.university.plato_calendar.data.util.ApiResult
-import pusan.university.plato_calendar.domain.entity.AcademicScheduleAlarmInfo
-import pusan.university.plato_calendar.domain.entity.LoginStatus
-import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CourseSchedule
-import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
-import pusan.university.plato_calendar.domain.usecase.schedule.GetAcademicSchedulesUseCase
-import pusan.university.plato_calendar.domain.usecase.schedule.GetAllAcademicScheduleAlarmInfosUseCase
-import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel
-import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
-import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
-import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
-import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
-import pusan.university.plato_calendar.presentation.setting.model.AcademicNotificationHour
-import pusan.university.plato_calendar.presentation.util.serializer.PersonalScheduleSerializer
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import pusan.university.plato_calendar.presentation.widget.CalendarWidget
-import pusan.university.plato_calendar.presentation.widget.CalendarWidget.WidgetEntryPoint
-import java.time.LocalDate
+import pusan.university.plato_calendar.presentation.widget.worker.RefreshSchedulesWorker
 
 class RefreshSchedulesCallback : ActionCallback {
     override suspend fun onAction(
@@ -41,138 +24,16 @@ class RefreshSchedulesCallback : ActionCallback {
         }
         CalendarWidget().update(context, glanceId)
 
-        val entryPoint =
-            EntryPointAccessors.fromApplication(
-                context.applicationContext,
-                WidgetEntryPoint::class.java,
-            )
+        val constraints =
+            Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build()
 
-        val coroutineScope = entryPoint.getCoroutineScope()
+        val workRequest =
+            OneTimeWorkRequestBuilder<RefreshSchedulesWorker>()
+                .setConstraints(constraints)
+                .build()
 
-        coroutineScope.launch {
-            val loginManager = entryPoint.loginManager()
-            val scheduleManager = entryPoint.scheduleManager()
-            val settingsManager = entryPoint.settingsManager()
-            val alarmScheduler = entryPoint.alarmScheduler()
-            val getPersonalSchedulesUseCase = entryPoint.getPersonalSchedulesUseCase()
-            val getCourseNameUseCase = entryPoint.getCourseNameUseCase()
-            val getAllScheduleAlarmInfosUseCase = entryPoint.getAllScheduleAlarmInfosUseCase()
-            val getAcademicSchedulesUseCase = entryPoint.getAcademicSchedulesUseCase()
-            val getAllAcademicScheduleAlarmInfosUseCase = entryPoint.getAllAcademicScheduleAlarmInfosUseCase()
-
-            suspend fun getPersonalSchedules(sessKey: String): List<PersonalScheduleUiModel> {
-                return when (val result = getPersonalSchedulesUseCase(sessKey)) {
-                    is ApiResult.Success -> {
-                        result.data.map { domain ->
-                            when (domain) {
-                                is CourseSchedule -> {
-                                    val courseName =
-                                        getCourseNameUseCase(domain.courseCode)
-
-                                    CourseScheduleUiModel(
-                                        domain = domain,
-                                        courseName = courseName,
-                                    )
-                                }
-
-                                is CustomSchedule -> CustomScheduleUiModel(domain)
-                            }
-                        }
-                    }
-
-                    is ApiResult.Error -> {
-                        scheduleManager.schedules.value.filterIsInstance<PersonalScheduleUiModel>()
-                    }
-                }
-            }
-
-            suspend fun syncAlarms(schedules: List<ScheduleUiModel>) {
-                val settings = settingsManager.appSettings.first()
-                if (!settings.notificationsEnabled) return
-
-                val personalSchedules =
-                    schedules
-                        .filterIsInstance<PersonalScheduleUiModel>()
-                        .filter { !it.isCompleted }
-
-                val alarmInfos = getAllScheduleAlarmInfosUseCase()
-
-                personalSchedules.forEach { schedule ->
-                    val alarmInfo = alarmInfos[schedule.id]
-                    val enabled = alarmInfo?.notificationsEnabled ?: true
-                    if (!enabled) return@forEach
-
-                    alarmScheduler.scheduleNotificationsForSchedule(
-                        schedule = schedule,
-                        firstReminderTime = if (alarmInfo?.isCustomized == true) alarmInfo.firstReminderTime else settings.firstReminderTime,
-                        secondReminderTime = if (alarmInfo?.isCustomized == true) alarmInfo.secondReminderTime else settings.secondReminderTime,
-                    )
-                }
-            }
-
-            loginManager.autoLogin()
-
-            val personalSchedules =
-                withContext(Dispatchers.IO) {
-                    when (val loginStatus = loginManager.loginStatus.value) {
-                        is LoginStatus.Login -> {
-                            getPersonalSchedules(loginStatus.loginSession.sessKey)
-                        }
-
-                        LoginStatus.NetworkDisconnected -> {
-                            scheduleManager.schedules.value.filterIsInstance<PersonalScheduleUiModel>()
-                        }
-
-                        LoginStatus.Logout, LoginStatus.Uninitialized, LoginStatus.LoginInProgress -> {
-                            emptyList()
-                        }
-                    }
-                }
-
-            syncAlarms(personalSchedules)
-
-            val academicSchedules = getNotificationsEnabledAcademicSchedules(
-                getAcademicSchedulesUseCase,
-                getAllAcademicScheduleAlarmInfosUseCase,
-            )
-
-            val schedulesJson = PersonalScheduleSerializer.serializePersonalSchedules(personalSchedules)
-            val academicSchedulesJson = PersonalScheduleSerializer.serializeAcademicSchedules(academicSchedules)
-            val today = LocalDate.now().toString()
-
-            updateAppWidgetState(context, glanceId) { prefs ->
-                prefs[stringPreferencesKey("personal_schedules_list")] = schedulesJson
-                prefs[stringPreferencesKey("academic_schedules_list")] = academicSchedulesJson
-                prefs[stringPreferencesKey("today")] = today
-                prefs[stringPreferencesKey("selected_date")] = today
-                prefs[booleanPreferencesKey("is_loading")] = false
-            }
-
-            CalendarWidget().update(context, glanceId)
-        }
-    }
-
-    private suspend fun getNotificationsEnabledAcademicSchedules(
-        getAcademicSchedulesUseCase: GetAcademicSchedulesUseCase,
-        getAllAcademicScheduleAlarmInfosUseCase: GetAllAcademicScheduleAlarmInfosUseCase,
-    ): List<AcademicScheduleUiModel> {
-        val academicSchedules = when (val result = getAcademicSchedulesUseCase()) {
-            is ApiResult.Success -> result.data.map { AcademicScheduleUiModel(it) }
-            is ApiResult.Error -> emptyList()
-        }
-
-        val alarmInfos = getAllAcademicScheduleAlarmInfosUseCase()
-        val alarmMap = alarmInfos.associateBy {
-            AcademicScheduleAlarmInfo.generateKey(it.title, it.startAt, it.endAt)
-        }
-
-        return academicSchedules.mapNotNull { schedule ->
-            val key = AcademicScheduleAlarmInfo.generateKey(schedule.title, schedule.startAt, schedule.endAt)
-            val info = alarmMap[key] ?: return@mapNotNull null
-            if (!info.notificationsEnabled ||
-                (info.startDateHour == AcademicNotificationHour.NONE && info.endDateHour == AcademicNotificationHour.NONE)
-            ) return@mapNotNull null
-            schedule.copy(id = info.notificationBaseId?.let { -(it.toLong()) } ?: 0L)
-        }
+        WorkManager.getInstance(context).enqueue(workRequest)
     }
 }

@@ -105,6 +105,8 @@ dependencies {
     implementation(libs.bundles.coil)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.bundles.glance)
+    implementation(libs.work.runtime.ktx)
+    implementation(libs.hilt.work)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.jsoup)
 
