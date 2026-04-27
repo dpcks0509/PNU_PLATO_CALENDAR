@@ -275,7 +275,7 @@ fun AcademicScheduleBottomSheet(
         )
 
         AcademicReminderDropdownItem(
-            label = "마감일",
+            label = "종료일",
             selectedLabel = endDateHour.label,
             enabled = notificationsEnabled,
             onSelect = { endDateHour = it },

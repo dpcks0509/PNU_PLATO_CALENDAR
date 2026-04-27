@@ -151,7 +151,7 @@ private fun remainingTimePersonal(
     val hours = totalHours % 24
     val minutes = duration.toMinutes() % 60
     return if (duration.isNegative) {
-        "마감 지남"
+        "기한 지남"
     } else if (days > 0) {
         "${days}일 ${hours}시간 남음"
     } else if (hours > 0) {

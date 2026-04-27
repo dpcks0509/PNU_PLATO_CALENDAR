@@ -88,7 +88,7 @@ class AlarmScheduler
                         notificationId = notificationId,
                         scheduleId = notificationId.toLong(),
                         title = title,
-                        message = "• 마감일",
+                        message = "• 종료일",
                         calendar = localDateTimeToCalendar(reminderDateTime),
                     )
                 }
