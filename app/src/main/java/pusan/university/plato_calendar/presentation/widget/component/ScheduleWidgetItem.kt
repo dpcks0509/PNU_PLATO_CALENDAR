@@ -98,7 +98,7 @@ fun ScheduleWidgetItem(schedule: PersonalScheduleUiModel) {
                         fontWeight = FontWeight.Medium,
                         color = ColorProvider(day = BlackLight, night = BlackDark)
                     ),
-                maxLines = 2,
+                maxLines = 1,
             )
 
             Spacer(modifier = GlanceModifier.height(2.dp))
