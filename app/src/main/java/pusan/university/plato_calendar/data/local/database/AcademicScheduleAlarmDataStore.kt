@@ -44,6 +44,7 @@ constructor(
             notificationsEnabled = prefs[enabledKey] == "true",
             startDateHour = prefs[startHourKey(key)]?.toAcademicNotificationHour() ?: AcademicNotificationHour.NONE,
             endDateHour = prefs[endHourKey(key)]?.toAcademicNotificationHour() ?: AcademicNotificationHour.NONE,
+            notificationBaseId = prefs[notificationBaseIdKey(key)],
         )
     }
 

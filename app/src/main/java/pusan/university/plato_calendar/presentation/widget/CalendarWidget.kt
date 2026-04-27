@@ -42,13 +42,17 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import pusan.university.plato_calendar.R
 import pusan.university.plato_calendar.domain.usecase.course.GetCourseNameUseCase
+import pusan.university.plato_calendar.domain.usecase.schedule.GetAcademicSchedulesUseCase
+import pusan.university.plato_calendar.domain.usecase.schedule.GetAllAcademicScheduleAlarmInfosUseCase
 import pusan.university.plato_calendar.domain.usecase.schedule.GetAllScheduleAlarmInfosUseCase
 import pusan.university.plato_calendar.domain.usecase.schedule.GetPersonalSchedulesUseCase
+import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel
 import pusan.university.plato_calendar.presentation.main.MainActivity
 import pusan.university.plato_calendar.presentation.util.manager.LoginManager
 import pusan.university.plato_calendar.presentation.util.manager.ScheduleManager
 import pusan.university.plato_calendar.presentation.util.manager.SettingsManager
 import pusan.university.plato_calendar.presentation.util.notification.AlarmScheduler
+import pusan.university.plato_calendar.presentation.util.serializer.PersonalScheduleSerializer.deserializeAcademicSchedules
 import pusan.university.plato_calendar.presentation.util.serializer.PersonalScheduleSerializer.deserializePersonalSchedules
 import pusan.university.plato_calendar.presentation.util.theme.BlackDark
 import pusan.university.plato_calendar.presentation.util.theme.BlackLight
@@ -87,6 +91,10 @@ class CalendarWidget : GlanceAppWidget() {
 
         fun getAllScheduleAlarmInfosUseCase(): GetAllScheduleAlarmInfosUseCase
 
+        fun getAcademicSchedulesUseCase(): GetAcademicSchedulesUseCase
+
+        fun getAllAcademicScheduleAlarmInfosUseCase(): GetAllAcademicScheduleAlarmInfosUseCase
+
         fun getCoroutineScope(): CoroutineScope
     }
 
@@ -96,7 +104,6 @@ class CalendarWidget : GlanceAppWidget() {
     ) {
         provideContent {
             val prefs = currentState<Preferences>()
-            val schedulesJson = prefs[stringPreferencesKey("schedules_list")] ?: ""
             val todayStr = prefs[stringPreferencesKey("today")] ?: LocalDate.now().toString()
             val selectedDateStr = prefs[stringPreferencesKey("selected_date")] ?: todayStr
             val isLoading = prefs[booleanPreferencesKey("is_loading")] ?: false
@@ -106,12 +113,14 @@ class CalendarWidget : GlanceAppWidget() {
 
             val weekDates = (0..6).map { today.plusDays(it.toLong()) }
 
-            val schedules = deserializePersonalSchedules(schedulesJson)
-            val schedulesMap = schedules.groupBy { schedule -> schedule.endAt.toLocalDate() }
-            val selectedDateSchedules =
-                schedulesMap[selectedDate]
-                    ?.sortedBy { it.isCompleted }
-                    ?: emptyList()
+            val personalSchedulesJson = prefs[stringPreferencesKey("personal_schedules_list")] ?: ""
+            val personalSchedules = deserializePersonalSchedules(personalSchedulesJson)
+            val academicSchedulesJson = prefs[stringPreferencesKey("academic_schedules_list")] ?: ""
+            val academicSchedules = deserializeAcademicSchedules(academicSchedulesJson)
+
+            val personalForDate = personalSchedules.filter { it.endAt.toLocalDate() == selectedDate && !it.isCompleted }
+            val academicForDate = academicSchedules.filter { selectedDate == it.startAt || selectedDate == it.endAt }
+            val selectedDateSchedules: List<ScheduleUiModel> = personalForDate + academicForDate
 
             Column(
                 modifier =
@@ -418,7 +427,7 @@ class CalendarWidget : GlanceAppWidget() {
                                 .defaultWeight(),
                     ) {
                         items(items = selectedDateSchedules) { schedule ->
-                            ScheduleWidgetItem(schedule)
+                            ScheduleWidgetItem(schedule, selectedDate)
                             Spacer(modifier = GlanceModifier.height(8.dp))
                         }
                     }

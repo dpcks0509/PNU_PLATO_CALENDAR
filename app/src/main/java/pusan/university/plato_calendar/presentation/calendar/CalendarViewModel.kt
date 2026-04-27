@@ -52,6 +52,7 @@ import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiMod
 import pusan.university.plato_calendar.presentation.calendar.model.YearMonth
 import pusan.university.plato_calendar.presentation.setting.model.AcademicNotificationHour
 import pusan.university.plato_calendar.presentation.util.base.BaseViewModel
+import pusan.university.plato_calendar.presentation.util.component.bottomsheet.schedule.content.ScheduleBottomSheetContent
 import pusan.university.plato_calendar.presentation.util.component.bottomsheet.schedule.content.ScheduleBottomSheetContent.AcademicScheduleContent
 import pusan.university.plato_calendar.presentation.util.component.bottomsheet.schedule.content.ScheduleBottomSheetContent.CourseScheduleContent
 import pusan.university.plato_calendar.presentation.util.component.bottomsheet.schedule.content.ScheduleBottomSheetContent.CustomScheduleContent
@@ -345,6 +346,7 @@ constructor(
                 schedule.copy(
                     notificationsEnabled = info.notificationsEnabled &&
                         (info.startDateHour != AcademicNotificationHour.NONE || info.endDateHour != AcademicNotificationHour.NONE),
+                    id = info.notificationBaseId?.let { -(it.toLong()) } ?: 0L,
                 )
             } else {
                 schedule
@@ -435,9 +437,16 @@ constructor(
                                 schedules
                                     .filterIsInstance<PersonalScheduleUiModel>()
                                     .find { it.id == id }
+                                    ?: schedules
+                                        .filterIsInstance<AcademicScheduleUiModel>()
+                                        .find { it.id == id }
 
                             if (targetSchedule != null) {
-                                navigateToDate(targetSchedule.endAt.toLocalDate())
+                                val targetDate = when (targetSchedule) {
+                                    is PersonalScheduleUiModel -> targetSchedule.endAt.toLocalDate()
+                                    is AcademicScheduleUiModel -> targetSchedule.startAt
+                                }
+                                navigateToDate(targetDate)
                                 showScheduleBottomSheet(targetSchedule)
                                 pendingOpenScheduleId = null
                             }
@@ -611,6 +620,10 @@ constructor(
         ToastEventBus.sendSuccess(if (isCompleted) "일정이 완료되었습니다." else "일정이 재개되었습니다.")
     }
 
+    fun updateBottomSheetContent(content: ScheduleBottomSheetContent) {
+        setState { copy(scheduleBottomSheetContent = content) }
+    }
+
     private suspend fun showScheduleBottomSheet(schedule: ScheduleUiModel?) {
         val content =
             when (schedule) {
@@ -625,12 +638,10 @@ constructor(
             }
 
         if (loginManager.loginStatus.value is LoginStatus.Login) {
-            setState { copy(scheduleBottomSheetContent = content) }
-            setSideEffect { CalendarSideEffect.ShowScheduleBottomSheet }
+            setSideEffect { CalendarSideEffect.ShowScheduleBottomSheet(content) }
         } else {
             if (content is AcademicScheduleContent) {
-                setState { copy(scheduleBottomSheetContent = content) }
-                setSideEffect { CalendarSideEffect.ShowScheduleBottomSheet }
+                setSideEffect { CalendarSideEffect.ShowScheduleBottomSheet(content) }
             } else {
                 setSideEffect { CalendarSideEffect.ShowLoginDialog }
             }
@@ -644,9 +655,16 @@ constructor(
                     state.value.schedules
                         .filterIsInstance<PersonalScheduleUiModel>()
                         .find { it.id == scheduleId }
+                        ?: state.value.schedules
+                            .filterIsInstance<AcademicScheduleUiModel>()
+                            .find { it.id == scheduleId }
 
                 if (schedule != null) {
-                    navigateToDate(schedule.endAt.toLocalDate())
+                    val targetDate = when (schedule) {
+                        is PersonalScheduleUiModel -> schedule.endAt.toLocalDate()
+                        is AcademicScheduleUiModel -> schedule.startAt
+                    }
+                    navigateToDate(targetDate)
                     showScheduleBottomSheet(schedule)
                     pendingOpenScheduleId = null
                 } else {

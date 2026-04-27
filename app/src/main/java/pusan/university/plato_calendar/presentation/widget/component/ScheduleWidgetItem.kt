@@ -23,6 +23,8 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import pusan.university.plato_calendar.R
+import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel
+import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.AcademicScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CourseScheduleUiModel
 import pusan.university.plato_calendar.presentation.calendar.model.ScheduleUiModel.PersonalScheduleUiModel.CustomScheduleUiModel
@@ -33,33 +35,48 @@ import pusan.university.plato_calendar.presentation.util.theme.GrayDark
 import pusan.university.plato_calendar.presentation.util.theme.GrayLight
 import pusan.university.plato_calendar.presentation.widget.callback.OpenScheduleDetailCallback
 import pusan.university.plato_calendar.presentation.widget.model.ScheduleWidgetUiModel
+import java.time.LocalDate
 
 @SuppressLint("RestrictedApi")
 @Composable
-fun ScheduleWidgetItem(schedule: PersonalScheduleUiModel) {
+fun ScheduleWidgetItem(schedule: ScheduleUiModel, selectedDate: LocalDate) {
     val scheduleWidgetItem =
         when (schedule) {
-            is CourseScheduleUiModel ->
-                ScheduleWidgetUiModel(
-                    schedule.titleWithCourseName,
-                    schedule.endAt.formatTimeWithMidnightSpecialCase(),
-                    if (schedule.isCompleted) {
-                        R.drawable.widget_schedule_indicator_gray
-                    } else {
-                        R.drawable.widget_schedule_indicator_green
-                    },
-                )
-
-            is CustomScheduleUiModel ->
+            is AcademicScheduleUiModel ->
                 ScheduleWidgetUiModel(
                     schedule.title,
-                    schedule.endAt.formatTimeWithMidnightSpecialCase(),
-                    if (schedule.isCompleted) {
-                        R.drawable.widget_schedule_indicator_gray
-                    } else {
-                        R.drawable.widget_schedule_indicator_red
+                    when {
+                        schedule.startAt == schedule.endAt -> "시작일 및 종료일"
+                        selectedDate == schedule.startAt -> "시작일"
+                        else -> "종료일"
                     },
+                    R.drawable.widget_schedule_indicator_lavender,
                 )
+
+            is PersonalScheduleUiModel ->
+                when (schedule) {
+                    is CourseScheduleUiModel ->
+                        ScheduleWidgetUiModel(
+                            schedule.titleWithCourseName,
+                            schedule.endAt.formatTimeWithMidnightSpecialCase(),
+                            if (schedule.isCompleted) {
+                                R.drawable.widget_schedule_indicator_gray
+                            } else {
+                                R.drawable.widget_schedule_indicator_green
+                            },
+                        )
+
+                    is CustomScheduleUiModel ->
+                        ScheduleWidgetUiModel(
+                            schedule.title,
+                            schedule.endAt.formatTimeWithMidnightSpecialCase(),
+                            if (schedule.isCompleted) {
+                                R.drawable.widget_schedule_indicator_gray
+                            } else {
+                                R.drawable.widget_schedule_indicator_red
+                            },
+                        )
+                }
         }
 
     Row(
@@ -70,8 +87,16 @@ fun ScheduleWidgetItem(schedule: PersonalScheduleUiModel) {
                 .clickable(
                     actionRunCallback<OpenScheduleDetailCallback>(
                         actionParametersOf(
-                            OpenScheduleDetailCallback.scheduleIdKey to schedule.id,
-                            OpenScheduleDetailCallback.selectedDateKey to schedule.endAt.toLocalDate().toString(),
+                            OpenScheduleDetailCallback.scheduleIdKey to
+                                when (schedule) {
+                                    is PersonalScheduleUiModel -> schedule.id
+                                    is AcademicScheduleUiModel -> schedule.id
+                                },
+                            OpenScheduleDetailCallback.selectedDateKey to
+                                when (schedule) {
+                                    is PersonalScheduleUiModel -> schedule.endAt.toLocalDate().toString()
+                                    is AcademicScheduleUiModel -> selectedDate.toString()
+                                },
                         ),
                     ),
                 ),

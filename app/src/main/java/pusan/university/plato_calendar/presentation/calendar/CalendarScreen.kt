@@ -26,7 +26,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import pusan.university.plato_calendar.presentation.calendar.component.Calendar
 import pusan.university.plato_calendar.presentation.calendar.component.CalendarTopBar
@@ -91,14 +90,13 @@ fun CalendarScreen(
                     }
                 }
 
-                CalendarSideEffect.ShowScheduleBottomSheet -> {
+                is CalendarSideEffect.ShowScheduleBottomSheet -> {
                     coroutineScope.launch {
                         if (isScheduleBottomSheetVisible) {
                             sheetState.hide()
                             isScheduleBottomSheetVisible = false
-                            delay(300)
                         }
-
+                        viewModel.updateBottomSheetContent(sideEffect.content)
                         isScheduleBottomSheetVisible = true
                         sheetState.show()
                     }

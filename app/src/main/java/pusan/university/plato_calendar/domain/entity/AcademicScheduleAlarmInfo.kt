@@ -10,6 +10,7 @@ data class AcademicScheduleAlarmInfo(
     val notificationsEnabled: Boolean = false,
     val startDateHour: AcademicNotificationHour = AcademicNotificationHour.NONE,
     val endDateHour: AcademicNotificationHour = AcademicNotificationHour.NONE,
+    val notificationBaseId: Int? = null,
 ) {
     companion object {
         fun generateKey(title: String, startAt: LocalDate, endAt: LocalDate): String =

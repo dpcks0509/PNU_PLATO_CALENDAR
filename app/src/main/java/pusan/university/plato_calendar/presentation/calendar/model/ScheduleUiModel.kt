@@ -23,6 +23,7 @@ sealed class ScheduleUiModel {
         val startAt: LocalDate,
         val endAt: LocalDate,
         val notificationsEnabled: Boolean = false,
+        val id: Long = 0L,
     ) : ScheduleUiModel() {
         override val color: Color @Composable get() = CalendarLavender
 
