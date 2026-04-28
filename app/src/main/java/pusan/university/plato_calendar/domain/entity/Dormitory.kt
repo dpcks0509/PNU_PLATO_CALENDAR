@@ -9,23 +9,23 @@ enum class Dormitory(val title: String, val siteId: String, val campusId: String
 
     fun operatingTime(mealType: DormitoryMealType): String? = when (this) {
         JILLI, UNGBEE, JAYU -> when (mealType) {
-            DormitoryMealType.EARLY_BREAKFAST -> "07:00-08:00"
-            DormitoryMealType.BREAKFAST -> "07:00-09:00"
-            DormitoryMealType.LUNCH -> "12:00-14:00"
-            DormitoryMealType.DINNER -> "17:30-19:00"
+            DormitoryMealType.EARLY_BREAKFAST -> "07:00~08:00"
+            DormitoryMealType.BREAKFAST -> "07:00~09:00"
+            DormitoryMealType.LUNCH -> "12:00~14:00"
+            DormitoryMealType.DINNER -> "17:30~19:00"
         }
 
         MILYANG -> when (mealType) {
-            DormitoryMealType.LUNCH -> "11:40-13:20"
-            DormitoryMealType.DINNER -> "17:30-19:00"
+            DormitoryMealType.LUNCH -> "11:40~13:20"
+            DormitoryMealType.DINNER -> "17:30~19:00"
             else -> null
         }
 
         YANGSAN -> when (mealType) {
-            DormitoryMealType.EARLY_BREAKFAST -> "07:00-08:00"
-            DormitoryMealType.BREAKFAST -> "07:20-08:50"
-            DormitoryMealType.LUNCH -> "12:00-13:30"
-            DormitoryMealType.DINNER -> "18:00-19:30"
+            DormitoryMealType.EARLY_BREAKFAST -> "07:00~08:00"
+            DormitoryMealType.BREAKFAST -> "07:20~08:50"
+            DormitoryMealType.LUNCH -> "12:00~13:30"
+            DormitoryMealType.DINNER -> "18:00~19:30"
         }
     }
 }

@@ -49,7 +49,7 @@ internal fun String.parseHtmlToWeeklyPlans(): List<CafeteriaDailyPlan> {
         val thParts = thContent.split(Regex("<br\\s*/?>", RegexOption.IGNORE_CASE))
 
         val mealTypeText = thParts.firstOrNull()?.replace(Regex("<[^>]+>"), "")?.trim()
-        val timeRange = thParts.getOrNull(1)?.replace(Regex("<[^>]+>"), "")?.trim() ?: ""
+        val timeRange = thParts.getOrNull(1)?.replace(Regex("<[^>]+>"), "")?.replace("-", "~")?.trim() ?: ""
 
         val mealType =
             when (mealTypeText) {

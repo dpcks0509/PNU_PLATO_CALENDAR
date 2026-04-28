@@ -36,10 +36,13 @@ import pusan.university.plato_calendar.presentation.util.theme.Gray
 import pusan.university.plato_calendar.presentation.util.theme.PlatoCalendarTheme
 import pusan.university.plato_calendar.presentation.util.theme.PrimaryColor
 import pusan.university.plato_calendar.presentation.util.theme.WhiteGray
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
-private fun buildMealShareText(cafeteriaName: String, mealInfo: MealInfo): String =
+private fun buildMealShareText(cafeteriaName: String, date: LocalDate, mealInfo: MealInfo): String =
     buildString {
         appendLine(cafeteriaName)
+        appendLine(date.format(DateTimeFormatter.ofPattern("yyyy.MM.dd")))
         append("[${mealInfo.mealType.title}]")
         mealInfo.operationInfo.operatingTime?.let { append(" $it") }
         appendLine()
@@ -66,6 +69,7 @@ private fun shareMealText(context: Context, text: String) {
 fun MealCard(
     mealInfo: MealInfo,
     cafeteriaName: String,
+    date: LocalDate,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -120,7 +124,7 @@ fun MealCard(
                         modifier = Modifier
                             .size(24.dp)
                             .noRippleClickable {
-                                shareMealText(context, buildMealShareText(cafeteriaName, mealInfo))
+                                shareMealText(context, buildMealShareText(cafeteriaName, date, mealInfo))
                             },
                     )
                 }
@@ -170,6 +174,7 @@ private fun MealCardOperatingPreview() {
     PlatoCalendarTheme {
         MealCard(
             cafeteriaName = "금정 학생",
+            date = LocalDate.now(),
             mealInfo = MealInfo(
                 mealType = MealType.LUNCH,
                 operationInfo = OperationInfo(
@@ -198,6 +203,7 @@ private fun MealCardNotOperatingPreview() {
     PlatoCalendarTheme {
         MealCard(
             cafeteriaName = "금정 학생",
+            date = LocalDate.now(),
             mealInfo = MealInfo(
                 mealType = MealType.DINNER,
                 operationInfo = OperationInfo(

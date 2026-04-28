@@ -45,7 +45,7 @@ fun DormitoryMealInfoPage(
             dailyPlan?.let {
                 DormitoryMealType.entries.forEach { mealType ->
                     dailyPlan.getMealInfo(mealType)?.let { mealInfo ->
-                        DormitoryMealCard(mealInfo = mealInfo, dormitoryName = state.selectedDormitory.title)
+                        DormitoryMealCard(mealInfo = mealInfo, dormitoryName = state.selectedDormitory.title, date = state.selectedDate)
                     }
                 }
             }

@@ -30,10 +30,13 @@ import pusan.university.plato_calendar.presentation.util.extension.noRippleClick
 import pusan.university.plato_calendar.presentation.util.theme.Gray
 import pusan.university.plato_calendar.presentation.util.theme.PrimaryColor
 import pusan.university.plato_calendar.presentation.util.theme.WhiteGray
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
-private fun buildDormitoryMealShareText(dormitoryName: String, mealInfo: DormitoryMealInfo): String =
+private fun buildDormitoryMealShareText(dormitoryName: String, date: LocalDate, mealInfo: DormitoryMealInfo): String =
     buildString {
         appendLine(dormitoryName)
+        appendLine(date.format(DateTimeFormatter.ofPattern("yyyy.MM.dd")))
         append("[${mealInfo.mealType.title}]")
         mealInfo.operatingTime?.let { append(" $it") }
         appendLine()
@@ -52,6 +55,7 @@ private fun shareDormitoryMealText(context: Context, text: String) {
 fun DormitoryMealCard(
     mealInfo: DormitoryMealInfo,
     dormitoryName: String,
+    date: LocalDate,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -99,7 +103,7 @@ fun DormitoryMealCard(
                     modifier = Modifier
                         .size(24.dp)
                         .noRippleClickable {
-                            shareDormitoryMealText(context, buildDormitoryMealShareText(dormitoryName, mealInfo))
+                            shareDormitoryMealText(context, buildDormitoryMealShareText(dormitoryName, date, mealInfo))
                         },
                 )
             }
