@@ -202,6 +202,7 @@ class AlarmScheduler
             when (reminderTime) {
                 NotificationTime.FIVE_MINUTES -> endDateTime.minusMinutes(5)
                 NotificationTime.TEN_MINUTES -> endDateTime.minusMinutes(10)
+                NotificationTime.FIFTEEN_MINUTES -> endDateTime.minusMinutes(15)
                 NotificationTime.THIRTY_MINUTES -> endDateTime.minusMinutes(30)
                 NotificationTime.ONE_HOUR -> endDateTime.minusHours(1)
                 NotificationTime.TWO_HOURS -> endDateTime.minusHours(2)
