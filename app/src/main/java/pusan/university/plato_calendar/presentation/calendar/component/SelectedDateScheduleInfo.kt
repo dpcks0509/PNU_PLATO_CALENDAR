@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.requiredHeightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -40,9 +40,11 @@ fun SelectedDateScheduleInfo(
     selectedDate: LocalDate,
     schedules: List<ScheduleUiModel>,
     todayDate: LocalDate,
+    holidayName: String?,
     onScheduleClick: (ScheduleUiModel) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val isHoliday = holidayName != null
     Row(modifier = modifier) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -54,7 +56,7 @@ fun SelectedDateScheduleInfo(
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
                 color =
-                    if (selectedDate.dayOfWeek.isWeekend()) {
+                    if (selectedDate.dayOfWeek.isWeekend() || isHoliday) {
                         Red
                     } else {
                         Black
@@ -81,7 +83,7 @@ fun SelectedDateScheduleInfo(
                     color =
                         if (selectedDate == todayDate) {
                             Color.White
-                        } else if (selectedDate.dayOfWeek.isWeekend()) {
+                        } else if (selectedDate.dayOfWeek.isWeekend() || isHoliday) {
                             Red
                         } else {
                             Black
@@ -94,13 +96,33 @@ fun SelectedDateScheduleInfo(
 
         Spacer(modifier = Modifier.width(16.dp))
 
-        ScheduleItem(
-            schedules = schedules,
-            onScheduleClick = onScheduleClick,
-            modifier = Modifier
-                .fillMaxWidth()
-                .requiredHeightIn(min = 180.dp),
-        )
+        Column(modifier = Modifier.fillMaxWidth()) {
+            if (isHoliday) {
+                Text(
+                    text = holidayName,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Red,
+                    modifier = Modifier.padding(bottom = 6.dp),
+                )
+            } else {
+                if (schedules.isEmpty()) {
+                    Text(
+                        text = "",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Red,
+                        modifier = Modifier.padding(bottom = 6.dp),
+                    )
+                }
+            }
+
+            ScheduleItem(
+                schedules = schedules,
+                onScheduleClick = onScheduleClick,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
     }
 }
 
@@ -156,6 +178,7 @@ fun SelectedDateScheduleInfoPreview() {
             selectedDate = LocalDate.now(),
             schedules = sampleSchedules,
             todayDate = today,
+            holidayName = null,
             onScheduleClick = {},
             modifier = Modifier.fillMaxWidth(),
         )

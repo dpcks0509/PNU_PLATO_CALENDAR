@@ -15,12 +15,14 @@ data class CalendarState(
     val selectedDate: LocalDate,
     val currentYearMonth: YearMonth = YearMonth(year = today.year, month = today.monthValue),
     val schedules: List<ScheduleUiModel> = emptyList(),
+    val holidays: Map<LocalDate, String> = emptyMap(),
     val scheduleBottomSheetContent: ScheduleBottomSheetContent? = null,
     val scheduleDialogContent: ScheduleDialogContent? = null,
     val defaultFirstReminderTime: NotificationTime = NotificationTime.FIRST_REMINDER_TIME,
     val defaultSecondReminderTime: NotificationTime = NotificationTime.SECOND_REMINDER_TIME,
 ) : UiState {
     val baseToday: LocalDate = today
+    val selectedDateHolidayName: String? get() = holidays[selectedDate]
     val selectedDateSchedules: List<ScheduleUiModel>
         get() =
             schedules

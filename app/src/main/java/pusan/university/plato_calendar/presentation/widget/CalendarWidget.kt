@@ -53,6 +53,7 @@ import pusan.university.plato_calendar.presentation.util.manager.ScheduleManager
 import pusan.university.plato_calendar.presentation.util.manager.SettingsManager
 import pusan.university.plato_calendar.presentation.util.notification.AlarmScheduler
 import pusan.university.plato_calendar.presentation.util.serializer.PersonalScheduleSerializer.deserializeAcademicSchedules
+import pusan.university.plato_calendar.presentation.util.serializer.PersonalScheduleSerializer.deserializeHolidays
 import pusan.university.plato_calendar.presentation.util.serializer.PersonalScheduleSerializer.deserializePersonalSchedules
 import pusan.university.plato_calendar.presentation.util.theme.BlackDark
 import pusan.university.plato_calendar.presentation.util.theme.BlackLight
@@ -117,6 +118,9 @@ class CalendarWidget : GlanceAppWidget() {
             val personalSchedules = deserializePersonalSchedules(personalSchedulesJson)
             val academicSchedulesJson = prefs[stringPreferencesKey("academic_schedules_list")] ?: ""
             val academicSchedules = deserializeAcademicSchedules(academicSchedulesJson)
+            val holidaysJson = prefs[stringPreferencesKey("holidays")] ?: ""
+            val holidays = deserializeHolidays(holidaysJson)
+            val holidayName = holidays[selectedDate]
 
             val personalForDate = personalSchedules.filter { it.endAt.toLocalDate() == selectedDate && !it.isCompleted }
             val academicForDate = academicSchedules.filter { selectedDate == it.startAt || selectedDate == it.endAt }
@@ -147,7 +151,12 @@ class CalendarWidget : GlanceAppWidget() {
                                 TextStyle(
                                     fontSize = 40.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = ColorProvider(day = BlackLight, night = BlackDark),
+                                    color =
+                                        if (selectedDate.dayOfWeek == DayOfWeek.SATURDAY || selectedDate.dayOfWeek == DayOfWeek.SUNDAY || holidayName != null) {
+                                            ColorProvider(day = RedLight, night = RedDark)
+                                        } else {
+                                            ColorProvider(day = BlackLight, night = BlackDark)
+                                        },
                                     textAlign = TextAlign.Center,
                                 ),
                             modifier = GlanceModifier.width(52.dp),
@@ -178,7 +187,7 @@ class CalendarWidget : GlanceAppWidget() {
                                     TextStyle(
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.Normal,
-                                        color = ColorProvider(day = GrayLight, night = GrayDark),
+                                        color = ColorProvider(day = GrayLight, night = GrayDark)
                                     ),
                             )
                         }
@@ -234,6 +243,7 @@ class CalendarWidget : GlanceAppWidget() {
                 ) {
                     weekDates.forEach { date ->
                         val isToday = date == today
+                        val isDateHoliday = holidays[date] != null
 
                         Box(
                             modifier = GlanceModifier.defaultWeight(),
@@ -254,7 +264,7 @@ class CalendarWidget : GlanceAppWidget() {
                                                     )
                                                 }
 
-                                                date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY -> {
+                                                date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY || isDateHoliday -> {
                                                     ColorProvider(
                                                         day = RedLight,
                                                         night = RedDark,
@@ -284,6 +294,7 @@ class CalendarWidget : GlanceAppWidget() {
                     weekDates.forEach { date ->
                         val isToday = date == today
                         val isSelected = date == selectedDate
+                        val isDateHoliday = holidays[date] != null
 
                         Box(
                             modifier = GlanceModifier.defaultWeight(),
@@ -331,7 +342,7 @@ class CalendarWidget : GlanceAppWidget() {
                                                         )
                                                     }
 
-                                                    date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY -> {
+                                                    date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY || isDateHoliday -> {
                                                         ColorProvider(
                                                             day = RedLight,
                                                             night = RedDark,
@@ -402,33 +413,53 @@ class CalendarWidget : GlanceAppWidget() {
                     )
                 }
 
-                if (selectedDateSchedules.isEmpty()) {
-                    Box(
-                        modifier =
-                            GlanceModifier
-                                .fillMaxWidth()
-                                .defaultWeight(),
-                        contentAlignment = Alignment.Center,
-                    ) {
+                Column(
+                    modifier =
+                        GlanceModifier
+                            .fillMaxWidth()
+                            .defaultWeight(),
+                ) {
+                    if (holidayName != null) {
                         Text(
-                            text = "일정 없음",
+                            text = holidayName,
                             style =
                                 TextStyle(
                                     fontSize = 14.sp,
-                                    color = ColorProvider(day = GrayLight, night = GrayDark),
+                                    fontWeight = FontWeight.Medium,
+                                    color = ColorProvider(day = RedLight, night = RedDark),
                                 ),
+                            modifier = GlanceModifier.padding(vertical = 6.dp),
                         )
                     }
-                } else {
-                    LazyColumn(
-                        modifier =
-                            GlanceModifier
-                                .fillMaxWidth()
-                                .defaultWeight(),
-                    ) {
-                        items(items = selectedDateSchedules) { schedule ->
-                            ScheduleWidgetItem(schedule, selectedDate)
-                            Spacer(modifier = GlanceModifier.height(8.dp))
+
+                    if (selectedDateSchedules.isEmpty()) {
+                        Box(
+                            modifier =
+                                GlanceModifier
+                                    .fillMaxWidth()
+                                    .defaultWeight(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = "일정 없음",
+                                style =
+                                    TextStyle(
+                                        fontSize = 14.sp,
+                                        color = ColorProvider(day = GrayLight, night = GrayDark),
+                                    ),
+                            )
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier =
+                                GlanceModifier
+                                    .fillMaxWidth()
+                                    .defaultWeight(),
+                        ) {
+                            items(items = selectedDateSchedules) { schedule ->
+                                ScheduleWidgetItem(schedule, selectedDate)
+                                Spacer(modifier = GlanceModifier.height(8.dp))
+                            }
                         }
                     }
                 }

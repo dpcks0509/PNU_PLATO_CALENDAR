@@ -14,6 +14,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import pusan.university.plato_calendar.BuildConfig
+import pusan.university.plato_calendar.BuildConfig.HOLIDAY_BASE_URL
 import pusan.university.plato_calendar.BuildConfig.PLATO_BASE_URL
 import pusan.university.plato_calendar.BuildConfig.PNU_BASE_URL
 import pusan.university.plato_calendar.app.network.NetworkConnectionInterceptor
@@ -152,6 +153,20 @@ object NetworkModule {
             .client(okHttpClient)
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
+
+    @Singleton
+    @Provides
+    @Holiday
+    fun provideHolidayRetrofit(
+        @Redirect okHttpClient: OkHttpClient,
+        json: Json,
+    ): Retrofit =
+        Retrofit
+            .Builder()
+            .baseUrl(HOLIDAY_BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .build()
 }
 
 @Qualifier
@@ -162,6 +177,9 @@ annotation class PlatoNonDirect
 
 @Qualifier
 annotation class PNU
+
+@Qualifier
+annotation class Holiday
 
 @Qualifier
 annotation class NonDirect

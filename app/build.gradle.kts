@@ -43,28 +43,18 @@ android {
 
         buildConfigField("String", "PLATO_BASE_URL", localProperties.getProperty("plato.base.url"))
         buildConfigField("String", "PNU_BASE_URL", localProperties.getProperty("pnu.base.url"))
+        buildConfigField("String", "HOLIDAY_BASE_URL", localProperties.getProperty("holiday.base.url"))
+        buildConfigField("String", "HOLIDAY_SERVICE_KEY", localProperties.getProperty("holiday.service.key"))
     }
 
     buildTypes {
         debug {
-            buildConfigField(
-                "String",
-                "BANNER_AD_UNIT_ID",
-                "\"${localProperties.getProperty("banner.ad.sample.id")}\"",
-            )
-
             configure<CrashlyticsExtension> {
                 mappingFileUploadEnabled = false
             }
         }
 
         release {
-            buildConfigField(
-                "String",
-                "BANNER_AD_UNIT_ID",
-                "\"${localProperties.getProperty("banner.ad.unit.id")}\"",
-            )
-
             signingConfig = signingConfigs.getByName("release")
 
             configure<CrashlyticsExtension> {

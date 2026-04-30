@@ -17,6 +17,7 @@ import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.C
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
 import pusan.university.plato_calendar.domain.entity.ScheduleAlarmInfo
 import pusan.university.plato_calendar.domain.usecase.course.GetCourseNameUseCase
+import pusan.university.plato_calendar.domain.usecase.holiday.GetHolidaysUseCase
 import pusan.university.plato_calendar.domain.usecase.schedule.DeleteCustomScheduleUseCase
 import pusan.university.plato_calendar.domain.usecase.schedule.EditPersonalScheduleUseCase
 import pusan.university.plato_calendar.domain.usecase.schedule.GetAcademicScheduleAlarmInfoUseCase
@@ -88,6 +89,7 @@ constructor(
     private val saveAcademicScheduleAlarmInfoUseCase: SaveAcademicScheduleAlarmInfoUseCase,
     private val getAcademicScheduleAlarmInfoUseCase: GetAcademicScheduleAlarmInfoUseCase,
     private val getAllAcademicScheduleAlarmInfosUseCase: GetAllAcademicScheduleAlarmInfosUseCase,
+    private val getHolidaysUseCase: GetHolidaysUseCase,
     private val savedStateHandle: SavedStateHandle,
 ) : BaseViewModel<CalendarState, CalendarEvent, CalendarSideEffect>(
     initialState =
@@ -133,6 +135,39 @@ constructor(
                 }
             }
 
+            launch {
+                scheduleManager.holidays.collect { holidays ->
+                    setState { copy(holidays = holidays) }
+                }
+            }
+
+            launch {
+                loadHolidays()
+            }
+        }
+    }
+
+    private suspend fun loadHolidays() {
+        val today = scheduleManager.today.value.toLocalDate()
+        val years = setOf(today.year, today.year + 1)
+        val collected = mutableMapOf<LocalDate, String>()
+        years.forEach { year ->
+            when (val result = getHolidaysUseCase(year)) {
+                is ApiResult.Success -> {
+                    result.data.forEach { holiday ->
+                        collected[holiday.date] = holiday.name
+                    }
+                }
+
+                is ApiResult.Error -> {
+                    if (result.exception !is NoNetworkConnectivityException) {
+                        ToastEventBus.sendError(result.exception.message)
+                    }
+                }
+            }
+        }
+        if (collected.isNotEmpty()) {
+            scheduleManager.updateHolidays(collected)
         }
     }
 

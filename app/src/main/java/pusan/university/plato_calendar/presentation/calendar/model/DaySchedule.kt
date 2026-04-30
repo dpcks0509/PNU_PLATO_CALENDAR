@@ -11,8 +11,10 @@ data class DaySchedule(
     val isSelected: Boolean,
     val isInMonth: Boolean,
     val schedules: List<ScheduleUiModel>,
+    val holidayName: String? = null,
 ) {
     val isWeekend: Boolean = date.dayOfWeek.isWeekend()
+    val isHoliday: Boolean = holidayName != null
 
     val visibleSchedules: List<ScheduleUiModel> =
         schedules

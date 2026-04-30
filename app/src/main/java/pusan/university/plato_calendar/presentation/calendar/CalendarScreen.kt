@@ -253,6 +253,7 @@ fun CalendarContent(
                 selectedDate = state.selectedDate,
                 schedules = state.selectedDateSchedules,
                 todayDate = state.today,
+                holidayName = state.selectedDateHolidayName,
                 onScheduleClick = { schedule -> onEvent(ShowScheduleBottomSheet(schedule)) },
                 modifier =
                     Modifier

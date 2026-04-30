@@ -31,6 +31,9 @@ class ScheduleManager
         private val _schedules = MutableStateFlow<List<ScheduleUiModel>>(emptyList())
         val schedules: StateFlow<List<ScheduleUiModel>> = _schedules.asStateFlow()
 
+        private val _holidays = MutableStateFlow<Map<LocalDate, String>>(emptyMap())
+        val holidays: StateFlow<Map<LocalDate, String>> = _holidays.asStateFlow()
+
         fun updateToday() {
             val previousTodayDate = _today.value.toLocalDate()
             _today.value = LocalDateTime.now()
@@ -44,6 +47,11 @@ class ScheduleManager
 
         fun updateSchedules(schedules: List<ScheduleUiModel>) {
             _schedules.value = schedules
+            refreshMonthlySchedules()
+        }
+
+        fun updateHolidays(holidays: Map<LocalDate, String>) {
+            _holidays.value = holidays
             refreshMonthlySchedules()
         }
 
@@ -62,9 +70,14 @@ class ScheduleManager
             monthlySchedules.values.forEach { monthSchedule ->
                 monthSchedule.forEach { weekSchedule ->
                     weekSchedule.forEachIndexed { index, daySchedule ->
-                        val newSchedules = daySchedule?.date?.let(::getSchedulesForDate).orEmpty()
-                        if (daySchedule?.schedules != newSchedules) {
-                            weekSchedule[index] = daySchedule?.copy(schedules = newSchedules)
+                        if (daySchedule == null) return@forEachIndexed
+                        val newSchedules = getSchedulesForDate(daySchedule.date)
+                        val newHolidayName = _holidays.value[daySchedule.date]
+                        if (daySchedule.schedules != newSchedules || daySchedule.holidayName != newHolidayName) {
+                            weekSchedule[index] = daySchedule.copy(
+                                schedules = newSchedules,
+                                holidayName = newHolidayName,
+                            )
                         }
                     }
                 }
@@ -172,6 +185,7 @@ class ScheduleManager
             val isInMonth =
                 date.year == yearMonth.year && date.monthValue == yearMonth.month
             val daySchedules = getSchedulesForDate(date)
+            val holidayName = _holidays.value[date]
 
             return DaySchedule(
                 date = date,
@@ -179,6 +193,7 @@ class ScheduleManager
                 isSelected = isSelected,
                 isInMonth = isInMonth,
                 schedules = daySchedules,
+                holidayName = holidayName,
             )
         }
     }

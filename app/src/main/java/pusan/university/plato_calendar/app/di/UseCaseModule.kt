@@ -7,6 +7,7 @@ import dagger.hilt.components.SingletonComponent
 import pusan.university.plato_calendar.domain.repository.AppSettingsRepository
 import pusan.university.plato_calendar.domain.repository.CafeteriaRepository
 import pusan.university.plato_calendar.domain.repository.CourseRepository
+import pusan.university.plato_calendar.domain.repository.HolidayRepository
 import pusan.university.plato_calendar.domain.repository.LoginCredentialsRepository
 import pusan.university.plato_calendar.domain.repository.LoginRepository
 import pusan.university.plato_calendar.domain.repository.ScheduleAlarmRepository
@@ -16,6 +17,7 @@ import pusan.university.plato_calendar.domain.usecase.cafeteria.GetCafeteriaWeek
 import pusan.university.plato_calendar.domain.usecase.cafeteria.GetSelectedCafeteriaUseCase
 import pusan.university.plato_calendar.domain.usecase.cafeteria.SetSelectedCafeteriaUseCase
 import pusan.university.plato_calendar.domain.usecase.course.GetCourseNameUseCase
+import pusan.university.plato_calendar.domain.usecase.holiday.GetHolidaysUseCase
 import pusan.university.plato_calendar.domain.usecase.login.GetLoginCredentialsUseCase
 import pusan.university.plato_calendar.domain.usecase.login.LoginUseCase
 import pusan.university.plato_calendar.domain.usecase.login.LogoutUseCase
@@ -130,4 +132,10 @@ object UseCaseModule {
     @Singleton
     fun provideSetSelectedCafeteriaUseCase(selectedCafeteriaRepository: SelectedCafeteriaRepository): SetSelectedCafeteriaUseCase =
         SetSelectedCafeteriaUseCase(selectedCafeteriaRepository)
+
+    // Holiday
+    @Provides
+    @Singleton
+    fun provideGetHolidaysUseCase(holidayRepository: HolidayRepository): GetHolidaysUseCase =
+        GetHolidaysUseCase(holidayRepository)
 }

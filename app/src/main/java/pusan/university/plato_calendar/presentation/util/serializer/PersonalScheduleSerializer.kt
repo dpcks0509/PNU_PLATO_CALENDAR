@@ -125,4 +125,27 @@ object PersonalScheduleSerializer {
 
         return academicSchedules
     }
+
+    fun serializeHolidays(holidays: Map<LocalDate, String>): String {
+        val jsonArray = JSONArray()
+        holidays.forEach { (date, name) ->
+            val jsonObject = JSONObject()
+            jsonObject.put("date", date.toString())
+            jsonObject.put("name", name)
+            jsonArray.put(jsonObject)
+        }
+        return jsonArray.toString()
+    }
+
+    fun deserializeHolidays(json: String): Map<LocalDate, String> {
+        if (json.isEmpty()) return emptyMap()
+
+        val jsonArray = JSONArray(json)
+        val holidays = mutableMapOf<LocalDate, String>()
+        for (i in 0 until jsonArray.length()) {
+            val jsonObject = jsonArray.getJSONObject(i)
+            holidays[LocalDate.parse(jsonObject.getString("date"))] = jsonObject.getString("name")
+        }
+        return holidays
+    }
 }

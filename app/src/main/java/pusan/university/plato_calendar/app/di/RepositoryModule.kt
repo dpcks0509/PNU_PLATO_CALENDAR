@@ -13,6 +13,7 @@ import pusan.university.plato_calendar.data.local.repository.LocalSelectedCafete
 import pusan.university.plato_calendar.data.local.repository.LocalSelectedDormitoryRepository
 import pusan.university.plato_calendar.data.remote.repository.RemoteCafeteriaRepository
 import pusan.university.plato_calendar.data.remote.repository.RemoteDormitoryCafeteriaRepository
+import pusan.university.plato_calendar.data.remote.repository.RemoteHolidayRepository
 import pusan.university.plato_calendar.data.remote.repository.RemoteLoginRepository
 import pusan.university.plato_calendar.data.remote.repository.RemoteScheduleRepository
 import pusan.university.plato_calendar.domain.repository.AcademicScheduleAlarmRepository
@@ -20,6 +21,7 @@ import pusan.university.plato_calendar.domain.repository.AppSettingsRepository
 import pusan.university.plato_calendar.domain.repository.CafeteriaRepository
 import pusan.university.plato_calendar.domain.repository.CourseRepository
 import pusan.university.plato_calendar.domain.repository.DormitoryCafeteriaRepository
+import pusan.university.plato_calendar.domain.repository.HolidayRepository
 import pusan.university.plato_calendar.domain.repository.LoginCredentialsRepository
 import pusan.university.plato_calendar.domain.repository.LoginRepository
 import pusan.university.plato_calendar.domain.repository.ScheduleAlarmRepository
@@ -74,4 +76,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindAcademicScheduleAlarmRepository(repositoryImpl: LocalAcademicScheduleAlarmRepository): AcademicScheduleAlarmRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindHolidayRepository(repositoryImpl: RemoteHolidayRepository): HolidayRepository
 }

@@ -6,6 +6,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import pusan.university.plato_calendar.data.remote.service.AcademicScheduleService
 import pusan.university.plato_calendar.data.remote.service.CafeteriaService
+import pusan.university.plato_calendar.data.remote.service.HolidayService
 import pusan.university.plato_calendar.data.remote.service.LoginService
 import pusan.university.plato_calendar.data.remote.service.PersonalScheduleService
 import retrofit2.Retrofit
@@ -37,4 +38,10 @@ object ServiceModule {
     fun provideCafeteriaService(
         @PNU retrofit: Retrofit,
     ): CafeteriaService = retrofit.create(CafeteriaService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideHolidayService(
+        @Holiday retrofit: Retrofit,
+    ): HolidayService = retrofit.create(HolidayService::class.java)
 }

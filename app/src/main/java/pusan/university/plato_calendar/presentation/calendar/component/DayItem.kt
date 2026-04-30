@@ -79,7 +79,7 @@ fun DayItem(
                         (
                             if (daySchedule.isToday) {
                                 Color.White
-                            } else if (daySchedule.isWeekend) {
+                            } else if (daySchedule.isWeekend || daySchedule.isHoliday) {
                                 Red
                             } else {
                                 Black
