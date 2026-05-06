@@ -27,7 +27,11 @@ constructor(
     private val academicScheduleService: AcademicScheduleService,
     private val loginManager: LoginManager,
 ) : ScheduleRepository {
+    private var cachedAcademicSchedules: List<AcademicSchedule>? = null
+
     override suspend fun getAcademicSchedules(): ApiResult<List<AcademicSchedule>> {
+        cachedAcademicSchedules?.let { return ApiResult.Success(it) }
+
         val response = handleApiResponse { academicScheduleService.readAcademicSchedules() }
 
         return response.toApiResult(GET_SCHEDULES_FAILED_ERROR) { body ->
@@ -35,7 +39,9 @@ constructor(
             if (responseBody.isNullOrBlank()) {
                 ApiResult.Error(Exception(GET_SCHEDULES_FAILED_ERROR))
             } else {
-                ApiResult.Success(responseBody.parseHtmlToAcademicSchedules())
+                val schedules = responseBody.parseHtmlToAcademicSchedules()
+                cachedAcademicSchedules = schedules
+                ApiResult.Success(schedules)
             }
         }
     }
