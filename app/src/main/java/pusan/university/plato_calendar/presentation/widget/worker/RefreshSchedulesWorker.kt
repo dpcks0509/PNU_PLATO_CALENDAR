@@ -19,7 +19,6 @@ import pusan.university.plato_calendar.domain.entity.LoginStatus
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CourseSchedule
 import pusan.university.plato_calendar.domain.entity.Schedule.PersonalSchedule.CustomSchedule
 import pusan.university.plato_calendar.domain.usecase.course.GetCourseNameUseCase
-import pusan.university.plato_calendar.domain.usecase.holiday.GetHolidaysUseCase
 import pusan.university.plato_calendar.domain.usecase.schedule.GetAcademicSchedulesUseCase
 import pusan.university.plato_calendar.domain.usecase.schedule.GetAllAcademicScheduleAlarmInfosUseCase
 import pusan.university.plato_calendar.domain.usecase.schedule.GetAllScheduleAlarmInfosUseCase
@@ -53,7 +52,6 @@ class RefreshSchedulesWorker
         private val getAllScheduleAlarmInfosUseCase: GetAllScheduleAlarmInfosUseCase,
         private val getAcademicSchedulesUseCase: GetAcademicSchedulesUseCase,
         private val getAllAcademicScheduleAlarmInfosUseCase: GetAllAcademicScheduleAlarmInfosUseCase,
-        private val getHolidaysUseCase: GetHolidaysUseCase,
     ) : CoroutineWorker(context, workerParams) {
         override suspend fun doWork(): Result {
             loginManager.autoLogin()
@@ -73,7 +71,7 @@ class RefreshSchedulesWorker
 
             val academicSchedules = getNotificationsEnabledAcademicSchedules()
 
-            val holidays = getHolidays()
+            val holidays = scheduleManager.holidays.value
 
             val schedulesJson = PersonalScheduleSerializer.serializePersonalSchedules(personalSchedules)
             val academicSchedulesJson = PersonalScheduleSerializer.serializeAcademicSchedules(academicSchedules)
@@ -140,19 +138,6 @@ class RefreshSchedulesWorker
                     secondReminderTime = if (alarmInfo?.isCustomized == true) alarmInfo.secondReminderTime else settings.secondReminderTime,
                 )
             }
-        }
-
-        private suspend fun getHolidays(): Map<LocalDate, String> {
-            val today = LocalDate.now()
-            val years = setOf(today.year, today.year + 1)
-            val collected = mutableMapOf<LocalDate, String>()
-            years.forEach { year ->
-                when (val result = getHolidaysUseCase(year)) {
-                    is ApiResult.Success -> result.data.forEach { collected[it.date] = it.name }
-                    is ApiResult.Error -> Unit
-                }
-            }
-            return collected
         }
 
         private suspend fun getNotificationsEnabledAcademicSchedules(): List<AcademicScheduleUiModel> {
