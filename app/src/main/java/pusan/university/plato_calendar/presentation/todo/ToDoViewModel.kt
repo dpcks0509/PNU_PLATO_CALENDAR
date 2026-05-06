@@ -194,7 +194,7 @@ constructor(
                 val schedule = event.schedule
                 val key = AcademicScheduleAlarmInfo.generateKey(schedule.title, schedule.startAt, schedule.endAt)
                 val notificationsEnabled = event.enabled &&
-                    (event.startDateHour != AcademicNotificationHour.NONE || event.endDateHour != AcademicNotificationHour.NONE)
+                        (event.startDateHour != AcademicNotificationHour.NONE || event.endDateHour != AcademicNotificationHour.NONE)
 
                 saveAcademicScheduleAlarmInfoUseCase(
                     key,
@@ -274,7 +274,7 @@ constructor(
                 val info = alarmMap[key] ?: return@map schedule
                 schedule.copy(
                     notificationsEnabled = info.notificationsEnabled &&
-                        (info.startDateHour != AcademicNotificationHour.NONE || info.endDateHour != AcademicNotificationHour.NONE),
+                            (info.startDateHour != AcademicNotificationHour.NONE || info.endDateHour != AcademicNotificationHour.NONE),
                 )
             } else {
                 schedule
@@ -427,6 +427,7 @@ constructor(
                     val alarmInfo = getAcademicScheduleAlarmInfoUseCase(key)
                     AcademicScheduleContent(schedule, alarmInfo)
                 }
+
                 null -> ScheduleBottomSheetContent.NewScheduleContent
             }
 
