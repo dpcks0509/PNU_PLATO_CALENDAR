@@ -25,10 +25,10 @@ fun <T, R> ApiResponse<T>.toApiResult(
         }
 
         is ApiResponse.Failure.NetworkException -> {
-            ApiResult.Error(exception)
+            ApiResult.Error(Throwable(message = this.message, cause = exception))
         }
 
         is ApiResponse.Failure.UnknownException -> {
-            ApiResult.Error(Throwable(message = this.message, cause = exception.cause))
+            ApiResult.Error(Throwable(message = this.message, cause = exception))
         }
     }
